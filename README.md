@@ -25,9 +25,9 @@ Copy appropriate libraries and symlink them
     cd /usr/lib/jvm/java-7-openjdk-armhf/jre/lib/arm/
     sudo ln -s librxtxSerial-2.2pre1.so librxtxSerial.so
 
-Now symlink them to allow UDOO's /dev/ttymxc3 serial port binding
+Now symlink them to allow UDOO's /dev/ttyMCC serial port binding
 
-    sudo ln -s /dev/ttymxc3 /dev/ttyS0
+    the jrun.sh script does it for you ;)
 
 (NB: using this library you need to modify the code of the examples substituting in both the JAVA files the String "/dev/ttymxc3" with "/dev/ttyS0".)
 
