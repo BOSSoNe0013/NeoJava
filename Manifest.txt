@@ -1,0 +1,2 @@
+Main-Class: NeoJava
+Class-Path: /usr/share/java/RXTXcomm.jar
