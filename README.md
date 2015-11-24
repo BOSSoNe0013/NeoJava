@@ -1,4 +1,4 @@
-JAVA Serial libraries for UDOO
+JAVA tools for UDOO Neo board
 -----------------
 
 This file describes how to compile and run the Java examples contained in this folder.
