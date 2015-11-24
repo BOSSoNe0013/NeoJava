@@ -1,6 +1,8 @@
 JAVA tools for UDOO Neo board
 -----------------
 
+![Image of UDOO Neo wiring](http://static.b1project.com/images/NeoJava_UDOO_Neo_wiring.jpg)
+
 This file describes how to compile and run the Java examples contained in this folder.
 
 1 - Install the Java library to manage the serial on your distribution (UDOObuntu 2.0)
