@@ -82,6 +82,8 @@ public class Lcd{
     
     private char lcd_mode = LCD_4BITMODE;
 
+    private static char DEFAULT_LCD_STATE = LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF;
+
     public Lcd(int en, int rs, int d4, int d5, int d6, int d7) throws Exception{
         super();
         lcd_mode = LCD_4BITMODE;
@@ -102,24 +104,127 @@ public class Lcd{
         lcd_d5.low();
         lcd_d4.low();
          
-        this.writeNibbles((char)0x33, 0);
-        Thread.sleep(2);
-        this.writeNibbles((char)0x32, 0);
-        Thread.sleep(2);
-        
-        this.writeNibbles((char)(LCD_FUNCTIONSET | lcd_mode | LCD_2LINE | LCD_5x8DOTS), 0);
-        Thread.sleep(2);
+        this.set((char)0x33);
+        this.set((char)0x32);
+
+        this.set((char)(LCD_FUNCTIONSET | lcd_mode | LCD_2LINE | LCD_5x8DOTS));
         setBacklightState(true);
         setLcdDisplayState(true);
-        this.writeNibbles((char)(LCD_ENTRYMODESET | LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT), 0);
-        Thread.sleep(2);
+        this.set((char)(LCD_ENTRYMODESET | LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT));
         System.out.println("Clear display");
         this.clear();
         Thread.sleep(2000);
         System.out.println("LCD init complete");
         
     }
-    
+
+    /**
+     * Clear lcd screen
+     * @throws Exception
+     */
+    public void clear() throws Exception{
+        this.set(LCD_CLEARDISPLAY);
+    }
+
+    /**
+     * print String on screen
+     * @param message
+     * @throws Exception
+     */
+    public void print(String message) throws Exception{
+        this.print(message.toCharArray());
+    }
+
+    /**
+     * print Char[] on screen
+     * @param message
+     * @throws Exception
+     */
+    public void print(char[] message) throws Exception{
+        for (char aMessage : message) {
+            if (aMessage == '\n' || aMessage == '\r') {
+                this.set((char) 0xC0);
+            } else {
+                write(aMessage);
+            }
+        }
+    }
+
+    /**
+     * toggle display ON/OFF
+     * @param state
+     * @throws Exception
+     */
+    public void setLcdDisplayState(boolean state) throws Exception{
+        if (state) {
+            DEFAULT_LCD_STATE &= LCD_DISPLAYON;
+        }
+        else{
+            DEFAULT_LCD_STATE &= ~LCD_DISPLAYON;
+        }
+        this.set((char)(LCD_DISPLAYCONTROL | DEFAULT_LCD_STATE));
+    }
+
+    /**
+     * toggle cursor ON/OFF
+     * @param state
+     * @throws Exception
+     */
+    public void setCursorState(boolean state) throws Exception{
+        if(state){
+            DEFAULT_LCD_STATE &= LCD_CURSORON;
+        }
+        else{
+            DEFAULT_LCD_STATE &= ~LCD_CURSORON;
+        }
+        this.set((char)(LCD_DISPLAYCONTROL | DEFAULT_LCD_STATE));
+    }
+
+    /**
+     * toggle cursor blinking ON/OFF
+     * @param state
+     * @throws Exception
+     */
+    public void setCursorBlinkingState(boolean state) throws Exception{
+        if(state){
+            DEFAULT_LCD_STATE &= LCD_BLINKON;
+        }
+        else{
+            DEFAULT_LCD_STATE &= ~LCD_BLINKON;
+        }
+        this.set((char)(LCD_DISPLAYCONTROL | DEFAULT_LCD_STATE));
+    }
+
+    /**
+     * toggle backlight ON/OFF
+     * @param state
+     * @throws Exception
+     */
+    public void setBacklightState(boolean state) throws Exception{
+        if (state) {
+            lcd_bl.high();
+        } else {
+            lcd_bl.low();
+        }
+        Thread.sleep(2);
+    }
+
+    /**
+     * create custom char at location (from 0 to 7) with charmap
+     * @param location
+     * @param charMap
+     * @throws Exception
+     */
+    public void createChar(int location, char[] charMap) throws Exception{
+        location &= 0x7;
+        this.set((char)(LCD_SETCGRAMADDR | (location << 3)));
+        for(int i = 0; i < 8; i++){
+            this.write(charMap[i]);
+        }
+    }
+
+    /****** Low level part */
+
     public void pulseEn() throws Exception{
         //System.out.println("Pulse En");
         Thread.sleep(2);
@@ -128,21 +233,13 @@ public class Lcd{
         lcd_en.low();
    }
    
-   public void clear() throws Exception{
-        this.writeNibbles(LCD_CLEARDISPLAY, 0);
-   }
-    
-    public void writeNibble(int nib) throws Exception{
-        lcd_rs.low();
-        /*System.out.print(nib & 0x8);
-        System.out.print(nib & 0x4);
-        System.out.print(nib & 0x2);
-        System.out.println(nib & 0x1);*/
-        if((nib & 0x8) != 0){lcd_d7.high();}else{lcd_d7.low();}
-        if((nib & 0x4) != 0){lcd_d6.high();}else{lcd_d6.low();}
-        if((nib & 0x2) != 0){lcd_d5.high();}else{lcd_d5.low();}
-        if((nib & 0x1) != 0){lcd_d4.high();}else{lcd_d4.low();}
-        this.pulseEn();
+    public void set(char value) throws Exception{
+        this.writeNibbles(value, 0);
+        Thread.sleep(2);
+    }
+
+    public void write(char value) throws Exception{
+        this.writeNibbles(value, 1);
         Thread.sleep(2);
     }
     
@@ -156,12 +253,7 @@ public class Lcd{
         }
         gpio.high();
         int nib = ((int)value >> 4);
-        /*System.out.printf("%s %04X : ", value, (int)value);
-        System.out.print(nib & 0x8);
-        System.out.print(nib & 0x4);
-        System.out.print(nib & 0x2);
-        System.out.print(nib & 0x1);*/
-        
+
         if((nib & 0x8) != 0){lcd_d7.high();}else{lcd_d7.low();}
         if((nib & 0x4) != 0){lcd_d6.high();}else{lcd_d6.low();}
         if((nib & 0x2) != 0){lcd_d5.high();}else{lcd_d5.low();}
@@ -171,11 +263,7 @@ public class Lcd{
         Thread.sleep(1);
         gpio.high();
         nib = ((int)value & 0x0f);
-        /*System.out.print(nib & 0x8);
-        System.out.print(nib & 0x4);
-        System.out.print(nib & 0x2);
-        System.out.println(nib & 0x1);*/
-        
+
         if((nib & 0x8) != 0){lcd_d7.high();}else{lcd_d7.low();}
         if((nib & 0x4) != 0){lcd_d6.high();}else{lcd_d6.low();}
         if((nib & 0x2) != 0){lcd_d5.high();}else{lcd_d5.low();}
@@ -183,48 +271,5 @@ public class Lcd{
         this.pulseEn();
         gpio.low();
         Thread.sleep(1);
-    }
-    
-    public void print(String message) throws Exception{
-        this.print(message.toCharArray());
-    }
-    
-    public void print(char[] message) throws Exception{
-        for (char aMessage : message) {
-            if (aMessage == '\n' || aMessage == '\r') {
-                this.writeNibbles((char) 0xC0, 0);
-            } else {
-                writeNibbles(aMessage, 1);
-            }
-        }
-    }
-
-    public void setLcdDisplayState(boolean state){
-        try {
-            if (state) {
-                this.writeNibbles((char)(LCD_DISPLAYCONTROL | LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF), 0);
-            }
-            else{
-                this.writeNibbles((char)(LCD_DISPLAYCONTROL | LCD_DISPLAYOFF | LCD_CURSOROFF | LCD_BLINKOFF), 0);
-            }
-            Thread.sleep(2);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public void setBacklightState(boolean state){
-        try {
-            if (state) {
-                lcd_bl.high();
-            } else {
-                lcd_bl.low();
-            }
-            Thread.sleep(2);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
     }
 }

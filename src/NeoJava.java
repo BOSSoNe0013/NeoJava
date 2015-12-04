@@ -48,6 +48,15 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener {
     static boolean mLcdPrinting = false;
     static NeoJava instance;
     static NeoJavaServer server;
+    final static char[] CUSTOM_CHAR = {
+            0b00000,
+            0b10010,
+            0b00000,
+            0b01100,
+            0b01100,
+            0b00000,
+            0b10010,
+            0b00000};
 
     public NeoJava() {
         super();
@@ -69,9 +78,14 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener {
             Thread.sleep(50);
         }
         mLcd = new Lcd(20, 21, 25, 22, 14, 15);
+        mLcd.createChar(0x01, CUSTOM_CHAR);
+        mLcd.clear();
         mLcd.print("Hello Java GPIO\nwith UDOO Neo !!");
         Thread.sleep(1000);
         mLcd.clear();
+        mLcd.write((char)0x01);
+        mLcd.write((char)0x01);
+        mLcd.write((char)0x01);
         return mLcd;
     }
     
