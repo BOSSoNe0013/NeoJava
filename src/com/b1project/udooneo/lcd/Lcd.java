@@ -88,15 +88,22 @@ public class Lcd{
         super();
         lcd_mode = LCD_4BITMODE;
         lcd_en = Gpio.getInstance(en);
+        lcd_en.setMode(Gpio.PinMode.OUTPUT);
         lcd_rs = Gpio.getInstance(rs);
-        
+        lcd_rs.setMode(Gpio.PinMode.OUTPUT);
+
         lcd_bl = Gpio.getInstance(16);
+        lcd_bl.setMode(Gpio.PinMode.OUTPUT);
 
         lcd_d4 = Gpio.getInstance(d4);
+        lcd_d4.setMode(Gpio.PinMode.OUTPUT);
         lcd_d5 = Gpio.getInstance(d5);
+        lcd_d5.setMode(Gpio.PinMode.OUTPUT);
         lcd_d6 = Gpio.getInstance(d6);
+        lcd_d6.setMode(Gpio.PinMode.OUTPUT);
         lcd_d7 = Gpio.getInstance(d7);
-        
+        lcd_d7.setMode(Gpio.PinMode.OUTPUT);
+
         lcd_rs.low();
         //lcd_rw.low();
         lcd_d7.low();
@@ -116,6 +123,27 @@ public class Lcd{
         Thread.sleep(2000);
         System.out.println("LCD init complete");
         
+    }
+
+    @Override
+    protected void finalize() throws Throwable{
+        lcd_en.unexport();
+        lcd_en = null;
+        lcd_rs.unexport();
+        lcd_rs = null;
+
+        lcd_bl.unexport();
+        lcd_bl = null;
+
+        lcd_d4.unexport();
+        lcd_d4 = null;
+        lcd_d5.unexport();
+        lcd_d5 = null;
+        lcd_d6.unexport();
+        lcd_d6 = null;
+        lcd_d7.unexport();
+        lcd_d7 = null;
+        super.finalize();
     }
 
     /**
@@ -244,14 +272,12 @@ public class Lcd{
     }
     
     public void writeNibbles(char value, int mode) throws Exception{
-        Gpio gpio = Gpio.getInstance(106);
         if(mode == 1){
             lcd_rs.high();
         }
         else{
             lcd_rs.low();
         }
-        gpio.high();
         int nib = ((int)value >> 4);
 
         if((nib & 0x8) != 0){lcd_d7.high();}else{lcd_d7.low();}
@@ -259,9 +285,7 @@ public class Lcd{
         if((nib & 0x2) != 0){lcd_d5.high();}else{lcd_d5.low();}
         if((nib & 0x1) != 0){lcd_d4.high();}else{lcd_d4.low();}
         this.pulseEn();
-        gpio.low();
         Thread.sleep(1);
-        gpio.high();
         nib = ((int)value & 0x0f);
 
         if((nib & 0x8) != 0){lcd_d7.high();}else{lcd_d7.low();}
@@ -269,7 +293,6 @@ public class Lcd{
         if((nib & 0x2) != 0){lcd_d5.high();}else{lcd_d5.low();}
         if((nib & 0x1) != 0){lcd_d4.high();}else{lcd_d4.low();}
         this.pulseEn();
-        gpio.low();
         Thread.sleep(1);
     }
 }

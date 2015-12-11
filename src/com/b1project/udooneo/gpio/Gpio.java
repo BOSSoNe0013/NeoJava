@@ -26,6 +26,7 @@ import java.io.FileWriter;
 import java.io.FileReader;
 import java.util.Objects;
 
+@SuppressWarnings("unused")
 public class Gpio{
     int id;
     String uri;
@@ -33,15 +34,20 @@ public class Gpio{
     public enum PinState{
         LOW,
         HIGH
-    };
+    }
     
     public enum PinMode{
         OUTPUT,
         INPUT
     }
     
-    public static Gpio getInstance(int pinId){
-        return new Gpio(pinId);
+    public static Gpio getInstance(int pinId) throws Exception{
+        Gpio gpio = new Gpio(pinId);
+        File gpioDir = new File(gpio.uri);
+        if (!gpioDir.exists()) {
+            gpio.export();
+        }
+        return gpio;
     }
         
     public Gpio(int pinId){
@@ -93,18 +99,12 @@ public class Gpio{
     
     public void high() throws Exception{
         //System.out.println("Set 1 on GPIO" + this.id);
-        this.export();
-        this.setMode(PinMode.OUTPUT);
         this.write(PinState.HIGH);
-        this.unexport();
     }
     
     public void low() throws Exception{
         //System.out.println("Set 0 on GPIO" + this.id);
-        this.export();
-        this.setMode(PinMode.OUTPUT);
         this.write(PinState.LOW);
-        this.unexport();
     }
     
 }

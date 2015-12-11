@@ -48,6 +48,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener {
     static boolean mLcdPrinting = false;
     static NeoJava instance;
     static NeoJavaServer server;
+    static Gpio gpioNotificationLed;
     final static char[] CUSTOM_CHAR = {
             0b00000,
             0b10010,
@@ -70,11 +71,12 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener {
     }
     
     public static Lcd initLCD() throws Exception{
-        Gpio gpio = Gpio.getInstance(106);
+        gpioNotificationLed = Gpio.getInstance(106);
+        gpioNotificationLed.setMode(Gpio.PinMode.OUTPUT);
         for(int i = 0; i < 5; i++){
-            gpio.high();
+            gpioNotificationLed.high();
             Thread.sleep(300);
-            gpio.low();
+            gpioNotificationLed.low();
             Thread.sleep(50);
         }
         mLcd = new Lcd(20, 21, 25, 22, 14, 15);
@@ -145,6 +147,8 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener {
                                     }
                                     mLcd.setLcdDisplayState(false);
                                     mLcd.setBacklightState(false);
+                                    mLcd = null;
+                                    gpioNotificationLed.unexport();
                                     System.exit(0);
                                     break;
                                 case INPUT_COMMAND_VERSION:
