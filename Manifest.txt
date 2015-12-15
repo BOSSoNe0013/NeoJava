@@ -1,2 +1,2 @@
 Main-Class: NeoJava
-Class-Path: /usr/share/java/RXTXcomm.jar
+Class-Path: libs/RXTXcomm.jar libs/gson-2.5.jar

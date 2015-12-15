@@ -3,9 +3,9 @@ package com.b1project.udooneo.net;
 /**
  *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
  *
- *  This file is part of NeoJava examples for UDOO
+ *  This file is part of NeoJava Tools for UDOO Neo
  *
- *  NeoJava examples for UDOO is free software: you can redistribute it and/or modify
+ *  NeoJava Tools for UDOO Neo is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
@@ -24,11 +24,15 @@ import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
 
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NeoJavaServer {
     private static final int port = 45045;
     private ServerSocket serverSocket;
+    private List<Socket> clientSockets = new ArrayList<>();
     private NeoJavaProtocolListener neoJavaProtocolListener;
+    private List<PrintWriter> outPrintWriters = new ArrayList<>();
 
     public NeoJavaServer(NeoJavaProtocolListener listener){
         super();
@@ -39,6 +43,14 @@ public class NeoJavaServer {
         return new NeoJavaServer(listener);
     }
 
+    public void writeOutput(String outputLine) {
+        for (PrintWriter outPrintWriter: outPrintWriters){
+            if (outPrintWriter != null) {
+                outPrintWriter.println(outputLine);
+            }
+        }
+    }
+
     public void startServer(){
         System.out.println("Starting NeoJavaServer");
         try{
@@ -47,25 +59,15 @@ public class NeoJavaServer {
             while(true) {
                 Socket clientSocket = serverSocket.accept();
                 if(clientSocket != null) {
-                    PrintWriter out =
+                    clientSockets.add(clientSocket);
+                    PrintWriter outPrintWriter =
                             new PrintWriter(clientSocket.getOutputStream(), true);
+                    outPrintWriters.add(outPrintWriter);
                     BufferedReader in = new BufferedReader(
                             new InputStreamReader(clientSocket.getInputStream()));
 
-                    (new Thread(new ServerThread(clientSocket, in, out))).start();
+                    (new Thread(new ServerThread(clientSocket, in, outPrintWriter))).start();
                 }
-
-                /*String inputLine, outputLine;
-
-                // Initiate conversation with client
-                NeoJavaProtocol njp = new NeoJavaProtocol(neoJavaProtocolListener);
-                out.println("Enter a command:");
-                while ((inputLine = in.readLine()) != null) {
-                    outputLine = njp.processInput(inputLine);
-                    if (outputLine != null) {
-                        out.println(outputLine);
-                    }
-                }*/
             }
         } catch (IOException e) {
             System.out.println("Exception caught when trying to listen on port "
@@ -90,9 +92,10 @@ public class NeoJavaServer {
             String inputLine, outputLine;
             // Initiate conversation with client
             NeoJavaProtocol njp = new NeoJavaProtocol(clientSocket,neoJavaProtocolListener);
-            out.println("Enter a command:");
             try{
-                while ((inputLine = in.readLine()) != null) {
+                while (!serverSocket.isClosed()
+                        && !clientSocket.isClosed()
+                        && (inputLine = in.readLine()) != null) {
                     outputLine = njp.processInput(inputLine);
                     if (outputLine != null) {
                         out.println(outputLine);
@@ -107,9 +110,13 @@ public class NeoJavaServer {
 
     public void stopServer(){
         try{
-            /*if(clientSocket != null){
-                clientSocket.close();
-            }*/
+            writeOutput(NeoJavaProtocol.makeRequest("message/server", "shutdown"));
+            for(Socket clientSocket: clientSockets) {
+                if(clientSocket != null && !clientSocket.isClosed()){
+                    clientSocket.close();
+                }
+            }
+            clientSockets.clear();
             if(serverSocket != null){
                 serverSocket.close();
             }

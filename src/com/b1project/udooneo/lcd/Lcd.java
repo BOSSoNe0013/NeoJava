@@ -2,9 +2,9 @@ package com.b1project.udooneo.lcd;
 /**
  *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
  *
- *  This file is part of NeoJava examples for UDOO
+ *  This file is part of NeoJava Tools for UDOO Neo
  *
- *  NeoJava examples for UDOO is free software: you can redistribute it and/or modify
+ *  NeoJava Tools for UDOO Neo is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
@@ -127,21 +127,21 @@ public class Lcd{
 
     @Override
     protected void finalize() throws Throwable{
-        lcd_en.unexport();
+        lcd_en.release();
         lcd_en = null;
-        lcd_rs.unexport();
+        lcd_rs.release();
         lcd_rs = null;
 
-        lcd_bl.unexport();
+        lcd_bl.release();
         lcd_bl = null;
 
-        lcd_d4.unexport();
+        lcd_d4.release();
         lcd_d4 = null;
-        lcd_d5.unexport();
+        lcd_d5.release();
         lcd_d5 = null;
-        lcd_d6.unexport();
+        lcd_d6.release();
         lcd_d6 = null;
-        lcd_d7.unexport();
+        lcd_d7.release();
         lcd_d7 = null;
         super.finalize();
     }

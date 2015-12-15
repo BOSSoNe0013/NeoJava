@@ -1,4 +1,7 @@
 package com.b1project.udooneo.listeners;
+
+import com.b1project.udooneo.gpio.Gpio;
+
 /**
  *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
  *
@@ -18,8 +21,9 @@ package com.b1project.udooneo.listeners;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-public interface IOListener {
-    void onNewLine(String line);
+public interface GpioListener {
+    void onStateChanged(int pinId, Gpio.PinState state);
+    void onModeChanged(int pinId, Gpio.PinMode mode);
+    void onExport(int pinId);
+    void onRelease(int pinId);
 }
-

@@ -2,9 +2,9 @@ package com.b1project.udooneo.listeners;
 /**
  *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
  *
- *  This file is part of NeoJava examples for UDOO
+ *  This file is part of NeoJava Tools for UDOO Neo
  *
- *  NeoJava examples for UDOO is free software: you can redistribute it and/or modify
+ *  NeoJava Tools for UDOO Neo is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
