@@ -73,15 +73,15 @@ public class NeoJavaProtocol {
                         output = "help - this help\\n";
                         output += "version - show version\\n";
                         output += "quit - quit\\n";
-                        output += "gpios/exported - \\n";
-                        output += "gpios/mode - \\n";
-                        output += "gpios/state - \\n";
-                        output += "gpios/release - \\n";
+                        output += "gpios/exported - list exported gpios\\n";
+                        output += "gpios/mode - set gpio mode\\n";
+                        output += "gpios/state - set gpio state\\n";
+                        output += "gpios/release - release gpio\\n";
                         output += "lcd/clear - clear LCD\\n";
                         output += "lcd/print - print message on 16x2 LCD screen\\n";
-                        output += "sensors/temperature - request temperature and pressure";
-                        output += "sensors/accelerometer - request accelerometer data";
-                        output += "sensors/magnetometer - request magnetometer data";
+                        output += "sensors/temperature - request temperature and pressure\\n";
+                        output += "sensors/accelerometer - request accelerometer data\\n";
+                        output += "sensors/magnetometer - request magnetometer data\\n";
                         output += "sensors/gyroscope - request gyroscope data";
                         break;
                     case INPUT_COMMAND_VERSION:
