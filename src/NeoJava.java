@@ -28,8 +28,7 @@ import com.b1project.udooneo.lcd.Lcd;
 import com.b1project.udooneo.listeners.SerialOutputListener;
 import com.b1project.udooneo.net.NeoJavaProtocol;
 import com.b1project.udooneo.net.NeoJavaServer;
-import com.b1project.udooneo.sensors.BarometerSensor;
-import com.b1project.udooneo.sensors.TemperatureSensor;
+import com.b1project.udooneo.sensors.*;
 import com.b1project.udooneo.serial.Serial;
 
 import java.io.BufferedReader;
@@ -301,11 +300,86 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                     if(server != null) {
                         server.writeOutput(
                                 NeoJavaProtocol.makeRequest(
-                                        "tempRequest",
+                                        NeoJavaProtocol.INPUT_COMMAND_TEMPERATURE_REQUEST,
                                         String.format(
                                                 "{\\\"temp\\\":\\\"%f\\\", \\\"pressure\\\":\\\"%f\\\"}",
                                                 temp,
                                                 pressure
+                                        )
+                                )
+                        );
+                    }
+                }
+            }))).start();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onAccelerometerRequest() {
+        try{
+            (new Thread(new AccelerometerReader(new AccelerometerReaderCallBack() {
+                @Override
+                public void onRequestComplete(String data) {
+                    if(server != null) {
+                        server.writeOutput(
+                                NeoJavaProtocol.makeRequest(
+                                        NeoJavaProtocol.INPUT_COMMAND_ACCELEROMETER_REQUEST,
+                                        String.format(
+                                                "{\\\"data\\\":\\\"%s\\\"}",
+                                                data
+                                        )
+                                )
+                        );
+                    }
+                }
+            }))).start();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onMagnetometerRequest() {
+        try{
+            (new Thread(new MagnetometerReader(new MagnetometerReaderCallBack() {
+                @Override
+                public void onRequestComplete(String data) {
+                    if(server != null) {
+                        server.writeOutput(
+                                NeoJavaProtocol.makeRequest(
+                                        NeoJavaProtocol.INPUT_COMMAND_MAGNETOMETER_REQUEST,
+                                        String.format(
+                                                "{\\\"data\\\":\\\"%s\\\"}",
+                                                data
+                                        )
+                                )
+                        );
+                    }
+                }
+            }))).start();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onGyroscopeRequest() {
+        try{
+            (new Thread(new GyroscopeReader(new GyroscopeReaderCallBack() {
+                @Override
+                public void onRequestComplete(String data) {
+                    if(server != null) {
+                        server.writeOutput(
+                                NeoJavaProtocol.makeRequest(
+                                        NeoJavaProtocol.INPUT_COMMAND_GYROSCOPE_REQUEST,
+                                        String.format(
+                                                "{\\\"data\\\":\\\"%s\\\"}",
+                                                data
                                         )
                                 )
                         );
@@ -407,6 +481,93 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                     callBack.onRequestComplete(
                             temp,
                             pressure
+                    );
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public abstract class AccelerometerReaderCallBack {
+        public abstract void onRequestComplete(String data);
+    }
+
+    static class AccelerometerReader implements Runnable{
+        AccelerometerReaderCallBack callBack;
+
+        public AccelerometerReader(AccelerometerReaderCallBack callBack){
+            this.callBack = callBack;
+        }
+
+        @Override
+        public void run() {
+            try {
+                if(!AccelerometerSensor.isEnabled()){
+                    AccelerometerSensor.enableSensor(true);
+                }
+                String data = AccelerometerSensor.getData();
+                if(callBack != null){
+                    callBack.onRequestComplete(
+                            data
+                    );
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public abstract class MagnetometerReaderCallBack {
+        public abstract void onRequestComplete(String data);
+    }
+
+    static class MagnetometerReader implements Runnable{
+        MagnetometerReaderCallBack callBack;
+
+        public MagnetometerReader(MagnetometerReaderCallBack callBack){
+            this.callBack = callBack;
+        }
+
+        @Override
+        public void run() {
+            try {
+                if(!MagnetometerSensor.isEnabled()){
+                    MagnetometerSensor.enableSensor(true);
+                }
+                String data = MagnetometerSensor.getData();
+                if(callBack != null){
+                    callBack.onRequestComplete(
+                            data
+                    );
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public abstract class GyroscopeReaderCallBack {
+        public abstract void onRequestComplete(String data);
+    }
+
+    static class GyroscopeReader implements Runnable{
+        GyroscopeReaderCallBack callBack;
+
+        public GyroscopeReader(GyroscopeReaderCallBack callBack){
+            this.callBack = callBack;
+        }
+
+        @Override
+        public void run() {
+            try {
+                if(!GyroscopeSensor.isEnabled()){
+                    GyroscopeSensor.enableSensor(true);
+                }
+                String data = GyroscopeSensor.getData();
+                if(callBack != null){
+                    callBack.onRequestComplete(
+                            data
                     );
                 }
             } catch (Exception e) {

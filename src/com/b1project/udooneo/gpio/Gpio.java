@@ -157,6 +157,8 @@ public class Gpio {
         BufferedReader br = new BufferedReader(fr);
         PinState state = (Objects.equals(br.readLine(), "1"))?PinState.HIGH:PinState.LOW;
         br.close();
+        currentPinState = state;
+        currentPinStates.put(this.id, currentPinState);
         return state;
     }
     

@@ -37,7 +37,10 @@ public class NeoJavaProtocol {
     public final static String INPUT_COMMAND_QUIT = "quit";
     public final static String INPUT_COMMAND_LCD_CLEAR = "lcd/clear";
     public final static String INPUT_COMMAND_LCD_PRINT = "lcd/print";
-    public final static String INPUT_COMMAND_TEMP_REQUEST = "sensors/temperature";
+    public final static String INPUT_COMMAND_TEMPERATURE_REQUEST = "sensors/temperature";
+    public final static String INPUT_COMMAND_ACCELEROMETER_REQUEST = "sensors/accelerometer";
+    public final static String INPUT_COMMAND_MAGNETOMETER_REQUEST = "sensors/magnetometer";
+    public final static String INPUT_COMMAND_GYROSCOPE_REQUEST = "sensors/gyroscope";
     public final static String INPUT_COMMAND_EXPORTED_GPIOS = "gpios/exported";
     public final static String INPUT_COMMAND_SET_GPIO_MODE = "gpios/mode";
     public final static String INPUT_COMMAND_SET_GPIO_STATE = "gpios/state";
@@ -76,17 +79,14 @@ public class NeoJavaProtocol {
                         output += "gpios/release - \\n";
                         output += "lcd/clear - clear LCD\\n";
                         output += "lcd/print - print message on 16x2 LCD screen\\n";
-                        output += "sensors/temperature - print temperature on LCD screen";
+                        output += "sensors/temperature - request temperature and pressure";
+                        output += "sensors/accelerometer - request accelerometer data";
+                        output += "sensors/magnetometer - request magnetometer data";
+                        output += "sensors/gyroscope - request gyroscope data";
                         break;
                     case INPUT_COMMAND_VERSION:
                         if (listener != null) {
                             output = listener.getVersionString();
-                        }
-                        break;
-                    case INPUT_COMMAND_LCD_CLEAR:
-                        if (listener != null) {
-                            listener.onClearLCDRequest();
-                            output = "OK";
                         }
                         break;
                     case INPUT_COMMAND_QUIT:
@@ -94,18 +94,6 @@ public class NeoJavaProtocol {
                             listener.onQuitRequest(clientSocket);
                         }
                         output = "Goodbye !";
-                        break;
-                    case INPUT_COMMAND_LCD_PRINT:
-                        if (listener != null) {
-                            listener.onLCDPrintRequest((String) message.content);
-                        }
-                        output = "OK";
-                        break;
-                    case INPUT_COMMAND_TEMP_REQUEST:
-                        if (listener != null) {
-                            listener.onTemperatureRequest();
-                        }
-                        output = "Displaying temperature";
                         break;
                     case INPUT_COMMAND_EXPORTED_GPIOS:
                         List<Pin> gpios = new ArrayList<>();
@@ -155,6 +143,42 @@ public class NeoJavaProtocol {
                             gpio.release();
                             output = "OK";
                         }
+                        break;
+                    case INPUT_COMMAND_TEMPERATURE_REQUEST:
+                        if (listener != null) {
+                            listener.onTemperatureRequest();
+                        }
+                        output = "Reading temperature";
+                        break;
+                    case INPUT_COMMAND_ACCELEROMETER_REQUEST:
+                        if (listener != null) {
+                            listener.onAccelerometerRequest();
+                        }
+                        output = "Reading accelerometer data";
+                        break;
+                    case INPUT_COMMAND_MAGNETOMETER_REQUEST:
+                        if (listener != null) {
+                            listener.onMagnetometerRequest();
+                        }
+                        output = "Reading magnetometer data";
+                        break;
+                    case INPUT_COMMAND_GYROSCOPE_REQUEST:
+                        if (listener != null) {
+                            listener.onGyroscopeRequest();
+                        }
+                        output = "Reading gyroscope data";
+                        break;
+                    case INPUT_COMMAND_LCD_CLEAR:
+                        if (listener != null) {
+                            listener.onClearLCDRequest();
+                            output = "OK";
+                        }
+                        break;
+                    case INPUT_COMMAND_LCD_PRINT:
+                        if (listener != null) {
+                            listener.onLCDPrintRequest((String) message.content);
+                        }
+                        output = "OK";
                         break;
                     default:
                         return makeRequest("ERROR", "Unknown method: " + message.method);
