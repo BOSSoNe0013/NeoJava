@@ -21,24 +21,30 @@ Copy appropriate libraries and symlink them
     cd /usr/lib/jvm/java-7-openjdk-armhf/jre/lib/arm/
     sudo ln -s librxtxSerial-2.2pre1.so librxtxSerial.so
 
+Copy the /usr/share/java/RXTXcomm.jar in NeoJava/libs 
+
 Now symlink /dev/ttyMCC to /dev/ttyS0 to allow UDOO's serial port binding
 
 /!\ the jrun.sh script does it for you if not already done ;)
 
-2 - Open a terminal and navigate to this folder:
+2 - REST service dependencies
+
+Download gson-2.5.jar in NeoJava/libs (https://github.com/google/gson)
+
+3 - Open a terminal and navigate to this folder:
 
     cd NeoJava/
 
-3 - Compile the Java file:
+4 - Compile the Java file:
  use the bash script jcompile.sh:
  
     ./jcoompile.sh
 
-4 - Run the app
+5 - Run the app
  use the bash script jrun.sh:
 
-    sudo ./jrun.sh
+    ./jrun.sh
 
- sudo is needed to write on GPIOs
+ The jrun script call sudo which is needed to load modules and could be needed to write on GPIOs (depending of your udev rules)
 
 
