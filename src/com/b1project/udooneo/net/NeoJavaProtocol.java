@@ -66,8 +66,8 @@ public class NeoJavaProtocol {
             Message message = gson.fromJson(input, Message.class);
             String output = null;
             if (message.method != null && !message.method.isEmpty()) {
-                System.out.println("\nRequest: " + message.method);
-                System.out.print("Content: " + message.content + "\n#:");
+                /*System.out.println("\nRequest: " + message.method);
+                System.out.print("Content: " + message.content + "\n#:");*/
                 switch (message.method) {
                     case INPUT_COMMAND_HELP:
                         output = "help - this help\\n";

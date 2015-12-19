@@ -34,7 +34,7 @@ public class GpiosManager implements GpioListener {
     public final static int GPIO_172 = 172;
     public final static int GPIO_173 = 173;
     public final static int GPIO_182 = 182;
-    public final static int GPIO_124 = 124;
+    public final static int GPIO_24 = 24;
     public final static int GPIO_25 = 25;
     public final static int GPIO_22 = 22;
     public final static int GPIO_14 = 14;
@@ -52,6 +52,7 @@ public class GpiosManager implements GpioListener {
     public final static int GPIO_175 = 175;
     public final static int GPIO_174 = 174;
     public final static int GPIO_119 = 119;
+    public final static int GPIO_124 = 124;
     public final static int GPIO_127 = 127;
     public final static int GPIO_116 = 116;
     public final static int GPIO_7 = 7;
@@ -59,9 +60,9 @@ public class GpiosManager implements GpioListener {
     public final static int GPIO_5 = 5;
     public final static int GPIO_4 = 4;
 
-    static final int[] GPIOS = {GPIO_106, GPIO_107, GPIO_180, GPIO_181, GPIO_172, GPIO_173, GPIO_182, GPIO_124, GPIO_25,
+    static final int[] GPIOS = {GPIO_106, GPIO_107, GPIO_180, GPIO_181, GPIO_172, GPIO_173, GPIO_182, GPIO_24, GPIO_25,
             GPIO_22, GPIO_14, GPIO_15, GPIO_16, GPIO_17, GPIO_18, GPIO_19, GPIO_20, GPIO_21, GPIO_203, GPIO_202,
-            GPIO_177, GPIO_176, GPIO_175, GPIO_174, GPIO_119, GPIO_127, GPIO_116, GPIO_7, GPIO_6, GPIO_5, GPIO_4};
+            GPIO_177, GPIO_176, GPIO_175, GPIO_174, GPIO_119, GPIO_124, GPIO_127, GPIO_116, GPIO_7, GPIO_6, GPIO_5, GPIO_4};
 
     private static List<Integer> mExportedGpios = new ArrayList<>();
     private static List<GpiosManagerListener> mListeners = new ArrayList<>();
