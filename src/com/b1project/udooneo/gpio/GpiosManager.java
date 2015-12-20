@@ -137,6 +137,7 @@ public class GpiosManager implements GpioListener {
 
     public List<Pin> getExportedGpios(){
         List<Pin> gpios = new ArrayList<>();
+        checkGpiosExportStatus();
         for(Integer pinId: mExportedGpios){
             Pin pin = new Pin(pinId);
             try {
