@@ -27,6 +27,7 @@ import java.util.List;
 
 public class GpiosManager implements GpioListener {
 
+    //external pins
     public final static int GPIO_106 = 106;
     public final static int GPIO_107 = 107;
     public final static int GPIO_180 = 180;
@@ -59,11 +60,28 @@ public class GpiosManager implements GpioListener {
     public final static int GPIO_6 = 6;
     public final static int GPIO_5 = 5;
     public final static int GPIO_4 = 4;
+    //internal pins
+    public final static int GPIO_178 = 178;
+    public final static int GPIO_179 = 179;
+    public final static int GPIO_104 = 104;
+    public final static int GPIO_143 = 143;
+    public final static int GPIO_142 = 142;
+    public final static int GPIO_141 = 141;
+    public final static int GPIO_140 = 140;
+    public final static int GPIO_149 = 149;
+    public final static int GPIO_105 = 105;
+    public final static int GPIO_148 = 148;
+    public final static int GPIO_146 = 146;
+    public final static int GPIO_147 = 147;
+    public final static int GPIO_100 = 100;
+    public final static int GPIO_102 = 102;
+
 
     static final int[] GPIOS = {GPIO_106, GPIO_107, GPIO_180, GPIO_181, GPIO_172, GPIO_173, GPIO_182, GPIO_24, GPIO_25,
             GPIO_22, GPIO_14, GPIO_15, GPIO_16, GPIO_17, GPIO_18, GPIO_19, GPIO_20, GPIO_21, GPIO_203, GPIO_202,
-            GPIO_177, GPIO_176, GPIO_175, GPIO_174, GPIO_119, GPIO_124, GPIO_127, GPIO_116, GPIO_7, GPIO_6, GPIO_5, GPIO_4};
-
+            GPIO_177, GPIO_176, GPIO_175, GPIO_174, GPIO_119, GPIO_124, GPIO_127, GPIO_116, GPIO_7, GPIO_6, GPIO_5,
+            GPIO_4, GPIO_178, GPIO_179, GPIO_104, GPIO_143, GPIO_142, GPIO_141, GPIO_140, GPIO_149, GPIO_105, GPIO_148, GPIO_146, GPIO_147, GPIO_100, GPIO_102};
+    
     private static List<Integer> mExportedGpios = new ArrayList<>();
     private static List<GpiosManagerListener> mListeners = new ArrayList<>();
 
