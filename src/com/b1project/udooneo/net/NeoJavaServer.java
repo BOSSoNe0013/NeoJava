@@ -44,7 +44,8 @@ public class NeoJavaServer {
     }
 
     public void writeOutput(String outputLine) {
-        for (PrintWriter outPrintWriter: outPrintWriters){
+        final List<PrintWriter> opws = outPrintWriters;
+        for (PrintWriter outPrintWriter: opws){
             if (outPrintWriter != null) {
                 outPrintWriter.println(outputLine);
             }
