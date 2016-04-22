@@ -20,6 +20,7 @@ package com.b1project.udooneo.net;
  *
  */
 
+import com.b1project.udooneo.board.BoardInfo;
 import com.b1project.udooneo.gpio.Gpio;
 import com.b1project.udooneo.gpio.Pin;
 import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
@@ -35,6 +36,7 @@ public class NeoJavaProtocol {
     public final static String INPUT_COMMAND_HELP = "help";
     public final static String INPUT_COMMAND_VERSION = "version";
     public final static String INPUT_COMMAND_QUIT = "quit";
+    public final static String INPUT_COMMAND_BOARD_ID = "board/id";
     public final static String INPUT_COMMAND_LCD_CLEAR = "lcd/clear";
     public final static String INPUT_COMMAND_LCD_PRINT = "lcd/print";
     public final static String INPUT_COMMAND_TEMPERATURE_REQUEST = "sensors/temperature";
@@ -94,6 +96,9 @@ public class NeoJavaProtocol {
                             listener.onQuitRequest(clientSocket);
                         }
                         output = "Goodbye !";
+                        break;
+                    case INPUT_COMMAND_BOARD_ID:
+                        output = BoardInfo.getBoardID();
                         break;
                     case INPUT_COMMAND_EXPORTED_GPIOS:
                         List<Pin> gpios = new ArrayList<>();
