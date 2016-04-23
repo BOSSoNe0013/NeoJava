@@ -25,6 +25,8 @@ import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
 import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class NeoJavaServer {
@@ -33,6 +35,7 @@ public class NeoJavaServer {
     private List<Socket> clientSockets = new ArrayList<>();
     private NeoJavaProtocolListener neoJavaProtocolListener;
     private List<PrintWriter> outPrintWriters = new ArrayList<>();
+    private boolean isWritingOutput = false;
 
     public NeoJavaServer(NeoJavaProtocolListener listener){
         super();
@@ -44,7 +47,8 @@ public class NeoJavaServer {
     }
 
     public void writeOutput(String outputLine) {
-        final List<PrintWriter> opws = outPrintWriters;
+        List<PrintWriter> opws = new ArrayList<>();
+        opws.addAll(outPrintWriters);
         for (PrintWriter outPrintWriter: opws){
             if (outPrintWriter != null) {
                 outPrintWriter.println(outputLine);
