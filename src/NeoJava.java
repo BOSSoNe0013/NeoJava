@@ -52,6 +52,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private final static String INPUT_COMMAND_EXPORTED_GPIOS = "/gpios";
     private final static String INPUT_COMMAND_BOARD_ID = "/id";
     private final static String INPUT_COMMAND_BOARD_MODEL = "/model";
+    private final static String INPUT_COMMAND_BOARD_NAME = "/name";
     private static boolean mLcdPrinting = false;
     private static NeoJava instance;
     private static NeoJavaServer server;
@@ -245,6 +246,10 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 break;
             case INPUT_COMMAND_BOARD_MODEL:
                 System.out.println(BoardInfo.getBoardModel());
+                System.out.print("#:");
+                break;
+            case INPUT_COMMAND_BOARD_NAME:
+                System.out.println(BoardInfo.getBoardName());
                 System.out.print("#:");
                 break;
             default:

@@ -48,4 +48,15 @@ public class BoardInfo {
         }
         return "";
     }
+
+    public static String getBoardName(){
+        try{
+            String BOARD_NAME_URI = "/etc/hostname";
+            return FileUtils.readFile(BOARD_NAME_URI);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 }
