@@ -20,12 +20,11 @@ package com.b1project.udooneo.gpio;
  */
 
 import com.b1project.udooneo.listeners.GpioListener;
+import com.b1project.udooneo.utils.FileUtils;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -126,11 +125,7 @@ public class Gpio {
     }
 
     public PinMode getMode() throws Exception{
-        File file = new File(this.uri + GPIO_DIRECTION_PATH);
-        FileReader fr = new FileReader(file.getAbsoluteFile());
-        BufferedReader br = new BufferedReader(fr);
-        PinMode mode = (Objects.equals(br.readLine(), "in"))?PinMode.INPUT:PinMode.OUTPUT;
-        br.close();
+        PinMode mode = (Objects.equals(FileUtils.readFile(this.uri + GPIO_DIRECTION_PATH), "in"))?PinMode.INPUT:PinMode.OUTPUT;
         currentPinMode = mode;
         return mode;
     }
@@ -152,16 +147,12 @@ public class Gpio {
         if (currentPinMode == PinMode.OUTPUT && currentPinStates.containsKey(this.id)){
             return currentPinStates.get(this.id);
         }
-        File file = new File(this.uri + GPIO_VALUE_PATH);
-        FileReader fr = new FileReader(file.getAbsoluteFile());
-        BufferedReader br = new BufferedReader(fr);
-        PinState state = (Objects.equals(br.readLine(), "1"))?PinState.HIGH:PinState.LOW;
-        br.close();
+        PinState state = (Objects.equals(FileUtils.readFile(this.uri + GPIO_VALUE_PATH), "1"))?PinState.HIGH:PinState.LOW;
         currentPinState = state;
         currentPinStates.put(this.id, currentPinState);
         return state;
     }
-    
+
     public void high() throws Exception{
         //System.out.println("Set 1 on GPIO" + this.id);
         this.write(PinState.HIGH);

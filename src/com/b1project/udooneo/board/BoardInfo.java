@@ -1,8 +1,6 @@
 package com.b1project.udooneo.board;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import com.b1project.udooneo.utils.FileUtils;
 
 /**
  *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
@@ -25,27 +23,18 @@ import java.io.FileReader;
  */
 
 public class BoardInfo {
-    private static String BOARD_CFG0_URI = "/sys/fsl_otp/HW_OCOTP_CFG0";
-    private static String BOARD_CFG1_URI ="/sys/fsl_otp/HW_OCOTP_CFG1";
 
     public static String getBoardID(){
         try{
-            String cfg0 = read(BOARD_CFG0_URI).replace("0x", "");
-            String cfg1 = read(BOARD_CFG1_URI).replace("0x", "");
+            String BOARD_CFG0_URI = "/sys/fsl_otp/HW_OCOTP_CFG0";
+            String cfg0 = FileUtils.readFile(BOARD_CFG0_URI).replace("0x", "");
+            String BOARD_CFG1_URI = "/sys/fsl_otp/HW_OCOTP_CFG1";
+            String cfg1 = FileUtils.readFile(BOARD_CFG1_URI).replace("0x", "");
             return cfg0 + cfg1;
         }
         catch (Exception e) {
             e.printStackTrace();
         }
         return "";
-    }
-
-    protected static String read(String uri) throws Exception{
-        File file = new File(uri);
-        FileReader fr = new FileReader(file.getAbsoluteFile());
-        BufferedReader br = new BufferedReader(fr);
-        String value = br.readLine();
-        br.close();
-        return value;
     }
 }

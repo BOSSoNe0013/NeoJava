@@ -1,18 +1,11 @@
 package com.b1project.udooneo.sensors;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import com.b1project.udooneo.utils.FileUtils;
 
-public class Sensor {
+class Sensor {
 
-    protected static String read(String uri) throws Exception{
-        File file = new File(uri);
-        FileReader fr = new FileReader(file.getAbsoluteFile());
-        BufferedReader br = new BufferedReader(fr);
-        String value = br.readLine();
-        br.close();
-        return value;
+    static String read(String uri) throws Exception{
+        return FileUtils.readFile(uri);
     }
 
 }
