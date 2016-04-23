@@ -37,6 +37,7 @@ public class NeoJavaProtocol {
     public final static String INPUT_COMMAND_VERSION = "version";
     public final static String INPUT_COMMAND_QUIT = "quit";
     public final static String INPUT_COMMAND_BOARD_ID = "board/id";
+    public final static String INPUT_COMMAND_BOARD_MODEL = "board/model";
     public final static String INPUT_COMMAND_LCD_CLEAR = "lcd/clear";
     public final static String INPUT_COMMAND_LCD_PRINT = "lcd/print";
     public final static String INPUT_COMMAND_TEMPERATURE_REQUEST = "sensors/temperature";
@@ -99,6 +100,9 @@ public class NeoJavaProtocol {
                         break;
                     case INPUT_COMMAND_BOARD_ID:
                         output = BoardInfo.getBoardID();
+                        break;
+                    case INPUT_COMMAND_BOARD_MODEL:
+                        output = BoardInfo.getBoardModel();
                         break;
                     case INPUT_COMMAND_EXPORTED_GPIOS:
                         List<Pin> gpios = new ArrayList<>();

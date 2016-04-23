@@ -18,6 +18,7 @@
 *
 */
 
+import com.b1project.udooneo.board.BoardInfo;
 import com.b1project.udooneo.gpio.GpiosManager;
 import com.b1project.udooneo.gpio.Pin;
 import com.b1project.udooneo.listeners.GpiosManagerListener;
@@ -49,6 +50,8 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private final static String INPUT_COMMAND_LCD_PRINT = "/lp";
     private final static String INPUT_COMMAND_TEMP_REQUEST = "/tp";
     private final static String INPUT_COMMAND_EXPORTED_GPIOS = "/gpios";
+    private final static String INPUT_COMMAND_BOARD_ID = "/id";
+    private final static String INPUT_COMMAND_BOARD_MODEL = "/model";
     private static boolean mLcdPrinting = false;
     private static NeoJava instance;
     private static NeoJavaServer server;
@@ -234,6 +237,14 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 break;
             case INPUT_COMMAND_EXPORTED_GPIOS:
                 System.out.println(gpiosManager.getExportedGpios().toString());
+                System.out.print("#:");
+                break;
+            case INPUT_COMMAND_BOARD_ID:
+                System.out.println(BoardInfo.getBoardID());
+                System.out.print("#:");
+                break;
+            case INPUT_COMMAND_BOARD_MODEL:
+                System.out.println(BoardInfo.getBoardModel());
                 System.out.print("#:");
                 break;
             default:

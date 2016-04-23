@@ -37,4 +37,15 @@ public class BoardInfo {
         }
         return "";
     }
+
+    public static String getBoardModel(){
+        try{
+            String BOARD_MODEL_URI = "/proc/device-tree/model";
+            return FileUtils.readFile(BOARD_MODEL_URI);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 }
