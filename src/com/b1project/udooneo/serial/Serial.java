@@ -104,17 +104,17 @@ public class Serial {
         }
     }
 
-    protected static class SerialReader implements Runnable {
+    private static class SerialReader implements Runnable {
         InputStream in;
         SerialOutputListener listener;
         private volatile boolean cancelled;
 
-        public SerialReader(InputStream in, SerialOutputListener listener) {
+        SerialReader(InputStream in, SerialOutputListener listener) {
             this.in = in;
             this.listener = listener;
         }
 
-        public void cancel(){
+        void cancel(){
             cancelled = true;
         }
 

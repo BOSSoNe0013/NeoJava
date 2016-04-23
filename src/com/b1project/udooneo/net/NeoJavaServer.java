@@ -77,12 +77,12 @@ public class NeoJavaServer {
         }
     }
 
-    class ServerThread implements Runnable{
+    private class ServerThread implements Runnable{
         PrintWriter out;
         BufferedReader in;
         Socket clientSocket;
 
-        public ServerThread(Socket clientSocket, BufferedReader in, PrintWriter out){
+        ServerThread(Socket clientSocket, BufferedReader in, PrintWriter out){
             this.in = in;
             this.out = out;
             this.clientSocket = clientSocket;

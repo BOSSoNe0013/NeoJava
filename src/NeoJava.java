@@ -38,23 +38,23 @@ import java.util.List;
 
 public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, GpiosManagerListener {
 
-    static Lcd mLcd;
-    static Serial mSerial;
-    static String mCurrentMessage = "Hello Java GPIO\nwith UDOO Neo !!";
-    public final static String APP_NAME = "NeoJava Tools";
-    public final static String VERSION = "0.0.2";
-    final static String INPUT_COMMAND_QUIT = "/q";
-    final static String INPUT_COMMAND_VERSION = "/v";
-    final static String INPUT_COMMAND_LCD_CLEAR = "/lc";
-    final static String INPUT_COMMAND_LCD_PRINT = "/lp";
-    final static String INPUT_COMMAND_TEMP_REQUEST = "/tp";
-    final static String INPUT_COMMAND_EXPORTED_GPIOS = "/gpios";
-    static boolean mLcdPrinting = false;
-    static NeoJava instance;
-    static NeoJavaServer server;
-    static Gpio gpioNotificationLed;
-    static GpiosManager gpiosManager;
-    final static char[] CUSTOM_CHAR = {
+    private static Lcd mLcd;
+    private static Serial mSerial;
+    private static String mCurrentMessage = "Hello Java GPIO\nwith UDOO Neo !!";
+    private final static String APP_NAME = "NeoJava Tools";
+    private final static String VERSION = "0.0.2";
+    private final static String INPUT_COMMAND_QUIT = "/q";
+    private final static String INPUT_COMMAND_VERSION = "/v";
+    private final static String INPUT_COMMAND_LCD_CLEAR = "/lc";
+    private final static String INPUT_COMMAND_LCD_PRINT = "/lp";
+    private final static String INPUT_COMMAND_TEMP_REQUEST = "/tp";
+    private final static String INPUT_COMMAND_EXPORTED_GPIOS = "/gpios";
+    private static boolean mLcdPrinting = false;
+    private static NeoJava instance;
+    private static NeoJavaServer server;
+    private static Gpio gpioNotificationLed;
+    private static GpiosManager gpiosManager;
+    private final static char[] CUSTOM_CHAR = {
             0b00000,
             0b10010,
             0b00000,
@@ -68,14 +68,14 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         super();
     }
 
-    static NeoJava getInstance(){
+    private static NeoJava getInstance(){
         if(instance == null){
             instance = new NeoJava();
         }
         return instance;
     }
     
-    public static Lcd initLCD() throws Exception{
+    private static Lcd initLCD() throws Exception{
         gpioNotificationLed = Gpio.getInstance(GpiosManager.GPIO_106);
         gpioNotificationLed.setMode(Gpio.PinMode.OUTPUT);
         for(int i = 0; i < 5; i++){
@@ -97,7 +97,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         return mLcd;
     }
     
-    public static void setupSTDINListener(final STDInputListener listener) throws Exception{
+    private static void setupSTDINListener(final STDInputListener listener) throws Exception{
         new Thread(){
             @Override
             public void run(){
@@ -116,7 +116,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         }.start();
     }
 
-    public static void startNeoJavaServer(){
+    private static void startNeoJavaServer(){
         new Thread(){
             @Override
             public void run(){
@@ -173,7 +173,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
     }
 
-    protected String handleLineInput(String line){
+    private String handleLineInput(String line){
         switch (line) {
             case INPUT_COMMAND_LCD_CLEAR:
                 try {
@@ -193,6 +193,9 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                     mLcd.setLcdDisplayState(false);
                     mLcd.setBacklightState(false);
                     mLcd = null;
+                    if(mSerial != null){
+                        mSerial.disconnect();
+                    }
                     gpioNotificationLed.release();
                 }
                 catch (Exception e){
@@ -461,14 +464,14 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         }
     }
 
-    public abstract class TemperatureReaderCallBack {
+    private abstract class TemperatureReaderCallBack {
         public abstract void onRequestComplete(Float temp, Float pressure);
     }
 
-    static class TempReader implements Runnable{
+    private static class TempReader implements Runnable{
         TemperatureReaderCallBack callBack;
 
-        public TempReader(TemperatureReaderCallBack callBack){
+        TempReader(TemperatureReaderCallBack callBack){
             this.callBack = callBack;
         }
 
@@ -489,14 +492,14 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         }
     }
 
-    public abstract class AccelerometerReaderCallBack {
+    private abstract class AccelerometerReaderCallBack {
         public abstract void onRequestComplete(String data);
     }
 
-    static class AccelerometerReader implements Runnable{
+    private static class AccelerometerReader implements Runnable{
         AccelerometerReaderCallBack callBack;
 
-        public AccelerometerReader(AccelerometerReaderCallBack callBack){
+        AccelerometerReader(AccelerometerReaderCallBack callBack){
             this.callBack = callBack;
         }
 
@@ -518,14 +521,14 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         }
     }
 
-    public abstract class MagnetometerReaderCallBack {
+    private abstract class MagnetometerReaderCallBack {
         public abstract void onRequestComplete(String data);
     }
 
-    static class MagnetometerReader implements Runnable{
+    private static class MagnetometerReader implements Runnable{
         MagnetometerReaderCallBack callBack;
 
-        public MagnetometerReader(MagnetometerReaderCallBack callBack){
+        MagnetometerReader(MagnetometerReaderCallBack callBack){
             this.callBack = callBack;
         }
 
@@ -547,14 +550,14 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         }
     }
 
-    public abstract class GyroscopeReaderCallBack {
+    private abstract class GyroscopeReaderCallBack {
         public abstract void onRequestComplete(String data);
     }
 
-    static class GyroscopeReader implements Runnable{
+    private static class GyroscopeReader implements Runnable{
         GyroscopeReaderCallBack callBack;
 
-        public GyroscopeReader(GyroscopeReaderCallBack callBack){
+        GyroscopeReader(GyroscopeReaderCallBack callBack){
             this.callBack = callBack;
         }
 

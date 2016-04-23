@@ -49,10 +49,10 @@ public class NeoJavaProtocol {
     public final static String INPUT_COMMAND_RELEASE_GPIO = "gpios/release";
 
     private NeoJavaProtocolListener listener;
-    Socket clientSocket;
-    Gson gson;
+    private Socket clientSocket;
+    private Gson gson;
 
-    public NeoJavaProtocol(Socket clientSocket, NeoJavaProtocolListener listener){
+    NeoJavaProtocol(Socket clientSocket, NeoJavaProtocolListener listener){
         super();
         this.listener = listener;
         this.clientSocket = clientSocket;
@@ -63,7 +63,7 @@ public class NeoJavaProtocol {
         return String.format("{\"method\":\"%s\", \"output\":\"%s\"}", method, output);
     }
 
-    public String processInput(String input){
+    String processInput(String input){
         try {
             Message message = gson.fromJson(input, Message.class);
             String output = null;
