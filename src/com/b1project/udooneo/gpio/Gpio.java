@@ -33,13 +33,13 @@ import java.util.Objects;
 
 @SuppressWarnings({"unused", "SpellCheckingInspection"})
 public class Gpio {
-    int id;
-    String uri;
-    static final String COMMON_GPIO_URI = "/sys/class/gpio/gpio";
-    static final String EXPORT_GPIO_URI = "/sys/class/gpio/export";
-    static final String RELEASE_GPIO_URI = "/sys/class/gpio/unexport";
-    static final String GPIO_DIRECTION_PATH = "/direction";
-    static final String GPIO_VALUE_PATH = "/value";
+    private int id;
+    private String uri;
+    private static final String COMMON_GPIO_URI = "/sys/class/gpio/gpio";
+    private static final String EXPORT_GPIO_URI = "/sys/class/gpio/export";
+    private static final String RELEASE_GPIO_URI = "/sys/class/gpio/unexport";
+    private static final String GPIO_DIRECTION_PATH = "/direction";
+    private static final String GPIO_VALUE_PATH = "/value";
     private static List<GpioListener> mListeners = new ArrayList<>();
     private static HashMap<Integer, PinState> currentPinStates = new HashMap<>();
     private PinState currentPinState = PinState.LOW;
@@ -64,7 +64,7 @@ public class Gpio {
         return gpio;
     }
 
-    public static void addListener(GpioListener listener){
+    static void addListener(GpioListener listener){
         if(!mListeners.contains(listener)){
             mListeners.add(listener);
         }
@@ -80,7 +80,7 @@ public class Gpio {
         return COMMON_GPIO_URI + pinId;
     }
 
-    public static boolean isExported(int pinId){
+    static boolean isExported(int pinId){
         File gpioDir = new File(mkGpioUri(pinId));
         return gpioDir.exists();
     }
