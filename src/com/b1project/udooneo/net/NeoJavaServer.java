@@ -35,7 +35,6 @@ public class NeoJavaServer {
     private List<Socket> clientSockets = new ArrayList<>();
     private NeoJavaProtocolListener neoJavaProtocolListener;
     private List<PrintWriter> outPrintWriters = new ArrayList<>();
-    private boolean isWritingOutput = false;
 
     public NeoJavaServer(NeoJavaProtocolListener listener){
         super();
