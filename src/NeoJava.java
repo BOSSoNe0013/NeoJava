@@ -80,7 +80,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     }
     
     private static Lcd initLCD() throws Exception{
-        gpioNotificationLed = Gpio.getInstance(GpiosManager.GPIO_106);
+        gpioNotificationLed = Gpio.getInstance(GpiosManager.GPIO_102);
         gpioNotificationLed.setMode(Gpio.PinMode.OUTPUT);
         for(int i = 0; i < 5; i++){
             gpioNotificationLed.high();
@@ -89,7 +89,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             Thread.sleep(50);
         }
         mLcd = new Lcd(GpiosManager.GPIO_20, GpiosManager.GPIO_21, GpiosManager.GPIO_25,
-                GpiosManager.GPIO_22, GpiosManager.GPIO_14, GpiosManager.GPIO_15);
+                GpiosManager.GPIO_22, GpiosManager.GPIO_14, GpiosManager.GPIO_15, GpiosManager.GPIO_16, Lcd.NO_RW);
         mLcd.createChar(0x01, CUSTOM_CHAR);
         mLcd.clear();
         mLcd.print(mCurrentMessage);
@@ -221,7 +221,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
                     @Override
                     public void onRequestComplete(Float temp, Float pressure) {
-                        String tempString = String.format("Temp: %.1fßC\nPres: %.1f", temp, pressure);
+                        String tempString = String.format("Temp: %.1fßC\nPres: %.1fkPa", temp, pressure);
                         try {
                             mLcd.clear();
                             mLcd.print(tempString);
