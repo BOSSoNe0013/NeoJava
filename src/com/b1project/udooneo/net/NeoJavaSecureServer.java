@@ -79,6 +79,8 @@ public class NeoJavaSecureServer {
             System.out.printf("\nListening on port %d\n#:", SERVER_PORT);
             SSLServerSocketFactory sslServerSocketfactory = (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
             serverSocket = (SSLServerSocket)sslServerSocketfactory.createServerSocket(SERVER_PORT);
+
+            serverSocket.setEnabledCipherSuites(sslServerSocketfactory.getSupportedCipherSuites());
             while(true) {
                 SSLSocket clientSocket = (SSLSocket) serverSocket.accept();
                 if(clientSocket != null) {
