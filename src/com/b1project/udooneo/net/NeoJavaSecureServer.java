@@ -21,28 +21,46 @@ package com.b1project.udooneo.net;
  */
 
 import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
+import com.sun.net.ssl.internal.ssl.Provider;
 
-import java.net.*;
-import java.io.*;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.security.Security;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-public class NeoJavaServer {
-    private static final int port = 45045;
-    private ServerSocket serverSocket;
-    private List<Socket> clientSockets = new ArrayList<>();
+public class NeoJavaSecureServer {
+    private static final int SERVER_PORT = 45046;
+    private SSLServerSocket serverSocket;
+    private List<SSLSocket> clientSockets = new ArrayList<>();
     private NeoJavaProtocolListener neoJavaProtocolListener;
     private List<PrintWriter> outPrintWriters = new ArrayList<>();
 
-    private NeoJavaServer(NeoJavaProtocolListener listener){
+    static {
+        // Registering the JSSE provider
+        Security.addProvider(new Provider());
+
+        //Specifying the Keystore details
+        System.setProperty("javax.net.ssl.keyStore","NeoJava.ks");
+        System.setProperty("javax.net.ssl.keyStorePassword","udooer");
+
+        // Enable debugging to view the handshake and communication which happens between the SSLClient and the SSLServer
+        // System.setProperty("javax.net.debug","all");
+    }
+
+    private NeoJavaSecureServer(NeoJavaProtocolListener listener){
         super();
         this.neoJavaProtocolListener = listener;
     }
 
-    public static NeoJavaServer getInstance(NeoJavaProtocolListener listener){
-        return new NeoJavaServer(listener);
+    public static NeoJavaSecureServer getInstance(NeoJavaProtocolListener listener){
+        return new NeoJavaSecureServer(listener);
     }
 
     public void writeOutput(String outputLine) {
@@ -56,12 +74,13 @@ public class NeoJavaServer {
     }
 
     public void startServer(){
-        System.out.println("Starting NeoJavaServer");
+        System.out.println("Starting NeoJavaSecureServer");
         try{
-            System.out.printf("\nListening on port %d\n#:", port);
-            serverSocket = new ServerSocket(port);
+            System.out.printf("\nListening on port %d\n#:", SERVER_PORT);
+            SSLServerSocketFactory sslServerSocketfactory = (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
+            serverSocket = (SSLServerSocket)sslServerSocketfactory.createServerSocket(SERVER_PORT);
             while(true) {
-                Socket clientSocket = serverSocket.accept();
+                SSLSocket clientSocket = (SSLSocket) serverSocket.accept();
                 if(clientSocket != null) {
                     clientSockets.add(clientSocket);
                     PrintWriter outPrintWriter =
@@ -74,8 +93,7 @@ public class NeoJavaServer {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Exception caught when trying to listen on port "
-                + port + " or listening for a connection");
+            System.out.printf("Exception caught when trying to listen on SERVER_PORT %d or listening for a connection\n", SERVER_PORT);
             System.out.println(e.getMessage());
         }
     }

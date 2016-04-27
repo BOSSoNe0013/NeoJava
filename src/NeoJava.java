@@ -28,6 +28,7 @@ import com.b1project.udooneo.gpio.Gpio;
 import com.b1project.udooneo.lcd.Lcd;
 import com.b1project.udooneo.listeners.SerialOutputListener;
 import com.b1project.udooneo.net.NeoJavaProtocol;
+import com.b1project.udooneo.net.NeoJavaSecureServer;
 import com.b1project.udooneo.net.NeoJavaServer;
 import com.b1project.udooneo.sensors.*;
 import com.b1project.udooneo.serial.Serial;
@@ -53,9 +54,11 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private final static String INPUT_COMMAND_BOARD_ID = "/id";
     private final static String INPUT_COMMAND_BOARD_MODEL = "/model";
     private final static String INPUT_COMMAND_BOARD_NAME = "/name";
+    private final static boolean USE_SECURE_SERVER = true;
     private static boolean mLcdPrinting = false;
     private static NeoJava instance;
     private static NeoJavaServer server;
+    private static NeoJavaSecureServer secureServer;
     private static Gpio gpioNotificationLed;
     private static GpiosManager gpiosManager;
     private final static char[] CUSTOM_CHAR = {
@@ -129,7 +132,17 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             }
         }.start();
     }
-    
+
+    private static void startNeoJavaSecureServer(){
+        new Thread(){
+            @Override
+            public void run(){
+                secureServer = NeoJavaSecureServer.getInstance(getInstance());
+                secureServer.startServer();
+            }
+        }.start();
+    }
+
     public static void main(String[] args) {
         try{
             System.out.print(getInstance().getVersionString());
@@ -139,7 +152,12 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             mLcd = initLCD();
             mSerial = new Serial("/dev/ttyS0", getInstance());
             mSerial.connect();
-            startNeoJavaServer();
+            if(USE_SECURE_SERVER) {
+                startNeoJavaSecureServer();
+            }
+            else {
+                startNeoJavaServer();
+            }
             setupSTDINListener(new STDInputListener(){
                 int l = 0;
                 String message;
@@ -193,6 +211,9 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 try {
                     if(server != null) {
                         server.stopServer();
+                    }
+                    if(secureServer != null) {
+                        secureServer.stopServer();
                     }
                     mLcd.setLcdDisplayState(false);
                     mLcd.setBacklightState(false);
@@ -328,6 +349,18 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                                 )
                         );
                     }
+                    if(secureServer != null) {
+                        secureServer.writeOutput(
+                                NeoJavaProtocol.makeRequest(
+                                        NeoJavaProtocol.INPUT_COMMAND_TEMPERATURE_REQUEST,
+                                        String.format(
+                                                "{\\\"temp\\\":\\\"%f\\\", \\\"pressure\\\":\\\"%f\\\"}",
+                                                temp,
+                                                pressure
+                                        )
+                                )
+                        );
+                    }
                 }
             }))).start();
         }
@@ -344,6 +377,17 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 public void onRequestComplete(String data) {
                     if(server != null) {
                         server.writeOutput(
+                                NeoJavaProtocol.makeRequest(
+                                        NeoJavaProtocol.INPUT_COMMAND_ACCELEROMETER_REQUEST,
+                                        String.format(
+                                                "{\\\"data\\\":\\\"%s\\\"}",
+                                                data
+                                        )
+                                )
+                        );
+                    }
+                    if(secureServer != null) {
+                        secureServer.writeOutput(
                                 NeoJavaProtocol.makeRequest(
                                         NeoJavaProtocol.INPUT_COMMAND_ACCELEROMETER_REQUEST,
                                         String.format(
@@ -378,6 +422,17 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                                 )
                         );
                     }
+                    if(secureServer != null) {
+                        secureServer.writeOutput(
+                                NeoJavaProtocol.makeRequest(
+                                        NeoJavaProtocol.INPUT_COMMAND_MAGNETOMETER_REQUEST,
+                                        String.format(
+                                                "{\\\"data\\\":\\\"%s\\\"}",
+                                                data
+                                        )
+                                )
+                        );
+                    }
                 }
             }))).start();
         }
@@ -394,6 +449,17 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 public void onRequestComplete(String data) {
                     if(server != null) {
                         server.writeOutput(
+                                NeoJavaProtocol.makeRequest(
+                                        NeoJavaProtocol.INPUT_COMMAND_GYROSCOPE_REQUEST,
+                                        String.format(
+                                                "{\\\"data\\\":\\\"%s\\\"}",
+                                                data
+                                        )
+                                )
+                        );
+                    }
+                    if(secureServer != null) {
+                        secureServer.writeOutput(
                                 NeoJavaProtocol.makeRequest(
                                         NeoJavaProtocol.INPUT_COMMAND_GYROSCOPE_REQUEST,
                                         String.format(
@@ -432,6 +498,18 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                     )
             );
         }
+        if(secureServer != null) {
+            secureServer.writeOutput(
+                    NeoJavaProtocol.makeRequest(
+                            "StateChanged",
+                            String.format(
+                                    "{\\\"pin\\\":\\\"%d\\\", \\\"state\\\":\\\"%d\\\"}",
+                                    pinId,
+                                    state.ordinal()
+                            )
+                    )
+            );
+        }
     }
 
     @Override
@@ -440,6 +518,18 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         System.out.print("#:");
         if(server != null) {
             server.writeOutput(
+                    NeoJavaProtocol.makeRequest(
+                            "ModeChanged",
+                            String.format(
+                                    "{\\\"pin\\\":\\\"%d\\\", \\\"mode\\\":\\\"%s\\\"}",
+                                    pinId,
+                                    (mode == Gpio.PinMode.INPUT)?"in":"out"
+                            )
+                    )
+            );
+        }
+        if(secureServer != null) {
+            secureServer.writeOutput(
                     NeoJavaProtocol.makeRequest(
                             "ModeChanged",
                             String.format(
@@ -464,6 +554,14 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                     )
             );
         }
+        if(secureServer != null) {
+            server.writeOutput(
+                    NeoJavaProtocol.makeRequest(
+                            INPUT_COMMAND_EXPORTED_GPIOS,
+                            onExportedGpiosRequest().toString()
+                    )
+            );
+        }
     }
 
     @Override
@@ -472,6 +570,14 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         System.out.print("#:");
         if(server != null) {
             server.writeOutput(
+                    NeoJavaProtocol.makeRequest(
+                            NeoJavaProtocol.INPUT_COMMAND_EXPORTED_GPIOS,
+                            onExportedGpiosRequest().toString()
+                    )
+            );
+        }
+        if(secureServer != null) {
+            secureServer.writeOutput(
                     NeoJavaProtocol.makeRequest(
                             NeoJavaProtocol.INPUT_COMMAND_EXPORTED_GPIOS,
                             onExportedGpiosRequest().toString()
