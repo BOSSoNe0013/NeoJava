@@ -19,7 +19,7 @@ package com.b1project.udooneo.listeners;
  *
  */
 
-public interface IOListener {
+interface IOListener {
     void onNewLine(String line);
 }
 

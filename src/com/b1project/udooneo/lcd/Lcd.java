@@ -132,11 +132,13 @@ public class Lcd{
         setBacklightState(true);
         setLcdDisplayState(true);
         this.set((char)(LCD_ENTRYMODESET | LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT));
-        System.out.println("Clear display");
+        System.out.println("\rClear display");
+        System.out.print("#:");
         this.clear();
         Thread.sleep(2000);
-        System.out.println("LCD init complete");
-        
+        System.out.println("\rLCD init complete");
+        System.out.print("#:");
+
     }
 
     @Override

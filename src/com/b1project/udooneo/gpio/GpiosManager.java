@@ -25,6 +25,7 @@ import java.util.List;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+@SuppressWarnings("WeakerAccess")
 public class GpiosManager implements GpioListener {
 
     //external pins
@@ -77,7 +78,7 @@ public class GpiosManager implements GpioListener {
     public final static int GPIO_102 = 102;
 
 
-    static final int[] GPIOS = {GPIO_106, GPIO_107, GPIO_180, GPIO_181, GPIO_172, GPIO_173, GPIO_182, GPIO_24, GPIO_25,
+    private static final int[] GPIOS = {GPIO_106, GPIO_107, GPIO_180, GPIO_181, GPIO_172, GPIO_173, GPIO_182, GPIO_24, GPIO_25,
             GPIO_22, GPIO_14, GPIO_15, GPIO_16, GPIO_17, GPIO_18, GPIO_19, GPIO_20, GPIO_21, GPIO_203, GPIO_202,
             GPIO_177, GPIO_176, GPIO_175, GPIO_174, GPIO_119, GPIO_124, GPIO_127, GPIO_116, GPIO_7, GPIO_6, GPIO_5,
             GPIO_4, GPIO_178, GPIO_179, GPIO_104, GPIO_143, GPIO_142, GPIO_141, GPIO_140, GPIO_149, GPIO_105, GPIO_148, GPIO_146, GPIO_147, GPIO_100, GPIO_102};
@@ -85,7 +86,7 @@ public class GpiosManager implements GpioListener {
     private static List<Integer> mExportedGpios = new ArrayList<>();
     private static List<GpiosManagerListener> mListeners = new ArrayList<>();
 
-    public GpiosManager(){
+    private GpiosManager(){
 
     }
 

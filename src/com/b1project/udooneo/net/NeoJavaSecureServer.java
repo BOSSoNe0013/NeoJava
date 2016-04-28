@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,9 +75,11 @@ public class NeoJavaSecureServer {
     }
 
     public void startServer(){
-        System.out.println("Starting NeoJavaSecureServer");
+        System.out.println("\rStarting NeoJavaSecureServer");
+        System.out.print("#:");
         try{
-            System.out.printf("\nListening on port %d\n#:", SERVER_PORT);
+            System.out.printf("\rListening on port %d\n", SERVER_PORT);
+            System.out.print("#:");
             SSLServerSocketFactory sslServerSocketfactory = (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
             serverSocket = (SSLServerSocket)sslServerSocketfactory.createServerSocket(SERVER_PORT);
 
@@ -84,19 +87,27 @@ public class NeoJavaSecureServer {
             while(true) {
                 SSLSocket clientSocket = (SSLSocket) serverSocket.accept();
                 if(clientSocket != null) {
-                    clientSockets.add(clientSocket);
-                    PrintWriter outPrintWriter =
-                            new PrintWriter(clientSocket.getOutputStream(), true);
-                    outPrintWriters.add(outPrintWriter);
-                    BufferedReader in = new BufferedReader(
-                            new InputStreamReader(clientSocket.getInputStream()));
+                    if(!serverSocket.isClosed() && !clientSocket.isClosed()){
+                        System.out.println("\rNew client socket: " + clientSocket.getInetAddress().getHostAddress());
+                        System.out.print("#:");
+                        clientSockets.add(clientSocket);
+                        PrintWriter outPrintWriter =
+                                new PrintWriter(clientSocket.getOutputStream(), true);
+                        outPrintWriters.add(outPrintWriter);
+                        BufferedReader in = new BufferedReader(
+                                new InputStreamReader(clientSocket.getInputStream()));
 
-                    (new Thread(new ServerThread(clientSocket, in, outPrintWriter))).start();
+                        (new Thread(new ServerThread(clientSocket, in, outPrintWriter))).start();
+                    }
                 }
             }
+        } catch (SocketException e) {
+            System.out.println("\rSocket closed");
+            System.out.print("#:");
         } catch (IOException e) {
-            System.out.printf("Exception caught when trying to listen on SERVER_PORT %d or listening for a connection\n", SERVER_PORT);
+            System.out.printf("\rException caught when trying to listen on port %d or listening for a connection\n", SERVER_PORT);
             System.out.println(e.getMessage());
+            System.out.print("#:");
         }
     }
 
@@ -126,8 +137,9 @@ public class NeoJavaSecureServer {
                     }
                 }
             } catch (IOException e) {
-                System.out.println("Exception caught when  listening for a connection");
+                System.out.println("\rException caught when  listening for a connection");
                 System.out.println(e.getMessage());
+                System.out.print("#:");
             }
         }
     }
@@ -144,10 +156,12 @@ public class NeoJavaSecureServer {
             if(serverSocket != null){
                 serverSocket.close();
             }
-            System.out.println("\nNeoJavaServer stopped");
+            System.out.println("\rNeoJavaServer stopped");
+            System.out.print("#:");
         } catch (IOException e) {
-            System.out.println("Exception caught when trying to close socket");
+            System.out.println("\rException caught when trying to close socket");
             System.out.println(e.getMessage());
+            System.out.print("#:");
         }
     }
 }

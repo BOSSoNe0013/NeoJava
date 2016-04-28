@@ -18,16 +18,17 @@ package com.b1project.udooneo.gpio;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+@SuppressWarnings("unused")
 public class Pin {
     private final Integer id;
     private Gpio.PinState state;
     private Gpio.PinMode mode;
 
-    public Pin(Integer id) {
+    Pin(Integer id) {
         this(id, Gpio.PinState.LOW, Gpio.PinMode.OUTPUT);
     }
 
-    public Pin(Integer id, Gpio.PinState state, Gpio.PinMode mode) {
+    private Pin(Integer id, Gpio.PinState state, Gpio.PinMode mode) {
         this.id = id;
         this.state = state;
         this.mode = mode;
@@ -41,7 +42,7 @@ public class Pin {
         return state;
     }
 
-    public void setState(Gpio.PinState state){
+    void setState(Gpio.PinState state){
         this.state = state;
     }
 
@@ -49,7 +50,7 @@ public class Pin {
         return this.mode;
     }
 
-    public void setMode(Gpio.PinMode mode) {
+    void setMode(Gpio.PinMode mode) {
         this.mode = mode;
     }
 

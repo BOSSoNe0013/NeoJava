@@ -24,12 +24,12 @@ import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 public class Serial {
     private String mDeviceUri = "/dev/ttyS0";
+    private int mBaudRate = 115200;
     private static OutputStream mOutputStream;
     private static InputStream mInputStream;
     private SerialOutputListener mListener;
@@ -45,15 +45,17 @@ public class Serial {
     }
 
     public void connect() throws Exception {
-        System.out.println("connecting to serial port...");
+        System.out.println("\rConnecting to serial port...");
+        System.out.print("#:");
         CommPortIdentifier mCommPortIdentifier = CommPortIdentifier.getPortIdentifier(mDeviceUri);
         if (mCommPortIdentifier.isCurrentlyOwned()) {
-            System.out.println("Error: Port is currently in use!");
+            System.out.println("\rError: Port currently in use");
+            System.out.print("#:");
         } else {
             CommPort mCommPort = mCommPortIdentifier.open(this.getClass().getName(), 2000);
             if(mCommPort instanceof SerialPort) {
                 mSerialPort = (SerialPort) mCommPort;
-                mSerialPort.setSerialPortParams(115200,
+                mSerialPort.setSerialPortParams(mBaudRate,
                                                 SerialPort.DATABITS_8,
                                                 SerialPort.STOPBITS_1,
                                                 SerialPort.PARITY_NONE);
@@ -74,16 +76,19 @@ public class Serial {
                         }
                     }
                 }));
-                System.out.println("Connected!");
+                System.out.println("\rSerial port connected");
+                System.out.print("#:");
             } else {
-                System.out.println("Error: Only serial ports are handled by this example!");
+                System.out.println("\rError: Only serial ports are handled");
+                System.out.print("#:");
             }
         }
     }
 
     public void disconnect() throws Exception{
         if(mSerialPort != null){
-            System.out.println("disconnecting from serial port...");
+            System.out.println("\rDisconnecting from serial port...");
+            System.out.print("#:");
             mReaderTask.cancel();
             mOutputStream.close();
             mInputStream.close();
@@ -92,7 +97,8 @@ public class Serial {
                 public void run(){
                     mSerialPort.removeEventListener();
                     mSerialPort.close();
-                    System.out.println("Disconnected!");
+                    System.out.println("\rSerial port disconnected");
+                    System.out.print("#:");
                 }
             }.start();
         }
@@ -101,41 +107,6 @@ public class Serial {
     public void write(String message) throws Exception{
         if(mOutputStream != null){
             mOutputStream.write(message.getBytes());
-        }
-    }
-
-    private static class SerialReader implements Runnable {
-        InputStream in;
-        SerialOutputListener listener;
-        private volatile boolean cancelled;
-
-        SerialReader(InputStream in, SerialOutputListener listener) {
-            this.in = in;
-            this.listener = listener;
-        }
-
-        void cancel(){
-            cancelled = true;
-        }
-
-        @Override
-        public void run() {
-            byte[] buffer = new byte[7];
-            int len;
-            String stringReceived = "";
-            try {
-                while(!cancelled && (len = this.in.read(buffer)) > 0) {
-                    stringReceived += new String(buffer, 0, len);
-                    if (buffer[len-1] == '\n') {
-                        if(listener != null){
-                            listener.onNewLine(stringReceived);
-                        }
-                        stringReceived = "";
-                    }
-                }
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
         }
     }
 

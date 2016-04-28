@@ -19,19 +19,19 @@
 */
 
 import com.b1project.udooneo.board.BoardInfo;
+import com.b1project.udooneo.gpio.Gpio;
 import com.b1project.udooneo.gpio.GpiosManager;
 import com.b1project.udooneo.gpio.Pin;
+import com.b1project.udooneo.lcd.Lcd;
 import com.b1project.udooneo.listeners.GpiosManagerListener;
 import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
 import com.b1project.udooneo.listeners.STDInputListener;
-import com.b1project.udooneo.gpio.Gpio;
-import com.b1project.udooneo.lcd.Lcd;
 import com.b1project.udooneo.listeners.SerialOutputListener;
 import com.b1project.udooneo.net.NeoJavaProtocol;
 import com.b1project.udooneo.net.NeoJavaSecureServer;
 import com.b1project.udooneo.net.NeoJavaServer;
 import com.b1project.udooneo.sensors.*;
-import com.b1project.udooneo.serial.Serial;
+import com.b1project.udooneo.serial.SimpleSerial;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -41,7 +41,7 @@ import java.util.List;
 public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, GpiosManagerListener {
 
     private static Lcd mLcd;
-    private static Serial mSerial;
+    private static SimpleSerial mSerial;
     private static String mCurrentMessage = "Hello Java GPIO\nwith UDOO Neo !!";
     private final static String APP_NAME = "NeoJava Tools";
     private final static String VERSION = "0.0.2";
@@ -56,6 +56,8 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private final static String INPUT_COMMAND_BOARD_NAME = "/name";
     private final static boolean USE_SECURE_SERVER = true;
     private static boolean mLcdPrinting = false;
+    private static boolean mPrintingTemperature = false;
+    private static boolean mInitComplete = false;
     private static NeoJava instance;
     private static NeoJavaServer server;
     private static NeoJavaSecureServer secureServer;
@@ -146,13 +148,13 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     public static void main(String[] args) {
         try{
             System.out.print(getInstance().getVersionString());
-            System.out.println("Java platform tools for UDOO Neo");
+            System.out.println("\nJava platform tools for UDOO Neo");
             gpiosManager = GpiosManager.getInstance();
             gpiosManager.addListener(getInstance());
             mLcd = initLCD();
-            mSerial = new Serial("/dev/ttyS0", getInstance());
+            mSerial = new SimpleSerial("/dev/ttyS0", getInstance());
             mSerial.connect();
-            if(USE_SECURE_SERVER) {
+            if(USE_SECURE_SERVER){
                 startNeoJavaSecureServer();
             }
             else {
@@ -185,8 +187,9 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                     }
                 }
             });
-            System.out.println("Init complete");
+            System.out.println("\rInit complete");
             System.out.print("#:");
+            mInitComplete = true;
         }
         catch(Exception e){
             e.printStackTrace();
@@ -280,7 +283,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 }
                 else{
                     if(!line.equals("")) {
-                        System.out.println("Error: command not found");
+                        System.out.println("\rError: command not found");
                     }
                     System.out.print("#:");
                 }
@@ -302,7 +305,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             }
         }
         catch (Exception e){
-            System.out.println("Error while closing socket");
+            System.out.println("\rError while closing socket");
             e.printStackTrace();
         }
     }
@@ -484,8 +487,8 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
     @Override
     public void onStateChanged(int pinId, Gpio.PinState state) {
-        System.out.println("GPIO_" + pinId + " state changed to: " + state);
-        System.out.print("#:");
+        /*System.out.println("\rGPIO_" + pinId + " state changed to: " + state);
+        System.out.print("#:");*/
         if(server != null) {
             server.writeOutput(
                     NeoJavaProtocol.makeRequest(
@@ -514,7 +517,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
     @Override
     public void onModeChanged(int pinId, Gpio.PinMode mode) {
-        System.out.println("GPIO_" + pinId + " mode changed to: " + mode);
+        System.out.println("\rGPIO_" + pinId + " mode changed to: " + mode);
         System.out.print("#:");
         if(server != null) {
             server.writeOutput(
@@ -544,7 +547,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
     @Override
     public void onExport(int pinId) {
-        System.out.println("GPIO_" + pinId + " exported");
+        System.out.println("\rGPIO_" + pinId + " exported");
         System.out.print("#:");
         if(server != null) {
             server.writeOutput(
@@ -566,7 +569,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
     @Override
     public void onRelease(int pinId) {
-        System.out.println("GPIO_" + pinId + " released");
+        System.out.println("\rGPIO_" + pinId + " released");
         System.out.print("#:");
         if(server != null) {
             server.writeOutput(
@@ -703,28 +706,31 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
     @Override
     public void onNewLine(String line) {
-        System.out.printf("\nSerial out: %s\n", line.trim());
-        if(line.startsWith("0x")) {
+        System.out.printf("\rSerial out: %s\n", line.trim());
+        if(mInitComplete && line.startsWith("0x")) {
             int code = Integer.parseInt(line.replace("0x", "").trim(), 16);
             switch (code) {
                 case 0x01:
-                    (new Thread(new TempReader(new TemperatureReaderCallBack(){
+                    if(!mPrintingTemperature) {
+                        mPrintingTemperature = true;
+                        (new Thread(new TempReader(new TemperatureReaderCallBack() {
 
-                    @Override
-                    public void onRequestComplete(Float temp, Float pressure) {
-                        String tempString = String.format("Temp: %.1fßC\nPres: %.1f", temp, pressure);
-                        try {
-                            mLcd.clear();
-                            mLcd.print(tempString);
-                            Thread.sleep(3000);
-                            mLcd.clear();
-                            mLcd.print(mCurrentMessage);
-                        }
-                        catch (Exception e){
-                            System.err.println(e.getMessage());
-                        }
+                            @Override
+                            public void onRequestComplete(Float temp, Float pressure) {
+                                String tempString = String.format("Temp: %.1fßC\nPres: %.1f", temp, pressure);
+                                try {
+                                    mLcd.clear();
+                                    mLcd.print(tempString);
+                                    Thread.sleep(3000);
+                                    mLcd.clear();
+                                    mLcd.print(mCurrentMessage);
+                                    mPrintingTemperature = false;
+                                } catch (Exception e) {
+                                    System.err.println(e.getMessage());
+                                }
+                            }
+                        }))).start();
                     }
-                }))).start();
                     break;
             }
         }
