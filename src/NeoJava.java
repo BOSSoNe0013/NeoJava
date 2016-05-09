@@ -155,12 +155,12 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             mLcd = initLCD();
             mSerial = new SimpleSerial("/dev/ttyS0", getInstance());
             mSerial.connect();
-            //if(USE_SECURE_SERVER){
+            if(USE_SECURE_SERVER){
                 startNeoJavaSecureServer();
-            /*}
-            else {*/
+            }
+            else {
                 startNeoJavaServer();
-            //}
+            }
             setupSTDINListener(new STDInputListener(){
                 int l = 0;
                 String message;
