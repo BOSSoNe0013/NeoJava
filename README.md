@@ -1,4 +1,4 @@
-JAVA tools for UDOO Neo board
+JAVA tools for UDOO Neo QUAD board
 -----------------
 
 ![Image of UDOO Neo wiring](http://static.b1project.com/images/NeoJava_UDOO_Neo_wiring.jpg)
@@ -23,28 +23,18 @@ Copy appropriate libraries and symlink them
 
 Copy the /usr/share/java/RXTXcomm.jar in NeoJava/libs 
 
-Now symlink /dev/ttyMCC to /dev/ttyS0 to allow UDOO's serial port binding
+Now symlink _/dev/ttymxc3_ to _/dev/ttyS0_ to allow UDOO's serial port binding (the jrun.sh script does it for you if not already done).
 
-/!\ the jrun.sh script does it for you if not already done ;)
-
-2 - REST service dependencies
-
-Download gson-2.5.jar in NeoJava/libs (https://github.com/google/gson)
-
-3 - Open a terminal and navigate to this folder:
+2 - Open a terminal and navigate to this folder:
 
     cd NeoJava/
 
-4 - Compile the Java file:
- use the bash script jcompile.sh:
- 
-    ./jcoompile.sh
+3 - Compile 
 
-5 - Run the app
- use the bash script jrun.sh:
+	mvn package -DskipTests
+
+4 - and run the app using the bash script jrun.sh:
 
     ./jrun.sh
 
- The jrun script call sudo which is needed to load modules and could be needed to write on GPIOs (depending of your udev rules)
-
-
+The jrun script runs the NeoJava app as root (with sudo) which is needed to load modules and could be needed to write on GPIOs (depending of your udev rules)
