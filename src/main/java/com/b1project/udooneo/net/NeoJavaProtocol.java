@@ -38,6 +38,7 @@ import com.b1project.udooneo.messages.response.ResponseMagnetometer;
 import com.b1project.udooneo.messages.response.ResponseSetPinMode;
 import com.b1project.udooneo.messages.response.ResponseSetPinState;
 import com.b1project.udooneo.messages.response.ResponseTemperature;
+import com.b1project.udooneo.messages.response.ResponseOutputMessage;
 import com.b1project.udooneo.model.Pin;
 import com.b1project.udooneo.model.SensorData;
 import com.b1project.udooneo.model.Temperature;
@@ -78,6 +79,9 @@ public class NeoJavaProtocol {
 	public static final String RESP_MAGNETOMETER = "resp/"+REQ_SENSORS_MAGNETOMETER;
 	public static final String RESP_LCD_CLEAR = "resp/"+REQ_LCD_CLEAR;
 	public static final String RESP_LCD_PRINT = "resp/"+REQ_LCD_PRINT;
+    public static final String RESP_BOARD_ID = "resp/"+REQ_BOARD_ID;
+    public static final String RESP_BOARD_MODEL = "resp/"+REQ_BOARD_MODEL;
+    public static final String RESP_BOARD_NAME = "resp/"+REQ_BOARD_NAME;
 
 
 	public final static String OUTPUT_STATE_CHANGED = "state-changed";
@@ -92,8 +96,11 @@ public class NeoJavaProtocol {
 			.registerSubtype(ResponseMessage.class);
 	
 	private static final RuntimeTypeAdapterFactory<ResponseMessage> responseAdapter = RuntimeTypeAdapterFactory.of(ResponseMessage.class)
+			.registerSubtype(ResponseOutputMessage.class)
 			.registerSubtype(ResponseExportGpios.class)
+			.registerSubtype(ResponseAccelerometerData.class)
 			.registerSubtype(ResponseGyroscopeData.class)
+			.registerSubtype(ResponseMagnetometer.class)
 			.registerSubtype(ResponseSetPinMode.class)
 			.registerSubtype(ResponseSetPinState.class)
 			.registerSubtype(ResponseTemperature.class);
@@ -241,12 +248,13 @@ public class NeoJavaProtocol {
 				default:
 					output = "Unknown method: " + m.method;
 				}
-				return new ResponseMessage(responseMethod, output);
+                System.out.println("\r"+output);
+				return new ResponseOutputMessage(responseMethod, output);
 			}
-			return new ResponseMessage(ERROR, "Empty method: " + input.replace("\"", "\\\""));
+			return new ResponseOutputMessage(ERROR, "Empty method: " + input.replace("\"", "\\\""));
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
-			return new ResponseMessage(ERROR, "Invalid request: " + input);
+			return new ResponseOutputMessage(ERROR, "Invalid request: " + input);
 		}
 	}
 
