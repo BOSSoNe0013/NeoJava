@@ -286,8 +286,8 @@ public class NeoJavaProtocol {
 		return new ResponseTemperature("OK", new Temperature(temp, pressure));
 	}
 
-	public static ResponseMessage makeShutdownMessage() {
-		return new ResponseMessage(REQ_SERVER_ACTION, "shutdown");
+	public static ResponseOutputMessage makeShutdownMessage() {
+		return new ResponseOutputMessage(REQ_SERVER_ACTION, "shutdown");
 	}
 
 }

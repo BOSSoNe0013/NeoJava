@@ -231,7 +231,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 System.exit(0);
                 break;
             case INPUT_COMMAND_VERSION:
-            	if(mLcdPrinting){
+            	if(!mLcdPrinting){
             		getInstance().onLCDPrintRequest(getInstance().getVersionString() + "\n");
             	}
             	System.out.print(getInstance().getVersionString() + "\n");
@@ -246,8 +246,9 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
                     @Override
                     public void onRequestComplete(Float temp, Float pressure) {
-                        String tempString = String.format("Temp: %.1f (Celsius)\nPres: %.1f", temp, pressure);
-                        if(mLcdPrinting){
+                        String tempString = String.format("Temp: %.1fßC\nPres: %.1fkPa", temp, pressure);
+                        if(!mLcdPrinting){
+                            mLcdPrinting = true;
 	                        try {
 	                            mLcd.clear();
 	                            mLcd.print(tempString);
@@ -258,6 +259,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 	                        catch (Exception e){
 	                            System.err.println(e.getMessage());
 	                        }
+                            mLcdPrinting = false;
                         }else{
                             System.out.print(tempString);
                         }
@@ -421,10 +423,13 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
     @Override
     public void onStateChanged(int pinId, Gpio.PinState state) {
-        System.out.println("\rGPIO_" + pinId + " state changed to: " + state);
-        System.out.print("#:");
+        /*System.out.println("\rGPIO_" + pinId + " state changed to: " + state);
+        System.out.print("#:");*/
         if(server != null) {
             server.writeOutput(NeoJavaProtocol.makePinStateMessage(pinId, state));
+        }
+        if(secureServer != null) {
+            secureServer.writeOutput(NeoJavaProtocol.makePinStateMessage(pinId, state));
         }
     }
 
@@ -435,6 +440,9 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         if(server != null) {
             server.writeOutput(NeoJavaProtocol.makePinModeMessage(pinId, mode));
         }
+        if(secureServer != null) {
+            secureServer.writeOutput(NeoJavaProtocol.makePinModeMessage(pinId, mode));
+        }
     }
 
     @Override
@@ -444,6 +452,9 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         if(server != null) {
             server.writeOutput(NeoJavaProtocol.makeExportMessage(onExportedGpiosRequest()));
         }
+        if(secureServer != null) {
+            secureServer.writeOutput(NeoJavaProtocol.makeExportMessage(onExportedGpiosRequest()));
+        }
     }
 
     @Override
@@ -452,6 +463,9 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         System.out.print("#:");
         if(server != null) {
             server.writeOutput(NeoJavaProtocol.makeExportMessage(onExportedGpiosRequest()));
+        }
+        if(secureServer != null) {
+            secureServer.writeOutput(NeoJavaProtocol.makeExportMessage(onExportedGpiosRequest()));
         }
     }
 
@@ -497,7 +511,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 		
 		                    @Override
 		                    public void onRequestComplete(Float temp, Float pressure) {
-		                        String tempString = String.format("Temp: %.1f (Celsius)\nPres: %.1f", temp, pressure);
+		                        String tempString = String.format("Temp: %.1fßC\nPres: %.1fkPa", temp, pressure);
 		                        try {
 		                            mLcd.clear();
 		                            mLcd.print(tempString);
