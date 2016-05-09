@@ -23,7 +23,7 @@ Copy appropriate libraries and symlink them
 
 Copy the /usr/share/java/RXTXcomm.jar in NeoJava/libs 
 
-Now symlink _/dev/ttyMMC_ (_/dev/ttymxc3_ for Udoo Quad) to _/dev/ttyS0_ to allow UDOO's serial port binding (the jrun.sh script does it for you if not already done).
+Now symlink _/dev/ttyMCC_ (_/dev/ttymxc3_ for Udoo Quad) to _/dev/ttyS0_ to allow UDOO's serial port binding (the jrun.sh script does it for you if not already done).
 
 2 - Open a terminal and navigate to this folder:
 
