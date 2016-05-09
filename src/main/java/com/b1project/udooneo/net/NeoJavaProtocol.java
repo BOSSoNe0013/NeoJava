@@ -124,14 +124,12 @@ public class NeoJavaProtocol {
 	}
 
 	public ResponseMessage processInput(String input) {
-		System.out.println("--------------------\n" + input);
+		System.out.println("\r--------------------\n" + input + "\n#:");
 		try {
 			RequestMessage m = fromJson(input, RequestMessage.class);
 			String output = null;
 			String responseMethod = m.method;
 			if (!m.method.isEmpty()) {
-				// System.out.println("\nRequest: " + message.method);
-				// System.out.print("Content: " + content + "\n#:");
 				switch (m.method) {
 				case REQ_HELP:
 					output = REQ_HELP + " - this help\\n";
