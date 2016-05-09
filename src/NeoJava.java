@@ -22,6 +22,7 @@ import com.b1project.udooneo.board.BoardInfo;
 import com.b1project.udooneo.gpio.Gpio;
 import com.b1project.udooneo.gpio.GpiosManager;
 import com.b1project.udooneo.gpio.Pin;
+import com.b1project.udooneo.ir.GpioIrReceiver;
 import com.b1project.udooneo.lcd.Lcd;
 import com.b1project.udooneo.listeners.GpiosManagerListener;
 import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
@@ -154,12 +155,12 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             mLcd = initLCD();
             mSerial = new SimpleSerial("/dev/ttyS0", getInstance());
             mSerial.connect();
-            if(USE_SECURE_SERVER){
+            //if(USE_SECURE_SERVER){
                 startNeoJavaSecureServer();
-            }
-            else {
+            /*}
+            else {*/
                 startNeoJavaServer();
-            }
+            //}
             setupSTDINListener(new STDInputListener(){
                 int l = 0;
                 String message;
@@ -187,6 +188,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                     }
                 }
             });
+            new GpioIrReceiver();
             System.out.println("\rInit complete");
             System.out.print("#:");
             mInitComplete = true;
