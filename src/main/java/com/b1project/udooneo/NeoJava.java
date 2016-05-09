@@ -56,7 +56,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 	
 	private static Lcd mLcd;
     private static SimpleSerial mSerial;
-    private static String mCurrentMessage = "Hello Java GPIO\nwith UDOO Neo !!";
+    private static String mCurrentMessage = "Java GPIO with\n"+ BoardInfo.getBoardModel();
     private final static String INPUT_COMMAND_QUIT = "/q";
     private final static String INPUT_COMMAND_VERSION = "/v";
     private final static String INPUT_COMMAND_LCD_CLEAR = "/lc";
@@ -88,7 +88,10 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
     public static void main(String[] args) {
         try{
-            System.out.println(getInstance().getVersionString() + " (Java platform tools for UDOO Neo)");
+            System.out.println(
+                    getInstance().getVersionString()
+                            + " (Java platform tools for "
+                            + BoardInfo.getBoardModel() + ")");
             gpiosManager = GpiosManager.getInstance();
             gpiosManager.addListener(getInstance());
             mLcd = initLCD();

@@ -159,12 +159,15 @@ public class NeoJavaProtocol {
 					break;
 				case REQ_BOARD_ID:
 					output = BoardInfo.getBoardID();
+					responseMethod = RESP_BOARD_ID;
 					break;
 				case REQ_BOARD_MODEL:
 					output = BoardInfo.getBoardModel();
+					responseMethod = RESP_BOARD_MODEL;
 					break;
 				case REQ_BOARD_NAME:
 					output = BoardInfo.getBoardName();
+					responseMethod = RESP_BOARD_NAME;
 					break;
 				case REQ_GPIOS_EXPORT:
 					List<Pin> gpios = null;
