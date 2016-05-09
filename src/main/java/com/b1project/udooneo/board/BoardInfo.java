@@ -39,7 +39,7 @@ public class BoardInfo {
 
     public static String getBoardModel(){
         try{
-            return FileUtils.readFile(FileUtils.BOARD_MODEL_URI);
+            return FileUtils.readFile(FileUtils.BOARD_MODEL_URI).replace("\u0000", "");
         }
         catch (Exception e) {
             e.printStackTrace();
