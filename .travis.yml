@@ -1,4 +1,4 @@
 language: java
 
-install:
+script:
 - mvn package -DskipTests
