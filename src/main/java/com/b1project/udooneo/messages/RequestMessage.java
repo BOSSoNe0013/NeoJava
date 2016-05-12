@@ -27,8 +27,8 @@ public class RequestMessage extends Message{
 	public int pinId;
 	public PinState state;
 	public PinMode mode;
-	public String textToDisplay;
-	
+	public String detailMessage;
+
 	public RequestMessage(String method) {
 		this(method,0,null,null);
 	}
@@ -47,9 +47,9 @@ public class RequestMessage extends Message{
 		this.state = state;
 		this.mode = mode;
 	}
-	public RequestMessage(String method, String textToDisplay) {
+	public RequestMessage(String method, String message) {
 		this(method);
-		this.textToDisplay = textToDisplay;
+		this.detailMessage = message;
 	}
 
 }

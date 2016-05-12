@@ -123,11 +123,11 @@ public class NeoJavaProtocol {
 		return gson.fromJson(value, clazz);
 	}
 
-	public ResponseMessage processInput(String input) {
+	ResponseMessage processInput(String input) {
 		System.out.println("\r--------------------\n" + input + "\n#:");
 		try {
 			RequestMessage m = fromJson(input, RequestMessage.class);
-			String output = null;
+			String output;
 			String responseMethod = m.method;
 			if (!m.method.isEmpty()) {
 				switch (m.method) {
@@ -145,17 +145,28 @@ public class NeoJavaProtocol {
 					output += REQ_SENSORS_ACCELEROMETER + " - request accelerometer data\\n";
 					output += REQ_SENSORS_MAGNETOMETER + " - request magnetometer data\\n";
 					output += REQ_SENSORS_GYROSCOPE + " - request gyroscope data";
+                    responseMethod = RESP_HELP;
 					break;
 				case REQ_VERSION:
 					if (listener != null) {
 						output = listener.getVersionString();
+                        responseMethod = RESP_VERSION;
+					}
+					else{
+						output = "No board manager";
+						responseMethod = ERROR;
 					}
 					break;
 				case REQ_QUIT:
 					if (listener != null) {
 						listener.onQuitRequest(clientSocket);
+                        output = "Goodbye !";
+                        responseMethod = RESP_QUIT;
 					}
-					output = "Goodbye !";
+					else{
+						output = "No board manager";
+						responseMethod = ERROR;
+					}
 					break;
 				case REQ_BOARD_ID:
 					output = BoardInfo.getBoardID();
@@ -170,11 +181,13 @@ public class NeoJavaProtocol {
 					responseMethod = RESP_BOARD_NAME;
 					break;
 				case REQ_GPIOS_EXPORT:
-					List<Pin> gpios = null;
 					if (listener != null) {
-						gpios = listener.onExportedGpiosRequest();
+                        List<Pin> gpios = listener.onExportedGpiosRequest();
+                        return new ResponseExportGpios("OK", gpios);
 					}
-					return new ResponseExportGpios("OK", gpios);
+                    output = "No board manager";
+                    responseMethod = ERROR;
+					break;
 				case REQ_GPIO_SET_MODE:
 					try {
 						Gpio gpio = Gpio.getInstance(m.pinId);
@@ -213,41 +226,68 @@ public class NeoJavaProtocol {
 				case REQ_SENSORS_TEMPERATURE:
 					if (listener != null) {
 						listener.onTemperatureRequest();
+                        output = "Reading temperature";
 					}
-					output = "Reading temperature";
+					else{
+						output = "No sensor manager";
+						responseMethod = ERROR;
+					}
 					break;
 				case REQ_SENSORS_ACCELEROMETER:
 					if (listener != null) {
 						listener.onAccelerometerRequest();
+                        output = "Reading accelerometer data";
 					}
-					output = "Reading accelerometer data";
+					else{
+						output = "No sensor manager";
+						responseMethod = ERROR;
+					}
 					break;
 				case REQ_SENSORS_MAGNETOMETER:
 					if (listener != null) {
 						listener.onMagnetometerRequest();
+                        output = "Reading magnetometer data";
 					}
-					output = "Reading magnetometer data";
+					else{
+						output = "No sensor manager";
+						responseMethod = ERROR;
+					}
 					break;
 				case REQ_SENSORS_GYROSCOPE:
 					if (listener != null) {
 						listener.onGyroscopeRequest();
+                        output = "Reading gyroscope data";
 					}
-					output = "Reading gyroscope data";
+					else{
+						output = "No sensor manager";
+						responseMethod = ERROR;
+					}
 					break;
 				case REQ_LCD_CLEAR:
 					if (listener != null) {
 						listener.onClearLCDRequest();
 						output = "OK";
+						responseMethod = RESP_LCD_CLEAR;
+					}
+					else{
+						output = "No LCD screen manager";
+						responseMethod = ERROR;
 					}
 					break;
 				case REQ_LCD_PRINT:
 					if (listener != null) {
-						listener.onLCDPrintRequest(m.textToDisplay);
+						listener.onLCDPrintRequest(m.detailMessage);
+						output = "OK";
+						responseMethod = RESP_LCD_PRINT;
 					}
-					output = "OK";
+					else{
+						output = "No LCD screen manager";
+						responseMethod = ERROR;
+					}
 					break;
 				default:
 					output = "Unknown method: " + m.method;
+                    responseMethod = ERROR;
 				}
                 System.out.println("\r"+output);
 				return new ResponseOutputMessage(responseMethod, output);

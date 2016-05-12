@@ -191,7 +191,9 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 GpiosManager.GPIO_22, GpiosManager.GPIO_14, GpiosManager.GPIO_15, GpiosManager.GPIO_16, Lcd.NO_RW);
         mLcd.createChar(0x01, CUSTOM_CHAR);
         mLcd.clear();
-        mLcd.print(mCurrentMessage);
+        if(mCurrentMessage != null) {
+            mLcd.print(mCurrentMessage);
+        }
         Thread.sleep(1000);
         mLcd.clear();
         mLcd.write((char)0x01);
@@ -257,14 +259,16 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 	                            mLcd.print(tempString);
 	                            Thread.sleep(3000);
 	                            mLcd.clear();
-	                            mLcd.print(mCurrentMessage);
+                                if(mCurrentMessage != null) {
+                                    mLcd.print(mCurrentMessage);
+                                }
 	                        }
 	                        catch (Exception e){
 	                            System.err.println(e.getMessage());
 	                        }
                             mLcdPrinting = false;
                         }else{
-                            System.out.print(tempString);
+                            System.out.print(tempString.replace("ß","°"));
                         }
                     }
                 }))).start();
@@ -330,7 +334,9 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         try{
             mLcdPrinting = true;
             mLcd.clear();
-            mLcd.print(message);
+            if(message != null) {
+                mLcd.print(message);
+            }
             mCurrentMessage = message;
             mLcdPrinting = false;
         }
@@ -516,12 +522,20 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 		                    public void onRequestComplete(Float temp, Float pressure) {
 		                        String tempString = String.format("Temp: %.1fßC\nPres: %.1fkPa", temp, pressure);
 		                        try {
-		                            mLcd.clear();
-		                            mLcd.print(tempString);
-		                            Thread.sleep(3000);
-		                            mLcd.clear();
-		                            mLcd.print(mCurrentMessage);
-		                            mPrintingTemperature = false;
+                                    if(!mLcdPrinting){
+                                        mLcdPrinting = true;
+                                        mLcd.clear();
+                                        mLcd.print(tempString);
+                                        Thread.sleep(3000);
+                                        mLcd.clear();
+                                        if(mCurrentMessage != null) {
+                                            mLcd.print(mCurrentMessage);
+                                        }
+                                        mPrintingTemperature = false;
+                                        mLcdPrinting = false;
+                                    }else{
+                                        System.out.print(tempString.replace("ß","°"));
+                                    }
 		                        }
 		                        catch (Exception e){
 		                            System.err.println(e.getMessage());

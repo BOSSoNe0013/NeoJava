@@ -176,6 +176,9 @@ public class Lcd{
      * @throws Exception
      */
     public void print(String message) throws Exception{
+        if(message == null){
+            throw new NullPointerException("Try to print a null String on LCD");
+        }
         this.print(message.toCharArray());
     }
 
