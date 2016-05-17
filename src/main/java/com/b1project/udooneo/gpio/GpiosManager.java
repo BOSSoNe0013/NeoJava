@@ -1,11 +1,24 @@
 package com.b1project.udooneo.gpio;
 
+import com.b1project.udooneo.listeners.FSWatcherListener;
 import com.b1project.udooneo.listeners.GpioListener;
 import com.b1project.udooneo.listeners.GpiosManagerListener;
 import com.b1project.udooneo.model.Pin;
+import com.b1project.udooneo.utils.FSWatcher;
+import com.b1project.udooneo.utils.FileUtils;
 
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
 /**
  * Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
@@ -27,7 +40,7 @@ import java.util.List;
  */
 
 @SuppressWarnings("WeakerAccess")
-public class GpiosManager implements GpioListener {
+public class GpiosManager implements GpioListener, FSWatcherListener {
 
     //external pins
     public final static int GPIO_106 = 106;
@@ -86,16 +99,20 @@ public class GpiosManager implements GpioListener {
     
     private static List<Integer> mExportedGpios = new ArrayList<>();
     private static List<GpiosManagerListener> mListeners = new ArrayList<>();
+    private FSWatcher mFSWatcher;
 
     private GpiosManager(){
-
     }
 
     public static GpiosManager getInstance(){
-        GpiosManager manager = new GpiosManager();
+        final GpiosManager manager = new GpiosManager();
         Gpio.addListener(manager);
         manager.checkGpiosExportStatus();
         return manager;
+    }
+
+    public Gpio getGpio(int pinId) throws Exception {
+        return Gpio.getInstance(pinId);
     }
 
     public void addListener(GpiosManagerListener listener){
@@ -111,17 +128,33 @@ public class GpiosManager implements GpioListener {
     }
 
     private void checkGpiosExportStatus(){
-        for(int pinId: GPIOS){
-            if(Gpio.isExported(pinId)){
-                if(!mExportedGpios.contains(pinId)) {
-                    mExportedGpios.add(pinId);
+        try {
+            if(mFSWatcher == null) {
+                mFSWatcher = new FSWatcher(
+                        Paths.get(FileUtils.BASE_GPIO_URI),
+                        true,
+                        this,
+                        ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+            }
+            for(int pinId: GPIOS){
+                if(Gpio.isExported(pinId)){
+                    if(!mExportedGpios.contains(pinId)) {
+                        mExportedGpios.add(pinId);
+                    }
+                    Path path = Paths.get(Gpio.mkGpioUri(pinId));
+                    mFSWatcher.addAll(path);
+                }
+                else{
+                    if(mExportedGpios.contains(pinId)) {
+                        mExportedGpios.remove(mExportedGpios.indexOf(pinId));
+                    }
                 }
             }
-            else{
-                if(mExportedGpios.contains(pinId)) {
-                    mExportedGpios.remove(mExportedGpios.indexOf(pinId));
-                }
+            if(!mFSWatcher.isAlive()){
+                mFSWatcher.start();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -134,13 +167,18 @@ public class GpiosManager implements GpioListener {
 
     @Override
     public void onModeChanged(int pinId, Gpio.PinMode mode) {
-        for(GpiosManagerListener listener: mListeners){
+        /*for(GpiosManagerListener listener: mListeners){
             listener.onModeChanged(pinId, mode);
-        }
+        }*/
     }
 
     @Override
     public void onExport(int pinId) {
+        try {
+            mFSWatcher.addAll(Paths.get(Gpio.mkGpioUri(pinId)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         mExportedGpios.add(pinId);
         for(GpiosManagerListener listener: mListeners){
             listener.onExport(pinId);
@@ -149,9 +187,11 @@ public class GpiosManager implements GpioListener {
 
     @Override
     public void onRelease(int pinId) {
-        mExportedGpios.remove(mExportedGpios.indexOf(pinId));
-        for(GpiosManagerListener listener: mListeners){
-            listener.onRelease(pinId);
+        if(mExportedGpios.contains(pinId)) {
+            mExportedGpios.remove(mExportedGpios.indexOf(pinId));
+            for (GpiosManagerListener listener : mListeners) {
+                listener.onRelease(pinId);
+            }
         }
     }
 
@@ -173,5 +213,54 @@ public class GpiosManager implements GpioListener {
             gpios.add(pin);
         }
         return gpios;
+    }
+
+    @Override
+    public void onFileChanged(Path path) {
+        final String target = path.getFileName().toString();
+        int pinId = -1;
+        if(target.equals("value") || target.equals("direction")){
+            pinId = Integer.parseInt(path.getParent().toString().substring(FileUtils.COMMON_GPIO_URI.length()));
+        }
+        switch (target){
+            case "export":
+            case "unexport":
+                checkGpiosExportStatus();
+                break;
+            case "value":
+                try {
+                    Gpio.PinState state = getGpio(pinId).read();
+                    for(GpiosManagerListener listener: mListeners){
+                        listener.onStateChanged(pinId, state);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                break;
+            case "direction":
+                System.out.println();
+                try {
+                    Gpio.PinMode mode = getGpio(pinId).getMode();
+                    for(GpiosManagerListener listener: mListeners){
+                        listener.onModeChanged(pinId, mode);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onNewFile(Path path) {
+        System.out.println("\ronNewFile: " + path);
+        System.out.print("#:");
+    }
+
+    @Override
+    public void onFileDeleted(Path path) {
+        System.out.println("\ronFileDeleted: " + path);
+        System.out.print("#:");
     }
 }

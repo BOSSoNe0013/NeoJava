@@ -19,7 +19,7 @@ package com.b1project.udooneo.messages;
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class ResponseMessage extends Message {
+public abstract class ResponseMessage extends Message {
 
 	public String info;
 

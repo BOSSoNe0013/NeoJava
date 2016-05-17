@@ -72,7 +72,7 @@ public class Gpio {
         }
     }
 
-    private static String mkGpioUri(int pinId){
+    static String mkGpioUri(int pinId){
         return FileUtils.COMMON_GPIO_URI + pinId;
     }
 
@@ -87,7 +87,7 @@ public class Gpio {
         uri = mkGpioUri(pinId);
      }
     
-    public void export() throws Exception{
+    private void export() throws Exception{
         File file = new File(FileUtils.EXPORT_GPIO_URI);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
@@ -99,11 +99,13 @@ public class Gpio {
     }
     
     public void release() throws Exception{
-        File file = new File(FileUtils.RELEASE_GPIO_URI);
-        FileWriter fw = new FileWriter(file.getAbsoluteFile());
-        BufferedWriter bw = new BufferedWriter(fw);
-        bw.write(id + "");
-        bw.close();
+        if(isExported(id)) {
+            File file = new File(FileUtils.RELEASE_GPIO_URI);
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(id + "");
+            bw.close();
+        }
         for(GpioListener listener: mListeners){
             listener.onRelease(id);
         }

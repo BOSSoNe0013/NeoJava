@@ -25,7 +25,8 @@ import java.io.FileReader;
 public class FileUtils {
 
 	//gpios
-	public static final String COMMON_GPIO_URI = "/sys/class/gpio/gpio";
+	public static final String BASE_GPIO_URI = "/sys/class/gpio";
+	public static final String COMMON_GPIO_URI = BASE_GPIO_URI + "/gpio";
 	public static final String EXPORT_GPIO_URI = "/sys/class/gpio/export";
 	public static final String RELEASE_GPIO_URI = "/sys/class/gpio/unexport";
     

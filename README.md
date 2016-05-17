@@ -23,7 +23,7 @@ Copy appropriate libraries and symlink them
 
 Copy the /usr/share/java/RXTXcomm.jar in NeoJava/libs 
 
-Now symlink _/dev/ttyMCC_ (_/dev/ttymxc3_ for Udoo Quad) to _/dev/ttyS0_ to allow UDOO's serial port binding (the jrun.sh script does it for you if not already done).
+Now symlink _/dev/ttyMCC_ (_/dev/ttymxc3_ for Udoo Quad) to _/dev/ttyS0_ to allow UDOO's serial port binding (the NeoJava.sh script does it for you if not already done).
 
 2 - Open a terminal and navigate to this folder:
 
@@ -31,10 +31,10 @@ Now symlink _/dev/ttyMCC_ (_/dev/ttymxc3_ for Udoo Quad) to _/dev/ttyS0_ to allo
 
 3 - Compile 
 
-	mvn package -DskipTests
+	mvn package -DskipTests (or use build script build.sh)
 
-4 - and run the app using the bash script jrun.sh:
+4 - and run the app using the bash script NeoJava.sh:
 
-    ./jrun.sh
+    ./NeoJava.sh
 
-The jrun script runs the NeoJava app as root (with sudo) which is needed to load modules and could be needed to write on GPIOs (depending of your udev rules)
+The NeoJava.sh script runs the NeoJava app as root (with sudo) which is needed to load modules and could be needed to write on GPIOs (depending of your udev rules)

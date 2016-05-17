@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.b1project.udooneo</groupId>
 	<artifactId>neo-java</artifactId>
-	<version>0.0.3</version>
+	<version>0.0.4</version>
 	<name>NeoJava Tools</name>
 	<url>http://www.udoo.org/docs-neo/UDOO_NEO_made_by_the_Community/Java.html</url>
 
@@ -11,6 +11,7 @@
 		<java.version>1.7</java.version>
 		<thrift.version>0.9.2</thrift.version>
 		<slf4j.version>1.7.14</slf4j.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<dependencies>
@@ -53,32 +54,6 @@
 					<source>${java.version}</source>
 					<target>${java.version}</target>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.thrift.tools</groupId>
-				<artifactId>maven-thrift-plugin</artifactId>
-				<version>0.1.11</version><!-- for thrift 0.7+ -->
-				<!-- <version>0.1.10</version> -->
-				<configuration>
-					<thriftExecutable>${basedir}/thrift-0.9.2/compiler/cpp/thrift</thriftExecutable>
-					<outputDirectory>${basedir}/src/main/generated</outputDirectory>
-				</configuration>
-				<executions>
-					<execution>
-						<id>thrift-sources</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>compile</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>thrift-test-sources</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>testCompile</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

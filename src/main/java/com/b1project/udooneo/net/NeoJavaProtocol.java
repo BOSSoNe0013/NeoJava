@@ -27,6 +27,7 @@ import com.b1project.udooneo.board.BoardInfo;
 
 import com.b1project.udooneo.gpio.Gpio;
 import com.b1project.udooneo.gpio.Gpio.PinState;
+import com.b1project.udooneo.gpio.GpiosManager;
 import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
 import com.b1project.udooneo.messages.Message;
 import com.b1project.udooneo.messages.RequestMessage;
@@ -90,6 +91,7 @@ public class NeoJavaProtocol {
 
 	private NeoJavaProtocolListener listener;
 	private Socket clientSocket;
+    private final GpiosManager mGpiosManager;
 
 	private static final RuntimeTypeAdapterFactory<Message> msgAdapter = RuntimeTypeAdapterFactory.of(Message.class)
 			.registerSubtype(RequestMessage.class)
@@ -113,6 +115,7 @@ public class NeoJavaProtocol {
 	public NeoJavaProtocol(Socket clientSocket, NeoJavaProtocolListener listener) {
 		this.listener = listener;
 		this.clientSocket = clientSocket;
+        mGpiosManager = GpiosManager.getInstance();
 	}
 
 	public static String toJson(Object value) {
@@ -124,7 +127,8 @@ public class NeoJavaProtocol {
 	}
 
 	ResponseMessage processInput(String input) {
-		System.out.println("\r--------------------\n" + input + "\n#:");
+		System.out.println("\r--------------------\n" + input);
+		System.out.print("#:");
 		try {
 			RequestMessage m = fromJson(input, RequestMessage.class);
 			String output;
@@ -190,17 +194,19 @@ public class NeoJavaProtocol {
 					break;
 				case REQ_GPIO_SET_MODE:
 					try {
-						Gpio gpio = Gpio.getInstance(m.pinId);
-						gpio.setMode(m.mode);
+						Gpio.PinMode mode = (m.mode != null)?m.mode: Gpio.PinMode.OUTPUT;
+						Gpio gpio = mGpiosManager.getGpio(m.pinId);
+						gpio.setMode(mode);
 						output = "OK";
 					} catch (Exception e) {
 						output = "Invalid set GPIO mode: " + input;
+			            System.err.println(e.getMessage());
 						responseMethod = ERROR;
 					}
 					break;
 				case REQ_GPIO_SET_STATE:
 					try {
-						Gpio gpio = Gpio.getInstance(m.pinId);
+						Gpio gpio = mGpiosManager.getGpio(m.pinId);
 						if (gpio.getMode() == Gpio.PinMode.OUTPUT) {
 							gpio.write(m.state);
 							output = "OK";
@@ -215,7 +221,7 @@ public class NeoJavaProtocol {
 					break;
 				case REQ_GPIO_RELEASE:
 					try {
-						Gpio gpio = Gpio.getInstance(m.pinId);
+						Gpio gpio = mGpiosManager.getGpio(m.pinId);
 						gpio.release();
 						output = "OK";
 					} catch (Exception e) {
@@ -290,6 +296,7 @@ public class NeoJavaProtocol {
                     responseMethod = ERROR;
 				}
                 System.out.println("\r"+output);
+                System.out.print("#:");
 				return new ResponseOutputMessage(responseMethod, output);
 			}
 			return new ResponseOutputMessage(ERROR, "Empty method: " + input.replace("\"", "\\\""));
