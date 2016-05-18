@@ -200,7 +200,8 @@ public class NeoJavaProtocol {
 						output = "OK";
 					} catch (Exception e) {
 						output = "Invalid set GPIO mode: " + input;
-			            System.err.println(e.getMessage());
+			            System.err.println("Error: " + e.getMessage());
+                		System.out.print("#:");
 						responseMethod = ERROR;
 					}
 					break;
@@ -301,7 +302,8 @@ public class NeoJavaProtocol {
 			}
 			return new ResponseOutputMessage(ERROR, "Empty method: " + input.replace("\"", "\\\""));
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			System.err.println("\rError: " + e.getMessage());
+			System.out.print("#:");
 			return new ResponseOutputMessage(ERROR, "Invalid request: " + input);
 		}
 	}

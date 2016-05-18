@@ -50,7 +50,7 @@ public class Serial {
         System.out.print("#:");
         CommPortIdentifier mCommPortIdentifier = CommPortIdentifier.getPortIdentifier(mDeviceUri);
         if (mCommPortIdentifier.isCurrentlyOwned()) {
-            System.out.println("\rError: Port currently in use");
+            System.err.println("\rError: Port currently in use");
             System.out.print("#:");
         } else {
             CommPort mCommPort = mCommPortIdentifier.open(this.getClass().getName(), 2000);
@@ -80,7 +80,7 @@ public class Serial {
                 System.out.println("\rSerial port connected");
                 System.out.print("#:");
             } else {
-                System.out.println("\rError: Only serial ports are handled");
+                System.err.println("\rError: Only serial ports are handled");
                 System.out.print("#:");
             }
         }

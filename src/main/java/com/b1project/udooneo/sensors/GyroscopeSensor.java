@@ -38,7 +38,8 @@ public class GyroscopeSensor extends Sensor {
         try {
             return Integer.parseInt(read(FileUtils.GYROSCOPE_ACTIVATION_URI)) == 1;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println("\rError: " + e.getMessage());
+            System.out.print("#:");
         }
         return false;
     }
@@ -47,7 +48,8 @@ public class GyroscopeSensor extends Sensor {
         try {
             return read(FileUtils.GYROSCOPE_DATA_URI);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println("\rError: " + e.getMessage());
+            System.out.print("#:");
         }
         return "0,0,0";
     }

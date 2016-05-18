@@ -110,8 +110,8 @@ public class NeoJavaSecureServer {
             System.out.println("\rSocket closed");
             System.out.print("#:");
         } catch (IOException e) {
-            System.out.printf("\rException caught when trying to listen on port %d or listening for a connection\n", SERVER_PORT);
-            System.out.println(e.getMessage());
+            System.err.printf("\rException caught when trying to listen on port %d or listening for a connection\n", SERVER_PORT);
+            System.err.println("Error: " + e.getMessage());
             System.out.print("#:");
         }
     }
@@ -143,8 +143,8 @@ public class NeoJavaSecureServer {
                     }
                 }
             } catch (IOException e) {
-                System.out.println("\rException caught when  listening for a connection");
-                System.out.println(e.getMessage());
+                System.err.println("\rException caught when  listening for a connection");
+                System.err.println("Error: " + e.getMessage());
                 System.out.print("#:");
             }
         }
@@ -165,8 +165,8 @@ public class NeoJavaSecureServer {
             System.out.println("\rNeoJavaServer stopped");
             System.out.print("#:");
         } catch (IOException e) {
-            System.out.println("\rException caught when trying to close socket");
-            System.out.println(e.getMessage());
+            System.err.println("\rException caught when trying to close socket");
+            System.err.println("Error: " + e.getMessage());
             System.out.print("#:");
         }
     }

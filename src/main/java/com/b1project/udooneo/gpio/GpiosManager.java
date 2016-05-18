@@ -239,7 +239,6 @@ public class GpiosManager implements GpioListener, FSWatcherListener {
 
                 break;
             case "direction":
-                System.out.println();
                 try {
                     Gpio.PinMode mode = getGpio(pinId).getMode();
                     for(GpiosManagerListener listener: mListeners){

@@ -244,7 +244,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 break;
             case INPUT_COMMAND_LCD_PRINT:
                 mLcdPrinting = true;
-                System.out.print(" ");
+                System.out.print("");
                 break;
             case INPUT_COMMAND_TEMP_REQUEST:
                 (new Thread(new TemperatureReader(new TemperatureReaderCallBack(){
@@ -264,35 +264,35 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                                 }
 	                        }
 	                        catch (Exception e){
-	                            System.err.println(e.getMessage());
+	                            System.err.println("\rError: " + e.getMessage());
 	                        }
                             mLcdPrinting = false;
                         }else{
-                            System.out.print(tempString.replace("ß","°"));
+                            System.out.print("\r" + tempString.replace("ß","°"));
                         }
                     }
                 }))).start();
                 System.out.print("#:");
                 break;
             case INPUT_COMMAND_EXPORTED_GPIOS:
-                System.out.println(gpiosManager.getExportedGpios());
+                System.out.println("\r" + gpiosManager.getExportedGpios());
                 System.out.print("#:");
                 break;
             case INPUT_COMMAND_BOARD_ID:
-                System.out.println(BoardInfo.getBoardID());
+                System.out.println("\r" + BoardInfo.getBoardID());
                 System.out.print("#:");
                 break;
             case INPUT_COMMAND_BOARD_MODEL:
-                System.out.println(BoardInfo.getBoardModel());
+                System.out.println("\r" + BoardInfo.getBoardModel());
                 System.out.print("#:");
                 break;
             case INPUT_COMMAND_BOARD_NAME:
-                System.out.println(BoardInfo.getBoardName());
+                System.out.println("\r" + BoardInfo.getBoardName());
                 System.out.print("#:");
                 break;
             default:
                 if(mLcdPrinting) {
-                    System.out.print(" ");
+                    System.out.print("");
                     return line;
                 }
                 else{
@@ -444,8 +444,8 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
     @Override
     public void onModeChanged(int pinId, Gpio.PinMode mode) {
-        System.out.println("\rGPIO_" + pinId + " mode changed to: " + mode);
-        System.out.print("#:");
+        /*System.out.println("\rGPIO_" + pinId + " mode changed to: " + mode);
+        System.out.print("#:");*/
         if(server != null) {
             server.writeOutput(NeoJavaProtocol.makePinModeMessage(pinId, mode));
         }
@@ -510,6 +510,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     @Override
     public void onNewLine(String line) {
     	System.out.printf("\rSerial out: %s\n", line.trim());
+        System.out.print("#:");
     	if(mInitComplete && line.startsWith("0x")) {
             int code = Integer.parseInt(line.replace("0x", "").trim(), 16);
             switch (code) {
@@ -534,11 +535,13 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                                         mPrintingTemperature = false;
                                         mLcdPrinting = false;
                                     }else{
-                                        System.out.print(tempString.replace("ß","°"));
+                                        System.out.print("\r" + tempString.replace("ß","°"));
+                                        System.out.print("#:");
                                     }
 		                        }
 		                        catch (Exception e){
-		                            System.err.println(e.getMessage());
+		                            System.err.println("\rError: " + e.getMessage());
+                                    System.out.print("#:");
 		                        }
 		                    }
 		                }))).start();
@@ -546,6 +549,5 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                     break;
             }
         }
-        System.out.print("#:");
     }
 }
