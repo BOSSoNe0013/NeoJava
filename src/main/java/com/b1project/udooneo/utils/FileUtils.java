@@ -29,7 +29,13 @@ public class FileUtils {
 	public static final String COMMON_GPIO_URI = BASE_GPIO_URI + "/gpio";
 	public static final String EXPORT_GPIO_URI = "/sys/class/gpio/export";
 	public static final String RELEASE_GPIO_URI = "/sys/class/gpio/unexport";
-    
+
+	//pwm
+	public static final String BASE_PWM_URI = "/sys/class/pwm";
+	public static final String COMMON_PWM_URI = BASE_PWM_URI + "/pwmchip0";
+	public static final String EXPORT_PWM_URI = COMMON_PWM_URI + "/export";
+	public static final String RELEASE_PWM_URI = COMMON_PWM_URI + "/unexport";
+
 	//board info
 	public static final String BOARD_NAME_URI = "/etc/hostname";
 	public static final String BOARD_CFG0_URI = "/sys/fsl_otp/HW_OCOTP_CFG0";

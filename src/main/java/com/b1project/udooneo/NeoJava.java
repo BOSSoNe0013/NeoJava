@@ -38,6 +38,7 @@ import com.b1project.udooneo.model.Pin;
 import com.b1project.udooneo.net.NeoJavaProtocol;
 import com.b1project.udooneo.net.NeoJavaSecureServer;
 import com.b1project.udooneo.net.NeoJavaServer;
+import com.b1project.udooneo.pwm.Pwm;
 import com.b1project.udooneo.sensors.callback.AccelerometerReaderCallBack;
 import com.b1project.udooneo.sensors.callback.GyroscopeReaderCallBack;
 import com.b1project.udooneo.sensors.callback.MagnetometerReaderCallBack;
@@ -75,6 +76,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private static NeoJavaSecureServer secureServer;
     private static Gpio gpioNotificationLed;
     private static GpiosManager gpiosManager;
+    private static Pwm pwm;
     private final static char[] CUSTOM_CHAR = {
             0b00000,
             0b10010,
@@ -94,6 +96,10 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                             + BoardInfo.getBoardModel() + ")");
             gpiosManager = GpiosManager.getInstance();
             gpiosManager.addListener(getInstance());
+
+            pwm = Pwm.getInstance(0);
+            pwm.configure(1000000, 500000);
+
             mLcd = initLCD();
             mSerial = new SimpleSerial(DEFAULT_BINDING_TTY, getInstance());
             mSerial.connect();
