@@ -98,7 +98,9 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             gpiosManager.addListener(getInstance());
 
             pwm = Pwm.getInstance(0);
-            pwm.configure(1000000, 500000);
+            pwm.configure(1000000, 0);
+            System.out.println("\rPWM setup complete");
+            System.out.print("#:");
 
             mLcd = initLCD();
             mSerial = new SimpleSerial(DEFAULT_BINDING_TTY, getInstance());

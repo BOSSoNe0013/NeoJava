@@ -80,6 +80,10 @@ public class Pwm {
         bw.close();
     }
 
+    /**
+     * @param period in nanoseconds
+     * @throws Exception
+     */
     public void setPeriod(long period) throws Exception{
         File file = new File(this.uri + PWM_PERIOD_PATH);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
@@ -93,6 +97,10 @@ public class Pwm {
         return Long.parseLong(periodString);
     }
 
+    /**
+     * @param dutyCycle in nanoseconds
+     * @throws Exception
+     */
     public void setDutyCycle(long dutyCycle) throws Exception{
         File file = new File(this.uri + PWM_DUTY_CyCLE_PATH);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
@@ -106,9 +114,16 @@ public class Pwm {
         return Long.parseLong(dutyCycleString);
     }
 
+    /**
+     * @param value {0...255}
+     * @throws Exception
+     */
     public void set8BitValue(int value) throws Exception{
+        if(value < 0 || value > 255){
+            throw new NumberFormatException("Value should be between 0 and 255");
+        }
         long period = this.getPeriod();
-        long duty_cycle = (long)(period / 255) * value;
+        long duty_cycle = period / 255 * value;
         this.setDutyCycle(duty_cycle);
     }
 
