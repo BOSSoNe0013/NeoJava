@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.b1project.udooneo</groupId>
 	<artifactId>neo-java</artifactId>
-	<version>0.0.5</version>
+	<version>0.0.6</version>
 	<name>NeoJava Tools</name>
 	<url>http://www.udoo.org/docs-neo/UDOO_NEO_made_by_the_Community/Java.html</url>
 
@@ -35,7 +35,6 @@
 			<artifactId>gson</artifactId>
 			<version>2.6.2</version>
 		</dependency>
-
 	</dependencies>
 
 	<build>

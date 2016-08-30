@@ -43,6 +43,7 @@ import com.b1project.udooneo.messages.response.ResponseOutputMessage;
 import com.b1project.udooneo.model.Pin;
 import com.b1project.udooneo.model.SensorData;
 import com.b1project.udooneo.model.Temperature;
+import com.b1project.udooneo.pwm.Pwm;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
@@ -66,6 +67,7 @@ public class NeoJavaProtocol {
 	public static final String REQ_BOARD_ID = "board/id";
 	public static final String REQ_BOARD_MODEL = "board/model";
 	public static final String REQ_BOARD_NAME = "board/name";
+	public static final String REQ_PWM_VALUE = "pwm/value";
 	
 
 	public static final String RESP_HELP = "resp/"+REQ_HELP;
@@ -80,9 +82,10 @@ public class NeoJavaProtocol {
 	public static final String RESP_MAGNETOMETER = "resp/"+REQ_SENSORS_MAGNETOMETER;
 	public static final String RESP_LCD_CLEAR = "resp/"+REQ_LCD_CLEAR;
 	public static final String RESP_LCD_PRINT = "resp/"+REQ_LCD_PRINT;
-    public static final String RESP_BOARD_ID = "resp/"+REQ_BOARD_ID;
-    public static final String RESP_BOARD_MODEL = "resp/"+REQ_BOARD_MODEL;
-    public static final String RESP_BOARD_NAME = "resp/"+REQ_BOARD_NAME;
+	public static final String RESP_BOARD_ID = "resp/"+REQ_BOARD_ID;
+	public static final String RESP_BOARD_MODEL = "resp/"+REQ_BOARD_MODEL;
+	public static final String RESP_BOARD_NAME = "resp/"+REQ_BOARD_NAME;
+	public static final String RESP_PWM_VALUE = "resp/"+REQ_PWM_VALUE;
 
 
 	public final static String OUTPUT_STATE_CHANGED = "state-changed";
@@ -91,7 +94,7 @@ public class NeoJavaProtocol {
 
 	private NeoJavaProtocolListener listener;
 	private Socket clientSocket;
-    private final GpiosManager mGpiosManager;
+        private final GpiosManager mGpiosManager;
 
 	private static final RuntimeTypeAdapterFactory<Message> msgAdapter = RuntimeTypeAdapterFactory.of(Message.class)
 			.registerSubtype(RequestMessage.class)
@@ -184,13 +187,20 @@ public class NeoJavaProtocol {
 					output = BoardInfo.getBoardName();
 					responseMethod = RESP_BOARD_NAME;
 					break;
+				case REQ_PWM_VALUE:
+					int value = m.pinId;
+					Pwm pwm = Pwm.getInstance(0);
+					pwm.set8BitValue(value);
+					output = "OK";
+					responseMethod = RESP_PWM_VALUE;
+					break;
 				case REQ_GPIOS_EXPORT:
 					if (listener != null) {
-                        List<Pin> gpios = listener.onExportedGpiosRequest();
-                        return new ResponseExportGpios("OK", gpios);
+						List<Pin> gpios = listener.onExportedGpiosRequest();
+						return new ResponseExportGpios("OK", gpios);
 					}
-                    output = "No board manager";
-                    responseMethod = ERROR;
+					output = "No board manager";
+					responseMethod = ERROR;
 					break;
 				case REQ_GPIO_SET_MODE:
 					try {

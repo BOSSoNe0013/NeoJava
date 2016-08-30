@@ -80,7 +80,7 @@ public class Pwm {
         bw.close();
     }
 
-    private void setPeriod(long period) throws Exception{
+    public void setPeriod(long period) throws Exception{
         File file = new File(this.uri + PWM_PERIOD_PATH);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
@@ -93,7 +93,7 @@ public class Pwm {
         return Long.parseLong(periodString);
     }
 
-    private void setDutyCycle(long dutyCycle) throws Exception{
+    public void setDutyCycle(long dutyCycle) throws Exception{
         File file = new File(this.uri + PWM_DUTY_CyCLE_PATH);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
@@ -106,6 +106,12 @@ public class Pwm {
         return Long.parseLong(dutyCycleString);
     }
 
+    public void set8BitValue(int value) throws Exception{
+        long period = this.getPeriod();
+        long duty_cycle = (long)(period / 255) * value;
+        this.setDutyCycle(duty_cycle);
+    }
+
     public void setState(PwmState state) throws Exception{
         File file = new File(this.uri + PWM_ENABLE_PATH);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
@@ -116,11 +122,11 @@ public class Pwm {
         currentPwmStates.put(this.id, currentPwmState);
     }
 
-    private void enable() throws Exception{
+    public void enable() throws Exception{
         this.setState(PwmState.ENABLE);
     }
 
-    private void disable() throws Exception{
+    public void disable() throws Exception{
         this.setState(PwmState.DISABLE);
     }
 
