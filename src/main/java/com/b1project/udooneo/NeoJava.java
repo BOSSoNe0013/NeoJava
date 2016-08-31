@@ -1,22 +1,3 @@
-/**
-*  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
-*
-*  This file is part of NeoJava Tools for UDOO Neo
-*
-*  NeoJava Tools for UDOO Neo is free software: you can redistribute it and/or modify
-*  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation, either version 3 of the License, or
-*  (at your option) any later version.
-*
-*  This libraries are distributed in the hope that it will be useful,
-*  but WITHOUT ANY WARRANTY; without even the implied warranty of
-*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*  GNU General Public License for more details.
-*
-*  You should have received a copy of the GNU General Public License
-*  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*/
 package com.b1project.udooneo;
 
 import java.io.BufferedReader;
@@ -49,6 +30,25 @@ import com.b1project.udooneo.sensors.reader.MagnetometerReader;
 import com.b1project.udooneo.sensors.reader.TemperatureReader;
 import com.b1project.udooneo.serial.SimpleSerial;
 
+/**
+ *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ *
+ *  This file is part of NeoJava Tools for UDOO Neo
+ *
+ *  NeoJava Tools for UDOO Neo is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This libraries are distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, GpiosManagerListener {
 
 	public static final String DEFAULT_BINDING_TTY = "/dev/ttyS0";
@@ -76,7 +76,6 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private static NeoJavaSecureServer secureServer;
     private static Gpio gpioNotificationLed;
     private static GpiosManager gpiosManager;
-    private static Pwm pwm;
     private final static char[] CUSTOM_CHAR = {
             0b00000,
             0b10010,
@@ -97,7 +96,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             gpiosManager = GpiosManager.getInstance();
             gpiosManager.addListener(getInstance());
 
-            pwm = Pwm.getInstance(0);
+            Pwm pwm = Pwm.getInstance(0);
             pwm.configure(1000000, 0);
             System.out.println("\rPWM setup complete");
             System.out.print("#:");
@@ -147,7 +146,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 		setupSTDINListener(new DefaultSTDInputListener());
 	}
     
-    public static void setupSTDINListener(final STDInputListener listener) throws Exception{
+    private static void setupSTDINListener(final STDInputListener listener) throws Exception{
         new Thread(){
             @Override
             public void run(){
@@ -166,7 +165,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         }.start();
     }
 
-    public static void startNeoJavaServer(){
+    private static void startNeoJavaServer(){
         new Thread(){
             @Override
             public void run(){
@@ -210,7 +209,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         return mLcd;
     }
     
-    protected String handleLineInput(String line){
+    private String handleLineInput(String line){
         switch (line) {
             case INPUT_COMMAND_LCD_CLEAR:
                 try {
