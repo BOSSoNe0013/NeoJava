@@ -120,7 +120,19 @@ public class SimpleSerial {
         }
     }
 
-    public void write(String message) throws Exception{
+    public void write(int b) throws Exception{
+        mSerialPort.writeInt(b);
+    }
+
+    public void write(byte[] buffer) throws Exception{
+        mSerialPort.writeBytes(buffer);
+    }
+
+    public void print(String message) throws Exception{
         mSerialPort.writeString(message);
+    }
+
+    public void println(String message) throws Exception{
+        mSerialPort.writeString(message.concat("\r\n"));
     }
 }

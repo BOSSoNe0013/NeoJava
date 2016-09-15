@@ -28,7 +28,7 @@ import com.b1project.udooneo.sensors.reader.AccelerometerReader;
 import com.b1project.udooneo.sensors.reader.GyroscopeReader;
 import com.b1project.udooneo.sensors.reader.MagnetometerReader;
 import com.b1project.udooneo.sensors.reader.TemperatureReader;
-import com.b1project.udooneo.serial.SimpleSerial;
+import com.b1project.udooneo.serial.Serial;
 
 /**
  *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
@@ -51,22 +51,28 @@ import com.b1project.udooneo.serial.SimpleSerial;
  */
 public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, GpiosManagerListener {
 
-	public static final String DEFAULT_BINDING_TTY = "/dev/ttyS0";
-	public static final int DEFAULT_SERVER_PORT = 45045;
-	public static final int SERIAL_PORT_BAUD_RATE = 115200;
-	
-	private static Lcd mLcd;
-    private static SimpleSerial mSerial;
+    public static boolean DEBUG = false;
+
+    public static final String DEFAULT_BINDING_TTY = "/dev/ttyS0";
+    public static final int DEFAULT_SERVER_PORT = 45045;
+    public static final int SERIAL_PORT_BAUD_RATE = 115200;
+
+    private static Lcd mLcd;
+    private static Serial mSerial;
     private static String mCurrentMessage = "Java GPIO with\n"+ BoardInfo.getBoardModel();
     private final static String INPUT_COMMAND_QUIT = "/q";
+    private final static String INPUT_COMMAND_HELP = "/h";
     private final static String INPUT_COMMAND_VERSION = "/v";
     private final static String INPUT_COMMAND_LCD_CLEAR = "/lc";
     private final static String INPUT_COMMAND_LCD_PRINT = "/lp";
     private final static String INPUT_COMMAND_TEMP_REQUEST = "/tp";
     private final static String INPUT_COMMAND_EXPORTED_GPIOS = "/gpios";
+    private final static String INPUT_COMMAND_PWM = "/pwm";
+    private final static String INPUT_COMMAND_SERIAL = "/tty";
     private final static String INPUT_COMMAND_BOARD_ID = "/id";
     private final static String INPUT_COMMAND_BOARD_MODEL = "/model";
     private final static String INPUT_COMMAND_BOARD_NAME = "/name";
+    private final static String INPUT_COMMAND_DEBUG = "/debug";
     private final static boolean USE_SECURE_SERVER = false;
     private static boolean mLcdPrinting = false;
     private static boolean mPrintingTemperature = false;
@@ -85,7 +91,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             0b00000,
             0b10010,
             0b00000};
-	private Properties properties;
+    private Properties properties;
 
     public static void main(String[] args) {
         try{
@@ -102,7 +108,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             System.out.print("#:");
 
             mLcd = initLCD();
-            mSerial = new SimpleSerial(DEFAULT_BINDING_TTY, getInstance());
+            mSerial = new Serial(DEFAULT_BINDING_TTY, getInstance());
             mSerial.connect();
             if(USE_SECURE_SERVER){
                 startNeoJavaSecureServer();
@@ -120,14 +126,14 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             System.exit(0);
         }
     }
-	
+
     public NeoJava() {
-    	properties = new Properties();
-    	try {
-			properties.load(NeoJava.class.getResourceAsStream("/version.properties"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        properties = new Properties();
+        try {
+            properties.load(NeoJava.class.getResourceAsStream("/version.properties"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -143,8 +149,8 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     }
     
     private static void startSTDINListener() throws Exception {
-		setupSTDINListener(new DefaultSTDInputListener());
-	}
+        setupSTDINListener(new DefaultSTDInputListener());
+    }
     
     private static void setupSTDINListener(final STDInputListener listener) throws Exception{
         new Thread(){
@@ -186,7 +192,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     }
 
     private static Lcd initLCD() throws Exception {
-    	gpioNotificationLed = Gpio.getInstance(GpiosManager.GPIO_102);
+        gpioNotificationLed = Gpio.getInstance(GpiosManager.GPIO_102);
         gpioNotificationLed.setMode(Gpio.PinMode.OUTPUT);
         for(int i = 0; i < 5; i++){
             gpioNotificationLed.high();
@@ -210,7 +216,38 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     }
     
     private String handleLineInput(String line){
-        switch (line) {
+        String[] words = line.split(" ");
+        switch (words[0]) {
+            case INPUT_COMMAND_HELP:
+                System.out.println("\r" + INPUT_COMMAND_HELP + " - this help");
+                System.out.println(INPUT_COMMAND_QUIT + " - quit");
+                System.out.println(INPUT_COMMAND_DEBUG + " on|off - turn on/off debug mode");
+                System.out.println(INPUT_COMMAND_VERSION + " - show version");
+                System.out.println(INPUT_COMMAND_EXPORTED_GPIOS + " - list exported gpios");
+                System.out.println(INPUT_COMMAND_PWM + " - read/write PWM value");
+                System.out.println(INPUT_COMMAND_LCD_CLEAR + " - clear LCD");
+                System.out.println(INPUT_COMMAND_LCD_PRINT + " - print message on 16x2 LCD screen");
+                System.out.println(INPUT_COMMAND_TEMP_REQUEST + " - request temperature and pressure");
+                System.out.print("#:");
+                break;
+            case INPUT_COMMAND_DEBUG:
+                if(words.length >= 2){
+                    switch (words[1]) {
+                        case "on":
+                            DEBUG = true;
+                            break;
+                        case "off":
+                            DEBUG = false;
+                            break;
+                        default:
+                            System.err.println("\rError: Invalid args");
+                            return null;
+                    }
+                }
+                System.out.print("\rDEBUG is ");
+                System.out.println(DEBUG?"ON":"OFF");
+                System.out.print("#:");
+                break;
             case INPUT_COMMAND_LCD_CLEAR:
                 try {
                     mLcd.clear();
@@ -243,10 +280,10 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 System.exit(0);
                 break;
             case INPUT_COMMAND_VERSION:
-            	if(!mLcdPrinting){
-            		getInstance().onLCDPrintRequest(getInstance().getVersionString() + "\n");
-            	}
-            	System.out.print(getInstance().getVersionString() + "\n");
+                if(!mLcdPrinting){
+                    getInstance().onLCDPrintRequest(getInstance().getVersionString() + "\n");
+                }
+                System.out.println(getInstance().getVersionString());
                 System.out.print("#:");
                 break;
             case INPUT_COMMAND_LCD_PRINT:
@@ -254,6 +291,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 System.out.print("");
                 break;
             case INPUT_COMMAND_TEMP_REQUEST:
+                System.out.print("#:");
                 (new Thread(new TemperatureReader(new TemperatureReaderCallBack(){
 
                     @Override
@@ -261,29 +299,63 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                         String tempString = String.format("Temp: %.1fßC\nPres: %.1fkPa", temp, pressure);
                         if(!mLcdPrinting){
                             mLcdPrinting = true;
-	                        try {
-	                            mLcd.clear();
-	                            mLcd.print(tempString);
-	                            Thread.sleep(3000);
-	                            mLcd.clear();
+                            try {
+                                mLcd.clear();
+                                mLcd.print(tempString);
+                                Thread.sleep(3000);
+                                mLcd.clear();
                                 if(mCurrentMessage != null) {
                                     mLcd.print(mCurrentMessage);
                                 }
-	                        }
-	                        catch (Exception e){
-	                            System.err.println("\rError: " + e.getMessage());
-	                        }
+                            }
+                            catch (Exception e){
+                                System.err.println("\rError: " + e.getMessage());
+                            }
                             mLcdPrinting = false;
-                        }else{
-                            System.out.print("\r" + tempString.replace("ß","°"));
                         }
+                        System.out.println("\r" + tempString.replace("ß","°"));
+                        System.out.print("#:");
                     }
                 }))).start();
-                System.out.print("#:");
                 break;
             case INPUT_COMMAND_EXPORTED_GPIOS:
                 System.out.println("\r" + gpiosManager.getExportedGpios());
                 System.out.print("#:");
+                break;
+            case INPUT_COMMAND_PWM:
+                try {
+                    Pwm pwm = Pwm.getInstance(0);
+                    if(words.length >= 2){
+                        pwm.set8BitValue(Long.parseLong(words[1]));
+                    }
+                    System.out.println("\rPWM: " + pwm.get8BitValue());
+                    System.out.print("#:");
+                } catch (Exception e) {
+                    System.err.println("\rError: " + e.getMessage());
+                }
+                break;
+            case INPUT_COMMAND_SERIAL:
+                try {
+                    if(words.length >= 3){
+                        final String dataType = words[1];
+                        String ttycmd = line.replaceAll(INPUT_COMMAND_SERIAL + " " + dataType + " ","");
+                        switch (dataType){
+                            case "INT":
+                                mSerial.write(Integer.decode(ttycmd));
+                                break;
+                            case "STR":
+                                mSerial.print(ttycmd);
+                                break;
+                        }
+                        System.out.println("\rSerial IN: " + ttycmd);
+                    }
+                    else{
+                        System.err.println("\rError: no data provided");
+                    }
+                    System.out.print("#:");
+                } catch (Exception e) {
+                    System.err.println("\rError: " + e.getMessage());
+                }
                 break;
             case INPUT_COMMAND_BOARD_ID:
                 System.out.println("\r" + BoardInfo.getBoardID());
@@ -438,9 +510,31 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     }
 
     @Override
+    public void onSerialPortWriteRequest(int b) {
+        try {
+            mSerial.write(b);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onSerialPortWriteRequest(String message) {
+            if(message != null) {
+                try {
+                    mSerial.println(message);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+    }
+
+    @Override
     public void onStateChanged(int pinId, Gpio.PinState state) {
-        /*System.out.println("\rGPIO_" + pinId + " state changed to: " + state);
-        System.out.print("#:");*/
+        if(DEBUG) {
+            System.out.println("\rGPIO_" + pinId + " state changed to: " + state);
+            System.out.print("#:");
+        }
         if(server != null) {
             server.writeOutput(NeoJavaProtocol.makePinStateMessage(pinId, state));
         }
@@ -451,8 +545,10 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
     @Override
     public void onModeChanged(int pinId, Gpio.PinMode mode) {
-        /*System.out.println("\rGPIO_" + pinId + " mode changed to: " + mode);
-        System.out.print("#:");*/
+        if(DEBUG) {
+            System.out.println("\rGPIO_" + pinId + " mode changed to: " + mode);
+            System.out.print("#:");
+        }
         if(server != null) {
             server.writeOutput(NeoJavaProtocol.makePinModeMessage(pinId, mode));
         }
@@ -463,8 +559,10 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
     @Override
     public void onExport(int pinId) {
-        System.out.println("\rGPIO_" + pinId + " exported");
-        System.out.print("#:");
+        if(DEBUG) {
+            System.out.println("\rGPIO_" + pinId + " exported");
+            System.out.print("#:");
+        }
         if(server != null) {
             server.writeOutput(NeoJavaProtocol.makeExportMessage(onExportedGpiosRequest()));
         }
@@ -475,8 +573,10 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
     @Override
     public void onRelease(int pinId) {
-        System.out.println("\rGPIO_" + pinId + " released");
-        System.out.print("#:");
+        if(DEBUG) {
+            System.out.println("\rGPIO_" + pinId + " released");
+            System.out.print("#:");
+        }
         if(server != null) {
             server.writeOutput(NeoJavaProtocol.makeExportMessage(onExportedGpiosRequest()));
         }
@@ -486,50 +586,48 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     }
 
     private static final class DefaultSTDInputListener implements STDInputListener {
-		int l = 0;
-		String message;
+        int l = 0;
+        String message;
 
-		@Override
-		public void onNewLine(String line){
-		    try{
-		        if(l == 0){
-		            String out = getInstance().handleLineInput(line);
-		            if(out != null){
-		                message = out;
-		                l++;
-		            }
-		        }
-		        else{
-		            if(mLcdPrinting) {
-		                message += "\n" + line;
-		                l = 0;
-		                getInstance().onLCDPrintRequest(message);
-		            }
+        @Override
+        public void onNewLine(String line){
+            try{
+                if(l == 0){
+                    String out = getInstance().handleLineInput(line);
+                    if(out != null){
+                        message = out;
+                        l++;
+                    }
+                }
+                else{
+                    if(mLcdPrinting) {
+                        message += "\n" + line;
+                        l = 0;
+                        getInstance().onLCDPrintRequest(message);
+                    }
                     System.out.print("#:");
-		        }
-		    }
-		    catch(Exception e){
-		        e.printStackTrace();
-		    }
-		}
-	}
+                }
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Override
     public void onNewLine(String line) {
-    	System.out.printf("\rSerial out: %s\n", line.trim());
-        System.out.print("#:");
-    	if(mInitComplete && line.startsWith("0x")) {
-            int code = Integer.parseInt(line.replace("0x", "").trim(), 16);
+        if(mInitComplete && line.startsWith("0x")) {
+            int code = Integer.decode(line);
             switch (code) {
                 case 0x01:
                     if(!mPrintingTemperature) {
                         mPrintingTemperature = true;
-		                    (new Thread(new TemperatureReader(new TemperatureReaderCallBack(){
-		
-		                    @Override
-		                    public void onRequestComplete(Float temp, Float pressure) {
-		                        String tempString = String.format("Temp: %.1fßC\nPres: %.1fkPa", temp, pressure);
-		                        try {
+                            (new Thread(new TemperatureReader(new TemperatureReaderCallBack(){
+
+                            @Override
+                            public void onRequestComplete(Float temp, Float pressure) {
+                                String tempString = String.format("Temp: %.1fßC\nPres: %.1fkPa", temp, pressure);
+                                try {
                                     if(!mLcdPrinting){
                                         mLcdPrinting = true;
                                         mLcd.clear();
@@ -545,16 +643,25 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                                         System.out.print("\r" + tempString.replace("ß","°"));
                                         System.out.print("#:");
                                     }
-		                        }
-		                        catch (Exception e){
-		                            System.err.println("\rError: " + e.getMessage());
+                                }
+                                catch (Exception e){
+                                    System.err.println("\rError: " + e.getMessage());
                                     System.out.print("#:");
-		                        }
-		                    }
-		                }))).start();
+                                }
+                            }
+                        }))).start();
                     }
                     break;
             }
         }
+        else if(mInitComplete) {
+            System.out.printf("\rSerial OUT: %s\n", line.trim());
+            System.out.print("#:");
+        }
+        else{
+            System.err.println("\rError: system init not completed");
+            System.out.print("#:");
+        }
     }
+
 }

@@ -99,7 +99,7 @@ public class GpiosManager implements GpioListener, FSWatcherListener {
     
     private static List<Integer> mExportedGpios = new ArrayList<>();
     private static List<GpiosManagerListener> mListeners = new ArrayList<>();
-    private FSWatcher mFSWatcher;
+    private static FSWatcher mFSWatcher;
 
     private GpiosManager(){
     }

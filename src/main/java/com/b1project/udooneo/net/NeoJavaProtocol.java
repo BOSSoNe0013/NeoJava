@@ -3,6 +3,7 @@ package com.b1project.udooneo.net;
 import java.net.Socket;
 import java.util.List;
 
+import com.b1project.udooneo.NeoJava;
 import com.b1project.udooneo.board.BoardInfo;
 
 /**
@@ -32,14 +33,7 @@ import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
 import com.b1project.udooneo.messages.Message;
 import com.b1project.udooneo.messages.RequestMessage;
 import com.b1project.udooneo.messages.ResponseMessage;
-import com.b1project.udooneo.messages.response.ResponseAccelerometerData;
-import com.b1project.udooneo.messages.response.ResponseExportGpios;
-import com.b1project.udooneo.messages.response.ResponseGyroscopeData;
-import com.b1project.udooneo.messages.response.ResponseMagnetometer;
-import com.b1project.udooneo.messages.response.ResponseSetPinMode;
-import com.b1project.udooneo.messages.response.ResponseSetPinState;
-import com.b1project.udooneo.messages.response.ResponseTemperature;
-import com.b1project.udooneo.messages.response.ResponseOutputMessage;
+import com.b1project.udooneo.messages.response.*;
 import com.b1project.udooneo.model.Pin;
 import com.b1project.udooneo.model.SensorData;
 import com.b1project.udooneo.model.Temperature;
@@ -68,7 +62,9 @@ public class NeoJavaProtocol {
 	public static final String REQ_BOARD_MODEL = "board/model";
 	public static final String REQ_BOARD_NAME = "board/name";
 	public static final String REQ_PWM_VALUE = "pwm/value";
-	
+	public static final String REQ_SERIAL_VALUE = "tty/value";
+	public static final String REQ_SERIAL_RGB_VALUE = "tty/rgb";
+
 
 	public static final String RESP_HELP = "resp/"+REQ_HELP;
 	public static final String RESP_VERSION = "resp/"+REQ_VERSION;
@@ -86,10 +82,9 @@ public class NeoJavaProtocol {
 	public static final String RESP_BOARD_MODEL = "resp/"+REQ_BOARD_MODEL;
 	public static final String RESP_BOARD_NAME = "resp/"+REQ_BOARD_NAME;
 	public static final String RESP_PWM_VALUE = "resp/"+REQ_PWM_VALUE;
+	public static final String RESP_SERIAL_VALUE = "resp/"+REQ_SERIAL_VALUE;
 
 
-	public final static String OUTPUT_STATE_CHANGED = "state-changed";
-	public final static String OUTPUT_MODE_CHANGED = "mode-changed";
 	public static final String ERROR = "error";
 
 	private NeoJavaProtocolListener listener;
@@ -130,184 +125,221 @@ public class NeoJavaProtocol {
 	}
 
 	ResponseMessage processInput(String input) {
-		System.out.println("\r--------------------\n" + input);
-		System.out.print("#:");
+		if(NeoJava.DEBUG) {
+			System.out.println("\r--------------------\n" + input);
+			System.out.print("#:");
+		}
 		try {
 			RequestMessage m = fromJson(input, RequestMessage.class);
 			String output;
 			String responseMethod = m.method;
 			if (!m.method.isEmpty()) {
 				switch (m.method) {
-				case REQ_HELP:
-					output = REQ_HELP + " - this help\\n";
-					output += REQ_VERSION + " - show version\\n";
-					output += REQ_QUIT + " - quit\\n";
-					output += REQ_GPIOS_EXPORT + " - list exported gpios\\n";
-					output += REQ_GPIO_SET_MODE  + " - set gpio mode\\n";
-					output += REQ_GPIO_SET_STATE + " - set gpio state\\n";
-					output += REQ_GPIO_RELEASE + " - release gpio\\n";
-					output += REQ_LCD_CLEAR + " - clear LCD\\n";
-					output += REQ_LCD_PRINT + " - print message on 16x2 LCD screen\\n";
-					output += REQ_SENSORS_TEMPERATURE + " - request temperature and pressure\\n";
-					output += REQ_SENSORS_ACCELEROMETER + " - request accelerometer data\\n";
-					output += REQ_SENSORS_MAGNETOMETER + " - request magnetometer data\\n";
-					output += REQ_SENSORS_GYROSCOPE + " - request gyroscope data";
-                    responseMethod = RESP_HELP;
-					break;
-				case REQ_VERSION:
-					if (listener != null) {
-						output = listener.getVersionString();
-                        responseMethod = RESP_VERSION;
-					}
-					else{
-						output = "No board manager";
-						responseMethod = ERROR;
-					}
-					break;
-				case REQ_QUIT:
-					if (listener != null) {
-						listener.onQuitRequest(clientSocket);
-                        output = "Goodbye !";
-                        responseMethod = RESP_QUIT;
-					}
-					else{
-						output = "No board manager";
-						responseMethod = ERROR;
-					}
-					break;
-				case REQ_BOARD_ID:
-					output = BoardInfo.getBoardID();
-					responseMethod = RESP_BOARD_ID;
-					break;
-				case REQ_BOARD_MODEL:
-					output = BoardInfo.getBoardModel();
-					responseMethod = RESP_BOARD_MODEL;
-					break;
-				case REQ_BOARD_NAME:
-					output = BoardInfo.getBoardName();
-					responseMethod = RESP_BOARD_NAME;
-					break;
-				case REQ_PWM_VALUE:
-					int value = m.pinId;
-					Pwm pwm = Pwm.getInstance(0);
-					pwm.set8BitValue(value);
-					output = "OK";
-					responseMethod = RESP_PWM_VALUE;
-					break;
-				case REQ_GPIOS_EXPORT:
-					if (listener != null) {
-						List<Pin> gpios = listener.onExportedGpiosRequest();
-						return new ResponseExportGpios("OK", gpios);
-					}
-					output = "No board manager";
-					responseMethod = ERROR;
-					break;
-				case REQ_GPIO_SET_MODE:
-					try {
-						Gpio.PinMode mode = (m.mode != null)?m.mode: Gpio.PinMode.OUTPUT;
-						Gpio gpio = mGpiosManager.getGpio(m.pinId);
-						gpio.setMode(mode);
-						output = "OK";
-					} catch (Exception e) {
-						output = "Invalid set GPIO mode: " + input;
-			            System.err.println("Error: " + e.getMessage());
-                		System.out.print("#:");
-						responseMethod = ERROR;
-					}
-					break;
-				case REQ_GPIO_SET_STATE:
-					try {
-						Gpio gpio = mGpiosManager.getGpio(m.pinId);
-						if (gpio.getMode() == Gpio.PinMode.OUTPUT) {
-							gpio.write(m.state);
-							output = "OK";
-						} else {
-							output = "PIN is in INPUT mode, can't write value";
+					case REQ_HELP:
+						output = REQ_HELP + " - this help\\n";
+						output += REQ_VERSION + " - show version\\n";
+						output += REQ_QUIT + " - quit\\n";
+						output += REQ_BOARD_ID + " - request board ID\\n";
+						output += REQ_BOARD_MODEL + " - request board model\\n";
+						output += REQ_BOARD_NAME + " - request board name\\n";
+						output += REQ_GPIOS_EXPORT + " - list exported gpios\\n";
+						output += REQ_GPIO_SET_MODE  + " - set gpio mode\\n";
+						output += REQ_GPIO_SET_STATE + " - set gpio state\\n";
+						output += REQ_GPIO_RELEASE + " - release gpio\\n";
+						output += REQ_PWM_VALUE + " - set PWM value\\n";
+						output += REQ_SERIAL_VALUE + " - write data to serial port\\n";
+						output += REQ_SERIAL_RGB_VALUE + " - write comma separated rgb value to serial port\\n";
+						output += REQ_LCD_CLEAR + " - clear LCD\\n";
+						output += REQ_LCD_PRINT + " - print message on 16x2 LCD screen\\n";
+						output += REQ_SENSORS_TEMPERATURE + " - request temperature and pressure\\n";
+						output += REQ_SENSORS_ACCELEROMETER + " - request accelerometer data\\n";
+						output += REQ_SENSORS_MAGNETOMETER + " - request magnetometer data\\n";
+						output += REQ_SENSORS_GYROSCOPE + " - request gyroscope data";
+						responseMethod = RESP_HELP;
+						break;
+					case REQ_VERSION:
+						if (listener != null) {
+							output = listener.getVersionString();
+							responseMethod = RESP_VERSION;
+						}
+						else{
+							output = "No board manager";
 							responseMethod = ERROR;
 						}
-					} catch (Exception e) {
-						output = "invalid set GPIO state: " + input;
+						break;
+					case REQ_QUIT:
+						if (listener != null) {
+							listener.onQuitRequest(clientSocket);
+							output = "Goodbye !";
+							responseMethod = RESP_QUIT;
+						}
+						else{
+							output = "No board manager";
+							responseMethod = ERROR;
+						}
+						break;
+					case REQ_BOARD_ID:
+						output = BoardInfo.getBoardID();
+						responseMethod = RESP_BOARD_ID;
+						break;
+					case REQ_BOARD_MODEL:
+						output = BoardInfo.getBoardModel();
+						responseMethod = RESP_BOARD_MODEL;
+						break;
+					case REQ_BOARD_NAME:
+						output = BoardInfo.getBoardName();
+						responseMethod = RESP_BOARD_NAME;
+						break;
+					case REQ_PWM_VALUE:
+						long value = m.value;
+						Pwm pwm = Pwm.getInstance(0);
+						pwm.set8BitValue(value);
+						return new ResponsePwm("OK", m.value);
+					case REQ_GPIOS_EXPORT:
+						if (listener != null) {
+							List<Pin> gpios = listener.onExportedGpiosRequest();
+							return new ResponseExportGpios("OK", gpios);
+						}
+						output = "No board manager";
 						responseMethod = ERROR;
-					}
-					break;
-				case REQ_GPIO_RELEASE:
-					try {
-						Gpio gpio = mGpiosManager.getGpio(m.pinId);
-						gpio.release();
-						output = "OK";
-					} catch (Exception e) {
-						output = "error during PIN release: " + e.getMessage();
+						break;
+					case REQ_GPIO_SET_MODE:
+						try {
+							Gpio.PinMode mode = (m.mode != null)?m.mode: Gpio.PinMode.OUTPUT;
+							Gpio gpio = mGpiosManager.getGpio(m.pinId);
+							gpio.setMode(mode);
+							output = "OK";
+						} catch (Exception e) {
+							output = "Invalid set GPIO mode: " + input;
+							System.err.println("Error: " + e.getMessage());
+							System.out.print("#:");
+							responseMethod = ERROR;
+						}
+						break;
+					case REQ_GPIO_SET_STATE:
+						try {
+							Gpio gpio = mGpiosManager.getGpio(m.pinId);
+							if (gpio.getMode() == Gpio.PinMode.OUTPUT) {
+								gpio.write(m.state);
+								output = "OK";
+							} else {
+								output = "PIN is in INPUT mode, can't write value";
+								responseMethod = ERROR;
+							}
+						} catch (Exception e) {
+							output = "invalid set GPIO state: " + input;
+							responseMethod = ERROR;
+						}
+						break;
+					case REQ_GPIO_RELEASE:
+						try {
+							Gpio gpio = mGpiosManager.getGpio(m.pinId);
+							gpio.release();
+							output = "OK";
+						} catch (Exception e) {
+							output = "error during PIN release: " + e.getMessage();
+							responseMethod = ERROR;
+						}
+						break;
+                    case REQ_SERIAL_VALUE:
+						if (listener != null) {
+							listener.onSerialPortWriteRequest(m.detailMessage);
+                            output = "OK";
+                        }
+                        else{
+							output = "No sensor manager";
+							responseMethod = ERROR;
+                        }
+                        break;
+                    case REQ_SERIAL_RGB_VALUE:
+						if (listener != null) {
+							String[] rgb = m.detailMessage.split(",");
+							int red = Integer.parseInt(rgb[0]);
+							int green = Integer.parseInt(rgb[1]);
+							int blue = Integer.parseInt(rgb[2]);
+                            System.out.println("\r" + red + " " + green + " " + blue);
+                            System.out.print("#:");
+							listener.onSerialPortWriteRequest(255);
+							listener.onSerialPortWriteRequest(red);
+							listener.onSerialPortWriteRequest(green);
+							listener.onSerialPortWriteRequest(blue);
+                            output = "OK";
+                        }
+                        else{
+							output = "No sensor manager";
+							responseMethod = ERROR;
+                        }
+                        break;
+					case REQ_SENSORS_TEMPERATURE:
+						if (listener != null) {
+							listener.onTemperatureRequest();
+							output = "Reading temperature";
+						}
+						else{
+							output = "No sensor manager";
+							responseMethod = ERROR;
+						}
+						break;
+					case REQ_SENSORS_ACCELEROMETER:
+						if (listener != null) {
+							listener.onAccelerometerRequest();
+							output = "Reading accelerometer data";
+						}
+						else{
+							output = "No sensor manager";
+							responseMethod = ERROR;
+						}
+						break;
+					case REQ_SENSORS_MAGNETOMETER:
+						if (listener != null) {
+							listener.onMagnetometerRequest();
+							output = "Reading magnetometer data";
+						}
+						else{
+							output = "No sensor manager";
+							responseMethod = ERROR;
+						}
+						break;
+					case REQ_SENSORS_GYROSCOPE:
+						if (listener != null) {
+							listener.onGyroscopeRequest();
+							output = "Reading gyroscope data";
+						}
+						else{
+							output = "No sensor manager";
+							responseMethod = ERROR;
+						}
+						break;
+					case REQ_LCD_CLEAR:
+						if (listener != null) {
+							listener.onClearLCDRequest();
+							output = "OK";
+							responseMethod = RESP_LCD_CLEAR;
+						}
+						else{
+							output = "No LCD screen manager";
+							responseMethod = ERROR;
+						}
+						break;
+					case REQ_LCD_PRINT:
+						if (listener != null) {
+							listener.onLCDPrintRequest(m.detailMessage);
+							output = "OK";
+							responseMethod = RESP_LCD_PRINT;
+						}
+						else{
+							output = "No LCD screen manager";
+							responseMethod = ERROR;
+						}
+						break;
+					default:
+						output = "Unknown method: " + m.method;
 						responseMethod = ERROR;
-					}
-					break;
-				case REQ_SENSORS_TEMPERATURE:
-					if (listener != null) {
-						listener.onTemperatureRequest();
-                        output = "Reading temperature";
-					}
-					else{
-						output = "No sensor manager";
-						responseMethod = ERROR;
-					}
-					break;
-				case REQ_SENSORS_ACCELEROMETER:
-					if (listener != null) {
-						listener.onAccelerometerRequest();
-                        output = "Reading accelerometer data";
-					}
-					else{
-						output = "No sensor manager";
-						responseMethod = ERROR;
-					}
-					break;
-				case REQ_SENSORS_MAGNETOMETER:
-					if (listener != null) {
-						listener.onMagnetometerRequest();
-                        output = "Reading magnetometer data";
-					}
-					else{
-						output = "No sensor manager";
-						responseMethod = ERROR;
-					}
-					break;
-				case REQ_SENSORS_GYROSCOPE:
-					if (listener != null) {
-						listener.onGyroscopeRequest();
-                        output = "Reading gyroscope data";
-					}
-					else{
-						output = "No sensor manager";
-						responseMethod = ERROR;
-					}
-					break;
-				case REQ_LCD_CLEAR:
-					if (listener != null) {
-						listener.onClearLCDRequest();
-						output = "OK";
-						responseMethod = RESP_LCD_CLEAR;
-					}
-					else{
-						output = "No LCD screen manager";
-						responseMethod = ERROR;
-					}
-					break;
-				case REQ_LCD_PRINT:
-					if (listener != null) {
-						listener.onLCDPrintRequest(m.detailMessage);
-						output = "OK";
-						responseMethod = RESP_LCD_PRINT;
-					}
-					else{
-						output = "No LCD screen manager";
-						responseMethod = ERROR;
-					}
-					break;
-				default:
-					output = "Unknown method: " + m.method;
-                    responseMethod = ERROR;
 				}
-                System.out.println("\r"+output);
-                System.out.print("#:");
+				if(NeoJava.DEBUG) {
+					System.out.println("\r" + output);
+					System.out.print("#:");
+				}
 				return new ResponseOutputMessage(responseMethod, output);
 			}
 			return new ResponseOutputMessage(ERROR, "Empty method: " + input.replace("\"", "\\\""));

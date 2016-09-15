@@ -25,6 +25,7 @@ import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -105,10 +106,42 @@ public class Serial {
         }
     }
 
-    public void write(String message) throws Exception{
-        if(mOutputStream != null){
-            mOutputStream.write(message.getBytes());
+    public void write(int b) throws IOException{
+        if(mSerialPort != null){
+            if(mOutputStream == null) {
+                mOutputStream = mSerialPort.getOutputStream();
+            }
+            if(mOutputStream != null) {
+               mOutputStream.write(b);
+            }
+            else{
+                System.err.println("\rError: can't get output stream");
+                System.out.print("#:");
+            }
         }
+    }
+
+    public void write(byte[] buffer) throws IOException {
+        if(mSerialPort != null){
+            if(mOutputStream == null) {
+                mOutputStream = mSerialPort.getOutputStream();
+            }
+            if(mOutputStream != null) {
+               mOutputStream.write(buffer);
+            }
+            else{
+                System.err.println("\rError: can't get output stream");
+                System.out.print("#:");
+            }
+        }
+    }
+
+    public void print(String message) throws Exception{
+        this.write(message.getBytes());
+    }
+
+    public void println(String message) throws Exception{
+        this.write(message.concat("\r\n").getBytes());
     }
 
 }

@@ -26,12 +26,19 @@ import com.b1project.udooneo.gpio.Gpio.PinState;
 public class RequestMessage extends Message{
 
 	public int pinId;
+	public long value;
 	public PinState state;
 	public PinMode mode;
 	public String detailMessage;
 
 	public RequestMessage(String method) {
 		this(method,0,null,null);
+	}
+	public RequestMessage(String method, long value) {
+		super(method);
+		this.pinId = 0;
+		this.state = null;
+		this.mode = null;
 	}
 	public RequestMessage(String method, int pinId) {
 		this(method, pinId, null, null);

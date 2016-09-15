@@ -146,13 +146,19 @@ public class Pwm {
      * @param value int {0...255}
      * @throws Exception if value cannot be set (for example if value is not between 0 and 255 or is NaN)
      */
-    public void set8BitValue(int value) throws Exception{
+    public void set8BitValue(long value) throws Exception{
         if(value < 0 || value > 255){
             throw new NumberFormatException("Value should be between 0 and 255");
         }
         long period = this.getPeriod();
         long duty_cycle = period / 255 * value;
         this.setDutyCycle(duty_cycle);
+    }
+
+    public long get8BitValue() throws Exception{
+        long period = this.getPeriod();
+        long duty_cycle = this.getDutyCycle();
+        return Math.min(255, Math.round(duty_cycle * 255 / period));
     }
 
     /**
