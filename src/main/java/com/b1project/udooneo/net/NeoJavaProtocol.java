@@ -83,6 +83,7 @@ public class NeoJavaProtocol {
 	public static final String RESP_BOARD_NAME = "resp/"+REQ_BOARD_NAME;
 	public static final String RESP_PWM_VALUE = "resp/"+REQ_PWM_VALUE;
 	public static final String RESP_SERIAL_VALUE = "resp/"+REQ_SERIAL_VALUE;
+	public static final String RESP_SERIAL_RGB_VALUE = "resp/"+REQ_SERIAL_RGB_VALUE;
 
 
 	public static final String ERROR = "error";
@@ -193,8 +194,13 @@ public class NeoJavaProtocol {
 					case REQ_PWM_VALUE:
 						long value = m.value;
 						Pwm pwm = Pwm.getInstance(0);
-						pwm.set8BitValue(value);
-						return new ResponsePwm("OK", m.value);
+                        if(value >= 0 && value <= 255) {
+                            pwm.set8BitValue(value);
+                        }
+                        else{
+                            value = pwm.get8BitValue();
+                        }
+						return new ResponsePwm("OK", value);
 					case REQ_GPIOS_EXPORT:
 						if (listener != null) {
 							List<Pin> gpios = listener.onExportedGpiosRequest();
@@ -244,7 +250,7 @@ public class NeoJavaProtocol {
                     case REQ_SERIAL_VALUE:
 						if (listener != null) {
 							listener.onSerialPortWriteRequest(m.detailMessage);
-                            output = "OK";
+                            return new ResponseSerialValue("OK", m.detailMessage);
                         }
                         else{
 							output = "No sensor manager";
@@ -257,13 +263,11 @@ public class NeoJavaProtocol {
 							int red = Integer.parseInt(rgb[0]);
 							int green = Integer.parseInt(rgb[1]);
 							int blue = Integer.parseInt(rgb[2]);
-                            System.out.println("\r" + red + " " + green + " " + blue);
-                            System.out.print("#:");
 							listener.onSerialPortWriteRequest(255);
 							listener.onSerialPortWriteRequest(red);
 							listener.onSerialPortWriteRequest(green);
 							listener.onSerialPortWriteRequest(blue);
-                            output = "OK";
+                            return new ResponseSerialRGBValue("OK", m.detailMessage);
                         }
                         else{
 							output = "No sensor manager";
