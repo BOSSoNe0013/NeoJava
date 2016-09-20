@@ -259,15 +259,18 @@ public class NeoJavaProtocol {
                         break;
                     case REQ_SERIAL_RGB_VALUE:
 						if (listener != null) {
-							String[] rgb = m.detailMessage.split(",");
-							int red = Integer.parseInt(rgb[0]);
-							int green = Integer.parseInt(rgb[1]);
-							int blue = Integer.parseInt(rgb[2]);
-							listener.onSerialPortWriteRequest(255);
-							listener.onSerialPortWriteRequest(red);
-							listener.onSerialPortWriteRequest(green);
-							listener.onSerialPortWriteRequest(blue);
-                            return new ResponseSerialRGBValue("OK", m.detailMessage);
+							if(!m.detailMessage.isEmpty()) {
+								String[] rgb = m.detailMessage.split(",");
+								int red = Integer.parseInt(rgb[0]);
+								int green = Integer.parseInt(rgb[1]);
+								int blue = Integer.parseInt(rgb[2]);
+								listener.onSerialPortWriteRequest(255);
+								listener.onSerialPortWriteRequest(red);
+								listener.onSerialPortWriteRequest(green);
+								listener.onSerialPortWriteRequest(blue);
+								NeoJava.CURRENT_SERIAL_RGB_VALUE = m.detailMessage;
+							}
+                            return new ResponseSerialRGBValue("OK", NeoJava.CURRENT_SERIAL_RGB_VALUE);
                         }
                         else{
 							output = "No sensor manager";
