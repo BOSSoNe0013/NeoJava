@@ -74,7 +74,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private final static String INPUT_COMMAND_BOARD_NAME = "/name";
     private final static String INPUT_COMMAND_DEBUG = "/debug";
     private final static boolean USE_SECURE_SERVER = false;
-    public static String CURRENT_SERIAL_RGB_VALUE = "0,0,0";
+    public static String CURRENT_SERIAL_RGB_VALUE = "0,0,0|0,0,0";
     private static boolean mLcdPrinting = false;
     private static boolean mPrintingTemperature = false;
     private static boolean mInitComplete = false;

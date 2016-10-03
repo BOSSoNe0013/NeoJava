@@ -1,6 +1,7 @@
 package com.b1project.udooneo.net;
 
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.List;
 
 import com.b1project.udooneo.NeoJava;
@@ -260,14 +261,14 @@ public class NeoJavaProtocol {
                     case REQ_SERIAL_RGB_VALUE:
 						if (listener != null) {
 							if(!m.detailMessage.isEmpty()) {
-								String[] values = m.detailMessage.split("|");
+								String[] values = m.detailMessage.split("-");
 								String[] rgb_top = values[0].split(",");
 								int red = Integer.parseInt(rgb_top[0]);
 								int green = Integer.parseInt(rgb_top[1]);
 								int blue = Integer.parseInt(rgb_top[2]);
                                 updateLedStripColor(0x30, red, green, blue);
                                 if(values.length >= 2){
-								    String[] rgb_bottom = values[0].split(",");
+								    String[] rgb_bottom = values[1].split(",");
                                     red = Integer.parseInt(rgb_bottom[0]);
                                     green = Integer.parseInt(rgb_bottom[1]);
                                     blue = Integer.parseInt(rgb_bottom[2]);
@@ -364,7 +365,7 @@ public class NeoJavaProtocol {
 
 	private void updateLedStripColor(int pos, int red, int green, int blue){
         listener.onSerialPortWriteRequest(0xff);
-        listener.onSerialPortWriteRequest(0x30);
+        listener.onSerialPortWriteRequest(pos);
         listener.onSerialPortWriteRequest(red);
         listener.onSerialPortWriteRequest(green);
         listener.onSerialPortWriteRequest(blue);
