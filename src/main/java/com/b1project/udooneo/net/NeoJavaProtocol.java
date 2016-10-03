@@ -260,14 +260,19 @@ public class NeoJavaProtocol {
                     case REQ_SERIAL_RGB_VALUE:
 						if (listener != null) {
 							if(!m.detailMessage.isEmpty()) {
-								String[] rgb = m.detailMessage.split(",");
-								int red = Integer.parseInt(rgb[0]);
-								int green = Integer.parseInt(rgb[1]);
-								int blue = Integer.parseInt(rgb[2]);
-								listener.onSerialPortWriteRequest(255);
-								listener.onSerialPortWriteRequest(red);
-								listener.onSerialPortWriteRequest(green);
-								listener.onSerialPortWriteRequest(blue);
+								String[] values = m.detailMessage.split("|");
+								String[] rgb_top = values[0].split(",");
+								int red = Integer.parseInt(rgb_top[0]);
+								int green = Integer.parseInt(rgb_top[1]);
+								int blue = Integer.parseInt(rgb_top[2]);
+                                updateLedStripColor(0x30, red, green, blue);
+                                if(values.length >= 2){
+								    String[] rgb_bottom = values[0].split(",");
+                                    red = Integer.parseInt(rgb_bottom[0]);
+                                    green = Integer.parseInt(rgb_bottom[1]);
+                                    blue = Integer.parseInt(rgb_bottom[2]);
+                                    updateLedStripColor(0x31, red, green, blue);
+                                }
 								NeoJava.CURRENT_SERIAL_RGB_VALUE = m.detailMessage;
 							}
                             return new ResponseSerialRGBValue("OK", NeoJava.CURRENT_SERIAL_RGB_VALUE);
@@ -356,6 +361,18 @@ public class NeoJavaProtocol {
 			return new ResponseOutputMessage(ERROR, "Invalid request: " + input);
 		}
 	}
+
+	private void updateLedStripColor(int pos, int red, int green, int blue){
+        listener.onSerialPortWriteRequest(0xff);
+        listener.onSerialPortWriteRequest(0x30);
+        listener.onSerialPortWriteRequest(red);
+        listener.onSerialPortWriteRequest(green);
+        listener.onSerialPortWriteRequest(blue);
+        if(NeoJava.DEBUG) {
+            System.out.printf("\rset RGB value: %d,%d,%d\n", red, green, blue);
+            System.out.print("#:");
+        }
+    }
 
 	public static ResponseExportGpios makeExportMessage(List<Pin> gpios) {
 		return new ResponseExportGpios("OK", gpios);
