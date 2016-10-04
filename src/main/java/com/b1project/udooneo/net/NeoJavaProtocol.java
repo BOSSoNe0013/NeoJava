@@ -3,6 +3,7 @@ package com.b1project.udooneo.net;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.b1project.udooneo.NeoJava;
 import com.b1project.udooneo.board.BoardInfo;
@@ -254,14 +255,14 @@ public class NeoJavaProtocol {
                             return new ResponseSerialValue("OK", m.detailMessage);
                         }
                         else{
-							output = "No sensor manager";
+							output = "No serial manager";
 							responseMethod = ERROR;
                         }
                         break;
                     case REQ_SERIAL_RGB_VALUE:
 						if (listener != null) {
 							if(!m.detailMessage.isEmpty()) {
-								String[] values = m.detailMessage.split("-");
+								String[] values = m.detailMessage.split(Pattern.quote("|"));
 								String[] rgb_top = values[0].split(",");
 								int red = Integer.parseInt(rgb_top[0]);
 								int green = Integer.parseInt(rgb_top[1]);
@@ -279,7 +280,7 @@ public class NeoJavaProtocol {
                             return new ResponseSerialRGBValue("OK", NeoJava.CURRENT_SERIAL_RGB_VALUE);
                         }
                         else{
-							output = "No sensor manager";
+							output = "No serial manager";
 							responseMethod = ERROR;
                         }
                         break;
