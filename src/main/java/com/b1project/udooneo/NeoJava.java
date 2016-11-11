@@ -137,6 +137,12 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             startSTDINListener();
             System.out.println("\rInit complete");
             System.out.print("#:");
+            Runtime.getRuntime().addShutdownHook(new Thread(){
+                @Override
+                public void run() {
+                    getInstance().quit();
+                }
+            });
             mInitComplete = true;
         }
         catch(Exception e){
@@ -278,28 +284,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 System.out.print("#:");
                 break;
             case INPUT_COMMAND_QUIT:
-                System.out.println("\nGoodbye !");
-                try {
-                    if(mServer != null) {
-                        mServer.stopServer();
-                    }
-                    if(mSecureServer != null) {
-                        mSecureServer.stopServer();
-                    }
-                    if(mPreferences.getBoolean(PREF_LCD_ENABLE, true)) {
-                        mLcd.setLcdDisplayState(false);
-                        mLcd.setBacklightState(false);
-                        mLcd = null;
-                    }
-                    if(mSerial != null){
-                        mSerial.disconnect();
-                    }
-                    gpioNotificationLed.release();
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
-                System.exit(0);
+                quit();
                 break;
             case INPUT_COMMAND_VERSION:
                 if(mPreferences.getBoolean(PREF_LCD_ENABLE, true) && !mLcdPrinting){
@@ -408,6 +393,33 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 break;
         }
         return null;
+    }
+
+    private void quit() {
+        try {
+            System.out.println("\nGoodbye !");
+            if(mServer != null) {
+                mServer.stopServer();
+            }
+            if(mSecureServer != null) {
+                mSecureServer.stopServer();
+            }
+            if(mPreferences.getBoolean(PREF_LCD_ENABLE, true)) {
+                mLcd.print("Goodbye !\n");
+                Thread.sleep(3);
+                mLcd.setLcdDisplayState(false);
+                mLcd.setBacklightState(false);
+                mLcd = null;
+            }
+            if(mSerial != null){
+                mSerial.disconnect();
+            }
+            gpioNotificationLed.release();
+        }
+        catch (Exception e){
+            System.err.println("\rError :" + e.getLocalizedMessage());
+        }
+        System.exit(0);
     }
 
     @Override

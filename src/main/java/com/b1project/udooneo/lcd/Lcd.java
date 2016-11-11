@@ -124,14 +124,19 @@ public class Lcd{
         lcd_rs.low();
 
         this.set((char)0x33);
+	Thread.sleep(3);
         this.set((char)0x32);
-
+	Thread.sleep(3);
         this.set((char)(LCD_SETDDRAMADDR | 0x40));
-
+	Thread.sleep(3);
         this.set((char)(LCD_FUNCTIONSET | lcd_mode | LCD_2LINE | LCD_5x8DOTS));
+	Thread.sleep(3);
         setBacklightState(true);
+	Thread.sleep(3);
         setLcdDisplayState(true);
+	Thread.sleep(3);
         this.set((char)(LCD_ENTRYMODESET | LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT));
+	Thread.sleep(3);
         System.out.println("\rClear display");
         System.out.print("#:");
         this.clear();

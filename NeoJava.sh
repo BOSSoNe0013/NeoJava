@@ -1,5 +1,7 @@
 #!/bin/bash
 
+pidfile=/var/run/neojava.pid
+
 [[ "$(pidof -x $(basename $0))" != $$ ]] && echo "Program already running. Exit." && exit
 
 if [ ! -h /dev/ttyS0 ]; then
@@ -11,5 +13,11 @@ if [ ! -f /sys/class/i2c-dev/i2c-1/device/1-0048/temp1_input ]; then
 	sudo rmmod lm75
 	sudo modprobe lm75
 fi
-
+PID=$$
+echo "NeoJava sarted with pid: $PID"
+sudo sh -c "echo $PID > $pidfile"
+trap "echo Exiting...; sudo rm -f $pidfile; exit $?" INT TERM EXIT KILL 
 sudo java -jar target/NeoJava.jar
+wait $PID
+sudo rm -f $pidfile
+
