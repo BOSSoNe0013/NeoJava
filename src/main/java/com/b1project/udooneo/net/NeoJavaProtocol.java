@@ -1,33 +1,7 @@
 package com.b1project.udooneo.net;
 
-import java.net.Socket;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Pattern;
-
 import com.b1project.udooneo.NeoJava;
 import com.b1project.udooneo.board.BoardInfo;
-
-/**
- *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
- *
- *  This file is part of NeoJava Tools for UDOO Neo
- *
- *  NeoJava Tools for UDOO Neo is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This libraries are distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
-
 import com.b1project.udooneo.gpio.Gpio;
 import com.b1project.udooneo.gpio.Gpio.PinState;
 import com.b1project.udooneo.gpio.GpiosManager;
@@ -43,6 +17,30 @@ import com.b1project.udooneo.pwm.Pwm;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
+
+import javax.xml.bind.DatatypeConverter;
+import java.net.Socket;
+import java.util.List;
+import java.util.regex.Pattern;
+
+/**
+ * Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ * <p>
+ * This file is part of NeoJava Tools for UDOO Neo
+ * <p>
+ * NeoJava Tools for UDOO Neo is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This libraries are distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 public class NeoJavaProtocol {
 
@@ -365,13 +363,13 @@ public class NeoJavaProtocol {
 	}
 
 	private void updateLedStripColor(int pos, int red, int green, int blue){
-        listener.onSerialPortWriteRequest(0xff);
-        listener.onSerialPortWriteRequest(pos);
-        listener.onSerialPortWriteRequest(red);
-        listener.onSerialPortWriteRequest(green);
-        listener.onSerialPortWriteRequest(blue);
+		final byte bytes[] = new byte[]{(byte) 0xff, (byte) pos, (byte) 0x0a};
+		final String values = String.format("r:%d\ng:%d\nb:%d", red, green, blue);
+        listener.onSerialPortWriteRequest(bytes);
+		listener.onSerialPortWriteRequest(values);
         if(NeoJava.DEBUG) {
-            System.out.printf("\rset RGB value: %d,%d,%d\n", red, green, blue);
+            System.out.printf("\rset RGB value(%d): %d,%d,%d\n", pos, red, green, blue);
+            System.out.println(DatatypeConverter.printHexBinary(bytes));
             System.out.print("#:");
         }
     }

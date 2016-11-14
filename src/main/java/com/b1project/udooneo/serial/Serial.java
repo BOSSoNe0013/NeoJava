@@ -144,4 +144,24 @@ public class Serial {
         this.write(message.concat("\r\n").getBytes());
     }
 
+    public void print(long l) throws Exception{
+        if(mSerialPort != null){
+            if(mOutputStream == null) {
+                mOutputStream = mSerialPort.getOutputStream();
+            }
+            if(mOutputStream != null) {
+byte[] b = new byte[8];
+int size = Long.SIZE / Byte.SIZE;
+for (int i = 0; i < size; ++i) {
+  b[i] = (byte) (l >> (size - i - 1 << 3));
+}
+               mOutputStream.write(b);
+            }
+            else{
+                System.err.println("\rError: can't get output stream");
+                System.out.print("#:");
+            }
+        }
+    }
+
 }

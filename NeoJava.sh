@@ -17,6 +17,7 @@ PID=$$
 echo "NeoJava sarted with pid: $PID"
 sudo sh -c "echo $PID > $pidfile"
 trap "echo Exiting...; sudo rm -f $pidfile; exit $?" INT TERM EXIT KILL 
+sudo rm -f /var/lock/LCK..ttyS0
 sudo java -jar target/NeoJava.jar
 wait $PID
 sudo rm -f $pidfile

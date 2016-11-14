@@ -3,9 +3,10 @@ package com.b1project.udooneo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.prefs.Preferences;
 
 import com.b1project.udooneo.board.BoardInfo;
@@ -17,6 +18,7 @@ import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
 import com.b1project.udooneo.listeners.STDInputListener;
 import com.b1project.udooneo.listeners.SerialOutputListener;
 import com.b1project.udooneo.model.Pin;
+import com.b1project.udooneo.net.InetDevice;
 import com.b1project.udooneo.net.NeoJavaProtocol;
 import com.b1project.udooneo.net.NeoJavaSecureServer;
 import com.b1project.udooneo.net.NeoJavaServer;
@@ -76,6 +78,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private final static String INPUT_COMMAND_PWM = "/pwm";
     private final static String INPUT_COMMAND_SERIAL = "/tty";
     private final static String INPUT_COMMAND_BOARD_ID = "/id";
+    private final static String INPUT_COMMAND_BOARD_NET = "/net";
     private final static String INPUT_COMMAND_BOARD_MODEL = "/model";
     private final static String INPUT_COMMAND_BOARD_NAME = "/name";
     private final static String INPUT_COMMAND_DEBUG = "/debug";
@@ -99,6 +102,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             0b00000};
     private Properties mProperties;
     private static Preferences mPreferences;
+    private Thread mShutdownHookThread;
 
     public static void main(String[] args) {
         try{
@@ -137,12 +141,6 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             startSTDINListener();
             System.out.println("\rInit complete");
             System.out.print("#:");
-            Runtime.getRuntime().addShutdownHook(new Thread(){
-                @Override
-                public void run() {
-                    getInstance().quit();
-                }
-            });
             mInitComplete = true;
         }
         catch(Exception e){
@@ -155,6 +153,13 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         mProperties = new Properties();
         try {
             mProperties.load(NeoJava.class.getResourceAsStream("/version.properties"));
+            mShutdownHookThread = new Thread(){
+                @Override
+                public void run() {
+                    getInstance().quit();
+                }
+            };
+            Runtime.getRuntime().addShutdownHook(mShutdownHookThread);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -247,6 +252,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 System.out.println(INPUT_COMMAND_QUIT + " - quit");
                 System.out.println(INPUT_COMMAND_DEBUG + " on|off - turn on/off debug mode");
                 System.out.println(INPUT_COMMAND_VERSION + " - show version");
+                System.out.println(INPUT_COMMAND_BOARD_NET + " - show network devices");
                 System.out.println(INPUT_COMMAND_EXPORTED_GPIOS + " - list exported gpios");
                 System.out.println(INPUT_COMMAND_PWM + " - read/write PWM value");
                 System.out.println(INPUT_COMMAND_LCD_CLEAR + " - clear LCD");
@@ -288,7 +294,20 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 break;
             case INPUT_COMMAND_VERSION:
                 if(mPreferences.getBoolean(PREF_LCD_ENABLE, true) && !mLcdPrinting){
-                    getInstance().onLCDPrintRequest(getInstance().getVersionString() + "\n");
+                    mLcdPrinting = true;
+                    try {
+                        mLcd.clear();
+                        mLcd.print(getInstance().getVersionString() + "\n");
+                        Thread.sleep(3000);
+                        mLcd.clear();
+                        if(mCurrentMessage != null) {
+                            mLcd.print(mCurrentMessage);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("\rError: " + e.getMessage());
+                        mLcdPrinting = false;
+                    }
+                    mLcdPrinting = false;
                 }
                 System.out.println(getInstance().getVersionString());
                 System.out.print("#:");
@@ -317,6 +336,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                             }
                             catch (Exception e){
                                 System.err.println("\rError: " + e.getMessage());
+                                mLcdPrinting = false;
                             }
                             mLcdPrinting = false;
                         }
@@ -348,16 +368,23 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                     try {
                         if (words.length >= 3) {
                             final String dataType = words[1];
+                            System.out.println("\rLine: " + line);
+                            System.out.println("\rType: " + dataType);
                             String ttyCmd = line.replaceAll(INPUT_COMMAND_SERIAL + " " + dataType + " ", "");
+                            System.out.println("\rCmd: " + ttyCmd);
                             switch (dataType) {
                                 case "INT":
-                                    mSerial.write(Integer.decode(ttyCmd));
+                                    String[] values = ttyCmd.split(";");
+                                    System.out.println("\rValues: " + Arrays.toString(values));
+                                    for (String value : values) {
+                                        System.out.println("\rValue: " + value);
+                                        mSerial.write(Integer.decode(value));
+                                    }
                                     break;
                                 case "STR":
                                     mSerial.print(ttyCmd);
                                     break;
                             }
-                            System.out.println("\rSerial IN: " + ttyCmd);
                         } else {
                             System.err.println("\rError: no data provided");
                         }
@@ -365,6 +392,40 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                     } catch (Exception e) {
                         System.err.println("\rError: " + e.getMessage());
                     }
+                }
+                break;
+            case INPUT_COMMAND_BOARD_NET:
+                if(mPreferences.getBoolean(PREF_LCD_ENABLE, true) && !mLcdPrinting){
+                    mLcdPrinting = true;
+                    try {
+                        InetDevice device = new InetDevice(InetDevice.Dev.WLAN);
+                        mLcd.clear();
+                        mLcd.print(InetDevice.Dev.WLAN + ": " + device.getState() + "\n");
+                        if (device.getState() == InetDevice.State.DOWN){
+                            mLcd.print("reboot needed...");
+                        }
+                        Thread.sleep(3000);
+                        mLcd.clear();
+                        if(mCurrentMessage != null) {
+                            mLcd.print(mCurrentMessage);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("\rError: " + e.getMessage());
+                        mLcdPrinting = false;
+                    }
+                    mLcdPrinting = false;
+                }
+                List<NetworkInterface> nets = InetDevice.listAll();
+                if (nets != null) {
+                    System.out.print("\r");
+                    for (NetworkInterface inet : nets) {
+                        Enumeration<InetAddress> ips = inet.getInetAddresses();
+                        System.out.println(inet.getName() + ": ");
+                        for(InetAddress ip: Collections.list(ips)) {
+                            System.out.println("\t" + ip);
+                        }
+                    }
+                    System.out.print("#:");
                 }
                 break;
             case INPUT_COMMAND_BOARD_ID:
@@ -398,28 +459,33 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private void quit() {
         try {
             System.out.println("\nGoodbye !");
+            if (mShutdownHookThread != null) {
+                Runtime.getRuntime().removeShutdownHook(mShutdownHookThread);
+            }
             if(mServer != null) {
                 mServer.stopServer();
             }
             if(mSecureServer != null) {
                 mSecureServer.stopServer();
             }
-            if(mPreferences.getBoolean(PREF_LCD_ENABLE, true)) {
+            if(mPreferences.getBoolean(PREF_LCD_ENABLE, true)&& mLcd != null) {
                 mLcd.print("Goodbye !\n");
                 Thread.sleep(3);
                 mLcd.setLcdDisplayState(false);
                 mLcd.setBacklightState(false);
+                Thread.sleep(3);
                 mLcd = null;
             }
             if(mSerial != null){
                 mSerial.disconnect();
             }
             gpioNotificationLed.release();
+            System.exit(0);
         }
         catch (Exception e){
             System.err.println("\rError :" + e.getLocalizedMessage());
+            System.exit(0);
         }
-        System.exit(0);
     }
 
     @Override
@@ -554,6 +620,17 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         if(mPreferences.getBoolean(PREF_SERIAL_COM_ENABLE, true)) {
             try {
                 mSerial.write(b);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onSerialPortWriteRequest(byte[] bytes) {
+        if(mPreferences.getBoolean(PREF_SERIAL_COM_ENABLE, true)) {
+            try {
+                mSerial.write(bytes);
             } catch (Exception e) {
                 e.printStackTrace();
             }

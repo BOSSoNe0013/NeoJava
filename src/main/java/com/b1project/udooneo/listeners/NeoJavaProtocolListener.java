@@ -35,6 +35,7 @@ public interface NeoJavaProtocolListener {
     void onMagnetometerRequest();
     void onGyroscopeRequest();
     List<Pin> onExportedGpiosRequest();
+    void onSerialPortWriteRequest(byte[] bytes);
     void onSerialPortWriteRequest(int b);
     void onSerialPortWriteRequest(String message);
 }
