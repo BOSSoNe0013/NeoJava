@@ -8,11 +8,18 @@ import java.util.List;
 
 public class ResponsePwm extends ResponseMessage {
 
-	public long value;
+	private long value;
 
 	public ResponsePwm(String info, long value) {
 		super(NeoJavaProtocol.RESP_PWM_VALUE,info);
 		this.value = value;
 	}
 
+	public long getValue() {
+		return value;
+	}
+
+	public void setValue(long value) {
+		this.value = value;
+	}
 }

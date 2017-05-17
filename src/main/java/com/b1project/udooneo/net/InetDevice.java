@@ -27,6 +27,7 @@ public class InetDevice {
 
     private NetworkInterface mNetworkInterface;
 
+    @SuppressWarnings("unused")
     public enum Dev {
         LOOP("lo"),
         ETH("eth0"),

@@ -12,6 +12,10 @@ import java.util.List;
 
 import com.b1project.udooneo.NeoJava;
 
+import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
+import com.b1project.udooneo.messages.Message;
+import com.b1project.udooneo.messages.ResponseMessage;
+
 /**
  *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
  *
@@ -31,11 +35,6 @@ import com.b1project.udooneo.NeoJava;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
-import com.b1project.udooneo.messages.Message;
-import com.b1project.udooneo.messages.ResponseMessage;
-
 public class NeoJavaServer {
     private static final int port = NeoJava.DEFAULT_SERVER_PORT;
     private ServerSocket serverSocket;
@@ -67,6 +66,7 @@ public class NeoJavaServer {
             System.out.printf("\rListening on port %d\n", port);
             System.out.print("#:");
             serverSocket = new ServerSocket(port);
+            //noinspection InfiniteLoopStatement
             while(true) {
                 Socket clientSocket = serverSocket.accept();
                 if(clientSocket != null) {

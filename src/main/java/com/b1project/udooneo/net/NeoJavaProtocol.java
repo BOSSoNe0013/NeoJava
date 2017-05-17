@@ -10,6 +10,7 @@ import com.b1project.udooneo.messages.Message;
 import com.b1project.udooneo.messages.RequestMessage;
 import com.b1project.udooneo.messages.ResponseMessage;
 import com.b1project.udooneo.messages.response.*;
+import com.b1project.udooneo.model.LightPower;
 import com.b1project.udooneo.model.Pin;
 import com.b1project.udooneo.model.SensorData;
 import com.b1project.udooneo.model.Temperature;
@@ -42,6 +43,7 @@ import java.util.regex.Pattern;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+@SuppressWarnings("WeakerAccess")
 public class NeoJavaProtocol {
 
 	public final static String REQ_HELP = "help";
@@ -49,6 +51,7 @@ public class NeoJavaProtocol {
 	public final static String REQ_QUIT = "quit";
 	public static final String REQ_SERVER_ACTION = "message/server";
 	public final static String REQ_SENSORS_TEMPERATURE = "sensors/temperature";
+	public final static String REQ_SENSORS_LIGHT_POWER = "sensors/light_power";
 	public final static String REQ_SENSORS_MAGNETOMETER = "sensors/magnetometer";
 	public final static String REQ_SENSORS_ACCELEROMETER = "sensors/accelerometer";
 	public final static String REQ_SENSORS_GYROSCOPE = "sensors/gyroscope";
@@ -73,6 +76,7 @@ public class NeoJavaProtocol {
 	public static final String RESP_SET_PIN_MODE = "resp/"+REQ_GPIO_SET_MODE;
 	public static final String RESP_SET_PIN_STATE = "resp/"+REQ_GPIO_SET_STATE;
 	public static final String RESP_TEMPERATURE = "resp/"+REQ_SENSORS_TEMPERATURE;
+	public static final String RESP_LIGHT_POWER = "resp/"+REQ_SENSORS_LIGHT_POWER;
 	public static final String RESP_GYROSCOPE = "resp/"+REQ_SENSORS_GYROSCOPE;
 	public static final String RESP_ACCELEROMETER = "resp/"+REQ_SENSORS_ACCELEROMETER;
 	public static final String RESP_MAGNETOMETER = "resp/"+REQ_SENSORS_MAGNETOMETER;
@@ -133,9 +137,9 @@ public class NeoJavaProtocol {
 		try {
 			RequestMessage m = fromJson(input, RequestMessage.class);
 			String output;
-			String responseMethod = m.method;
-			if (!m.method.isEmpty()) {
-				switch (m.method) {
+			String responseMethod = m.getMethod();
+			if (!m.getMethod().isEmpty()) {
+				switch (m.getMethod()) {
 					case REQ_HELP:
 						output = REQ_HELP + " - this help\\n";
 						output += REQ_VERSION + " - show version\\n";
@@ -192,7 +196,7 @@ public class NeoJavaProtocol {
 						responseMethod = RESP_BOARD_NAME;
 						break;
 					case REQ_PWM_VALUE:
-						long value = m.value;
+						long value = m.getValue();
 						Pwm pwm = Pwm.getInstance(0);
                         if(value >= 0 && value <= 255) {
                             pwm.set8BitValue(value);
@@ -211,8 +215,8 @@ public class NeoJavaProtocol {
 						break;
 					case REQ_GPIO_SET_MODE:
 						try {
-							Gpio.PinMode mode = (m.mode != null)?m.mode: Gpio.PinMode.OUTPUT;
-							Gpio gpio = mGpiosManager.getGpio(m.pinId);
+							Gpio.PinMode mode = (m.getMode() != null)?m.getMode(): Gpio.PinMode.OUTPUT;
+							Gpio gpio = mGpiosManager.getGpio(m.getPinId());
 							gpio.setMode(mode);
 							output = "OK";
 						} catch (Exception e) {
@@ -224,9 +228,9 @@ public class NeoJavaProtocol {
 						break;
 					case REQ_GPIO_SET_STATE:
 						try {
-							Gpio gpio = mGpiosManager.getGpio(m.pinId);
+							Gpio gpio = mGpiosManager.getGpio(m.getPinId());
 							if (gpio.getMode() == Gpio.PinMode.OUTPUT) {
-								gpio.write(m.state);
+								gpio.write(m.getState());
 								output = "OK";
 							} else {
 								output = "PIN is in INPUT mode, can't write value";
@@ -239,7 +243,7 @@ public class NeoJavaProtocol {
 						break;
 					case REQ_GPIO_RELEASE:
 						try {
-							Gpio gpio = mGpiosManager.getGpio(m.pinId);
+							Gpio gpio = mGpiosManager.getGpio(m.getPinId());
 							gpio.release();
 							output = "OK";
 						} catch (Exception e) {
@@ -249,8 +253,8 @@ public class NeoJavaProtocol {
 						break;
                     case REQ_SERIAL_VALUE:
 						if (listener != null) {
-							listener.onSerialPortWriteRequest(m.detailMessage);
-                            return new ResponseSerialValue("OK", m.detailMessage);
+							listener.onSerialPortWriteRequest(m.getDetailMessage());
+                            return new ResponseSerialValue("OK", m.getDetailMessage());
                         }
                         else{
 							output = "No serial manager";
@@ -259,8 +263,8 @@ public class NeoJavaProtocol {
                         break;
                     case REQ_SERIAL_RGB_VALUE:
 						if (listener != null) {
-							if(!m.detailMessage.isEmpty()) {
-								String[] values = m.detailMessage.split(Pattern.quote("|"));
+							if(!m.getDetailMessage().isEmpty()) {
+								String[] values = m.getDetailMessage().split(Pattern.quote("|"));
 								String[] rgb_top = values[0].split(",");
 								int red = Integer.parseInt(rgb_top[0]);
 								int green = Integer.parseInt(rgb_top[1]);
@@ -273,7 +277,7 @@ public class NeoJavaProtocol {
                                     blue = Integer.parseInt(rgb_bottom[2]);
                                     updateLedStripColor(0x31, red, green, blue);
                                 }
-								NeoJava.CURRENT_SERIAL_RGB_VALUE = m.detailMessage;
+								NeoJava.CURRENT_SERIAL_RGB_VALUE = m.getDetailMessage();
 							}
                             return new ResponseSerialRGBValue("OK", NeoJava.CURRENT_SERIAL_RGB_VALUE);
                         }
@@ -286,6 +290,16 @@ public class NeoJavaProtocol {
 						if (listener != null) {
 							listener.onTemperatureRequest();
 							output = "Reading temperature";
+						}
+						else{
+							output = "No sensor manager";
+							responseMethod = ERROR;
+						}
+						break;
+					case REQ_SENSORS_LIGHT_POWER:
+						if (listener != null) {
+							listener.onLightPowerRequest();
+							output = "Reading light power";
 						}
 						else{
 							output = "No sensor manager";
@@ -335,7 +349,7 @@ public class NeoJavaProtocol {
 						break;
 					case REQ_LCD_PRINT:
 						if (listener != null) {
-							listener.onLCDPrintRequest(m.detailMessage);
+							listener.onLCDPrintRequest(m.getDetailMessage());
 							output = "OK";
 							responseMethod = RESP_LCD_PRINT;
 						}
@@ -345,7 +359,7 @@ public class NeoJavaProtocol {
 						}
 						break;
 					default:
-						output = "Unknown method: " + m.method;
+						output = "Unknown method: " + m.getDetailMessage();
 						responseMethod = ERROR;
 				}
 				if(NeoJava.DEBUG) {
@@ -400,6 +414,10 @@ public class NeoJavaProtocol {
 
 	public static ResponseTemperature makeTemperatureMessage(Float temp, Float pressure) {
 		return new ResponseTemperature("OK", new Temperature(temp, pressure));
+	}
+
+	public static ResponseLightPower makeLightPowerMessage(Float power) {
+		return new ResponseLightPower("OK", new LightPower(power));
 	}
 
 	public static ResponseOutputMessage makeShutdownMessage() {

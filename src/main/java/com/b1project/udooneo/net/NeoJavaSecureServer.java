@@ -14,6 +14,11 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
+import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
+import com.b1project.udooneo.messages.Message;
+import com.b1project.udooneo.messages.ResponseMessage;
+import com.sun.net.ssl.internal.ssl.Provider;
+
 /**
  *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
  *
@@ -33,12 +38,6 @@ import javax.net.ssl.SSLSocket;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
-import com.b1project.udooneo.messages.Message;
-import com.b1project.udooneo.messages.ResponseMessage;
-import com.sun.net.ssl.internal.ssl.Provider;
-
 @SuppressWarnings("restriction")
 public class NeoJavaSecureServer {
     private static final int SERVER_PORT = 45046;
@@ -89,6 +88,7 @@ public class NeoJavaSecureServer {
             serverSocket = (SSLServerSocket)sslServerSocketfactory.createServerSocket(SERVER_PORT);
 
             serverSocket.setEnabledCipherSuites(sslServerSocketfactory.getSupportedCipherSuites());
+            //noinspection InfiniteLoopStatement
             while(true) {
                 SSLSocket clientSocket = (SSLSocket) serverSocket.accept();
                 if(clientSocket != null) {

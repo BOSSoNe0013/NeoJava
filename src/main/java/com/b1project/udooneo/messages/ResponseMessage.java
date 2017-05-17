@@ -21,10 +21,18 @@ package com.b1project.udooneo.messages;
 
 public abstract class ResponseMessage extends Message {
 
-	public String info;
+	private String info;
 
 	public ResponseMessage(String method, String info) {
 		super(method);
+		this.info = info;
+	}
+
+	public String getInfo() {
+		return info;
+	}
+
+	public void setInfo(String info) {
 		this.info = info;
 	}
 }

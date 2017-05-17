@@ -22,14 +22,14 @@ import com.b1project.udooneo.gpio.Gpio.PinState;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class RequestMessage extends Message{
 
-	public int pinId;
-	public long value;
-	public PinState state;
-	public PinMode mode;
-	public String detailMessage;
+	private int pinId;
+	private long value;
+	private PinState state;
+	private PinMode mode;
+	private String detailMessage;
 
 	public RequestMessage(String method) {
 		this(method,0,null,null);
@@ -60,4 +60,43 @@ public class RequestMessage extends Message{
 		this.detailMessage = message;
 	}
 
+	public int getPinId() {
+		return pinId;
+	}
+
+	public void setPinId(int pinId) {
+		this.pinId = pinId;
+	}
+
+	public long getValue() {
+		return value;
+	}
+
+	public void setValue(long value) {
+		this.value = value;
+	}
+
+	public PinState getState() {
+		return state;
+	}
+
+	public void setState(PinState state) {
+		this.state = state;
+	}
+
+	public PinMode getMode() {
+		return mode;
+	}
+
+	public void setMode(PinMode mode) {
+		this.mode = mode;
+	}
+
+	public String getDetailMessage() {
+		return detailMessage;
+	}
+
+	public void setDetailMessage(String detailMessage) {
+		this.detailMessage = detailMessage;
+	}
 }

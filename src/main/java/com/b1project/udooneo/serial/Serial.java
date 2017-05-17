@@ -1,4 +1,15 @@
 package com.b1project.udooneo.serial;
+
+import com.b1project.udooneo.NeoJava;
+import com.b1project.udooneo.listeners.SerialOutputListener;
+import gnu.io.CommPort;
+import gnu.io.CommPortIdentifier;
+import gnu.io.SerialPort;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 /**
  *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
  *
@@ -18,17 +29,7 @@ package com.b1project.udooneo.serial;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-import com.b1project.udooneo.NeoJava;
-import com.b1project.udooneo.listeners.SerialOutputListener;
-import gnu.io.CommPort;
-import gnu.io.CommPortIdentifier;
-import gnu.io.SerialPort;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
+@SuppressWarnings("unused")
 public class Serial {
     private String mDeviceUri = NeoJava.DEFAULT_BINDING_TTY;
     private int mBaudRate = NeoJava.SERIAL_PORT_BAUD_RATE;
@@ -44,6 +45,14 @@ public class Serial {
             this.mDeviceUri = deviceUri;
         }
         this.mListener = listener;
+    }
+
+    public void setBaudRate(int baudRate) {
+        this.mBaudRate = baudRate;
+    }
+
+    public int getBaudRate() {
+        return mBaudRate;
     }
 
     public void connect() throws Exception {

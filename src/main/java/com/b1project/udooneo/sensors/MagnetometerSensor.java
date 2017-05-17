@@ -24,6 +24,7 @@ import com.b1project.udooneo.utils.FileUtils;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+@SuppressWarnings("SameParameterValue")
 public class MagnetometerSensor extends Sensor {
 
     public static void enableSensor(boolean enable) throws Exception{

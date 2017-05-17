@@ -31,6 +31,7 @@ public interface NeoJavaProtocolListener {
     void onClearLCDRequest();
     void onLCDPrintRequest(String message);
     void onTemperatureRequest();
+    void onLightPowerRequest();
     void onAccelerometerRequest();
     void onMagnetometerRequest();
     void onGyroscopeRequest();

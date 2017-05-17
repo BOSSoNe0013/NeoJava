@@ -1,8 +1,9 @@
 package com.b1project.udooneo.model;
 
+@SuppressWarnings("unused")
 public class Temperature {
-	double temperature;
-	double pressure;
+	private double temperature;
+	private double pressure;
 	
 	public Temperature(double temperature, double pressure) {
 		this.temperature = temperature;

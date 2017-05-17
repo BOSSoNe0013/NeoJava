@@ -4,7 +4,7 @@ import com.b1project.udooneo.sensors.MagnetometerSensor;
 import com.b1project.udooneo.sensors.callback.MagnetometerReaderCallBack;
 
 public class MagnetometerReader implements Runnable{
-    MagnetometerReaderCallBack callBack;
+    private MagnetometerReaderCallBack callBack;
 
     public MagnetometerReader(MagnetometerReaderCallBack callBack){
         this.callBack = callBack;

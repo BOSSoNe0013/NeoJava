@@ -4,7 +4,7 @@ import com.b1project.udooneo.sensors.GyroscopeSensor;
 import com.b1project.udooneo.sensors.callback.GyroscopeReaderCallBack;
 
 public class GyroscopeReader implements Runnable{
-    GyroscopeReaderCallBack callBack;
+    private GyroscopeReaderCallBack callBack;
 
     public GyroscopeReader(GyroscopeReaderCallBack callBack){
         this.callBack = callBack;

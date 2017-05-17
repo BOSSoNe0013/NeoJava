@@ -22,7 +22,10 @@ import java.io.FileReader;
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class FileUtils {
+
+	public static final String DEVICE_NAME_ENDPOINT = "name";
 
 	//gpios
 	public static final String BASE_GPIO_URI = "/sys/class/gpio";
@@ -43,13 +46,23 @@ public class FileUtils {
 	public static final String BOARD_MODEL_URI = "/proc/device-tree/model";
 
 	// temperature
-	public static final String TEMP_URI = "/sys/class/i2c-dev/i2c-1/device/1-0048/temp1_input";
+	public static final String TEMPERATURE_BASE_URI = "/sys/class/i2c-dev/i2c-1/device/1-0048/";
+	public static final String TEMPERATURE_BASEDEVICE_NAME_URI = TEMPERATURE_BASE_URI + DEVICE_NAME_ENDPOINT;
+	public static final String TEMP_URI = TEMPERATURE_BASE_URI + "temp1_input";
 
 	// barometer
-	public static final String TEMP_RAW_URI = "/sys/class/i2c-dev/i2c-1/device/1-0060/iio:device0/in_temp_raw";
-	public static final String TEMP_SCALE_URI = "/sys/class/i2c-dev/i2c-1/device/1-0060/iio:device0/in_temp_scale";
-	public static final String PRESS_RAW_URI = "/sys/class/i2c-dev/i2c-1/device/1-0060/iio:device0/in_pressure_raw";
-	public static final String PRESS_SCALE_URI = "/sys/class/i2c-dev/i2c-1/device/1-0060/iio:device0/in_pressure_scale";
+	public static final String BAROMETER_BASE_URI = "/sys/class/i2c-dev/i2c-1/device/1-0060/iio:device0/";
+	public static final String BAROMETER_BASEDEVICE_NAME_URI = BAROMETER_BASE_URI + DEVICE_NAME_ENDPOINT;
+	public static final String TEMP_RAW_URI = BAROMETER_BASE_URI + "in_temp_raw";
+	public static final String TEMP_SCALE_URI = BAROMETER_BASE_URI + "in_temp_scale";
+	public static final String PRESS_RAW_URI = BAROMETER_BASE_URI + "in_pressure_raw";
+	public static final String PRESS_SCALE_URI = BAROMETER_BASE_URI + "in_pressure_scale";
+
+	// light sensor
+	public static final String LIGHT_BASE_URI = "/sys/class/i2c-dev/i2c-1/device/1-0029/iio:device0/";
+	public static final String LIGHT_DEVICE_NAME_URI = LIGHT_BASE_URI + DEVICE_NAME_ENDPOINT;
+	public static final String LIGHT_RAW_URI = LIGHT_BASE_URI + "in_intensity_ir_raw";
+	public static final String LIGHT_SCALE_URI = LIGHT_BASE_URI + "in_intensity_ir_calibscale";
 
 	// magnetometer
 	public static final String MAGNETOMETER_ACTIVATION_URI = "/sys/class/misc/FreescaleMagnetometer/enable";

@@ -1,11 +1,11 @@
 package com.b1project.udooneo.model;
 
 /**
- * Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ * Copyright (C) 2017 Cyril Bosselut <bossone0013@gmail.com>
  * <p>
- * This file is part of UDOO Neo Controller
+ * This file is part of NeoJava
  * <p>
- * UDOO Neo Controller is free software: you can redistribute it and/or modify
+ * NeoJava is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -18,18 +18,19 @@ package com.b1project.udooneo.model;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class SensorData {
-    private String data;
+@SuppressWarnings("unused")
+public class LightPower {
+    private double power;
 
-    public SensorData(String data){
-        this.data = data;
+    public LightPower(double power) {
+        this.power = power;
     }
 
-    public String getData() {
-        return data;
+    public double getPower() {
+        return power;
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public void setPower(double power) {
+        this.power = power;
     }
 }

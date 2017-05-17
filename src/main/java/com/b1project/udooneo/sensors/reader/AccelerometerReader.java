@@ -4,7 +4,7 @@ import com.b1project.udooneo.sensors.AccelerometerSensor;
 import com.b1project.udooneo.sensors.callback.AccelerometerReaderCallBack;
 
 public class AccelerometerReader implements Runnable{
-    AccelerometerReaderCallBack callBack;
+    private AccelerometerReaderCallBack callBack;
 
     public AccelerometerReader(AccelerometerReaderCallBack callBack){
         this.callBack = callBack;

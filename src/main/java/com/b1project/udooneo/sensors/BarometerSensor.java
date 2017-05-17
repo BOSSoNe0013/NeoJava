@@ -22,6 +22,7 @@ import com.b1project.udooneo.utils.FileUtils;
  *
  */
 
+@SuppressWarnings("unused")
 public class BarometerSensor extends Sensor {
 
     public static Float getPressure(){

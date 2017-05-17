@@ -23,14 +23,8 @@ import com.b1project.udooneo.net.NeoJavaProtocol;
 import com.b1project.udooneo.net.NeoJavaSecureServer;
 import com.b1project.udooneo.net.NeoJavaServer;
 import com.b1project.udooneo.pwm.Pwm;
-import com.b1project.udooneo.sensors.callback.AccelerometerReaderCallBack;
-import com.b1project.udooneo.sensors.callback.GyroscopeReaderCallBack;
-import com.b1project.udooneo.sensors.callback.MagnetometerReaderCallBack;
-import com.b1project.udooneo.sensors.callback.TemperatureReaderCallBack;
-import com.b1project.udooneo.sensors.reader.AccelerometerReader;
-import com.b1project.udooneo.sensors.reader.GyroscopeReader;
-import com.b1project.udooneo.sensors.reader.MagnetometerReader;
-import com.b1project.udooneo.sensors.reader.TemperatureReader;
+import com.b1project.udooneo.sensors.callback.*;
+import com.b1project.udooneo.sensors.reader.*;
 import com.b1project.udooneo.serial.Serial;
 
 /**
@@ -74,6 +68,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private final static String INPUT_COMMAND_LCD_CLEAR = "/lc";
     private final static String INPUT_COMMAND_LCD_PRINT = "/lp";
     private final static String INPUT_COMMAND_TEMP_REQUEST = "/tp";
+    private final static String INPUT_COMMAND_LIGHT_POWER_REQUEST = "/lpw";
     private final static String INPUT_COMMAND_EXPORTED_GPIOS = "/gpios";
     private final static String INPUT_COMMAND_PWM = "/pwm";
     private final static String INPUT_COMMAND_SERIAL = "/tty";
@@ -345,6 +340,35 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                     }
                 }))).start();
                 break;
+            case INPUT_COMMAND_LIGHT_POWER_REQUEST:
+                System.out.print("#:");
+                (new Thread(new LightPowerReader(new LightPowerReaderCallback(){
+
+                    @Override
+                    public void onRequestComplete(Float power) {
+                        String lpwString = String.format("Light power: %.1flm\n", power);
+                        if(mPreferences.getBoolean(PREF_LCD_ENABLE, true) && !mLcdPrinting){
+                            mLcdPrinting = true;
+                            try {
+                                mLcd.clear();
+                                mLcd.print(lpwString);
+                                Thread.sleep(3000);
+                                mLcd.clear();
+                                if(mCurrentMessage != null) {
+                                    mLcd.print(mCurrentMessage);
+                                }
+                            }
+                            catch (Exception e){
+                                System.err.println("\rError: " + e.getMessage());
+                                mLcdPrinting = false;
+                            }
+                            mLcdPrinting = false;
+                        }
+                        System.out.println("\r" + lpwString);
+                        System.out.print("#:");
+                    }
+                }))).start();
+                break;
             case INPUT_COMMAND_EXPORTED_GPIOS:
                 System.out.println("\r" + mGpiosManager.getExportedGpios());
                 System.out.print("#:");
@@ -546,6 +570,26 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             }))).start();
         }
         catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onLightPowerRequest() {
+        try {
+            (new Thread(new LightPowerReader(new LightPowerReaderCallback() {
+                @Override
+                public void onRequestComplete(Float power) {
+                    if(mServer != null) {
+                        mServer.writeOutput(NeoJavaProtocol.makeLightPowerMessage(power));
+                    }
+                    if(mSecureServer != null) {
+                        mSecureServer.writeOutput(NeoJavaProtocol.makeLightPowerMessage(power));
+                    }
+                }
+            }))).start();
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
