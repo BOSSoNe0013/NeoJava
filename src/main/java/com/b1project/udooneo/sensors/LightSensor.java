@@ -22,14 +22,24 @@ import com.b1project.udooneo.utils.FileUtils;
  */
 public class LightSensor extends Sensor {
 
+    private final static int A_TIME = 400;
+    private final static int A_GAIN = 16;
+
     public static Float getLightPower(){
         try {
             Float raw_light_power = Float.parseFloat(read(FileUtils.LIGHT_RAW_URI));
             Float light_power_scale = Float.parseFloat(read(FileUtils.LIGHT_SCALE_URI));
-            return raw_light_power / light_power_scale;
+            return calculateLightPower(raw_light_power, light_power_scale);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return 0.0f;
+    }
+
+    private static Float calculateLightPower(Float ch0, Float ch1) {
+        Float cpl = (float) (A_TIME * A_GAIN / 200);
+        Float lux1 = (float) ((ch0 - 1.5 * ch1) / cpl);
+        Float lux2 = (float) ((0.4 * ch0 - 0.48 * ch1) / cpl);
+        return Math.max(lux1, lux2);
     }
 }
