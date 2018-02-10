@@ -25,8 +25,9 @@ Copy the /usr/share/java/RXTXcomm.jar in NeoJava/libs
 
 Now symlink _/dev/ttyMCC_ (_/dev/ttymxc3_ for Udoo Quad) to _/dev/ttyS0_ to allow UDOO's serial port binding (the NeoJava.sh script does it for you if not already done).
 
-2 - Open a terminal and navigate to this folder:
+2 - Open a terminal and navigate to the folder where you want to download NeoJava source code:
 
+    git clone https://github.com/BOSSoNe0013/NeoJava.git
     cd NeoJava/
 
 3 - Compile 

@@ -2,6 +2,8 @@ package com.b1project.udooneo.sensors;
 
 import com.b1project.udooneo.utils.FileUtils;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Copyright (C) 2017 Cyril Bosselut <bossone0013@gmail.com>
  * <p>
@@ -27,9 +29,11 @@ public class LightSensor extends Sensor {
 
     public static Float getLightPower(){
         try {
-            Float raw_light_power = Float.parseFloat(read(FileUtils.LIGHT_RAW_URI));
-            Float light_power_scale = Float.parseFloat(read(FileUtils.LIGHT_SCALE_URI));
-            return calculateLightPower(raw_light_power, light_power_scale);
+            //Float light_power_scale = Float.parseFloat(read(FileUtils.LIGHT_SCALE_URI));
+            Float raw_light_power_0 = Float.parseFloat(read(FileUtils.LIGHT_RAW_URI));
+            sleep(A_TIME);
+            Float raw_light_power_1 = Float.parseFloat(read(FileUtils.LIGHT_RAW_URI));
+            return calculateLightPower(raw_light_power_0, raw_light_power_1);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -263,21 +263,23 @@ public class NeoJavaProtocol {
                         break;
                     case REQ_SERIAL_RGB_VALUE:
 						if (listener != null) {
-							if(!m.getDetailMessage().isEmpty()) {
+							if(m.getDetailMessage() != null && !m.getDetailMessage().isEmpty()) {
 								String[] values = m.getDetailMessage().split(Pattern.quote("|"));
-								String[] rgb_top = values[0].split(",");
-								int red = Integer.parseInt(rgb_top[0]);
-								int green = Integer.parseInt(rgb_top[1]);
-								int blue = Integer.parseInt(rgb_top[2]);
-                                updateLedStripColor(0x30, red, green, blue);
-                                if(values.length >= 2){
-								    String[] rgb_bottom = values[1].split(",");
-                                    red = Integer.parseInt(rgb_bottom[0]);
-                                    green = Integer.parseInt(rgb_bottom[1]);
-                                    blue = Integer.parseInt(rgb_bottom[2]);
-                                    updateLedStripColor(0x31, red, green, blue);
-                                }
-								NeoJava.CURRENT_SERIAL_RGB_VALUE = m.getDetailMessage();
+                                if(values.length >= 1) {
+									String[] rgb_top = values[0].split(",");
+									int red = Integer.parseInt(rgb_top[0]);
+									int green = Integer.parseInt(rgb_top[1]);
+									int blue = Integer.parseInt(rgb_top[2]);
+									updateLedStripColor(0x30, red, green, blue);
+									if (values.length >= 2) {
+										String[] rgb_bottom = values[1].split(",");
+										red = Integer.parseInt(rgb_bottom[0]);
+										green = Integer.parseInt(rgb_bottom[1]);
+										blue = Integer.parseInt(rgb_bottom[2]);
+										updateLedStripColor(0x31, red, green, blue);
+									}
+									NeoJava.CURRENT_SERIAL_RGB_VALUE = m.getDetailMessage();
+								}
 							}
                             return new ResponseSerialRGBValue("OK", NeoJava.CURRENT_SERIAL_RGB_VALUE);
                         }
