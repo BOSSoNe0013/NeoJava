@@ -172,11 +172,11 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
         return instance;
     }
     
-    private static void startSTDINListener() throws Exception {
+    private static void startSTDINListener() {
         setupSTDINListener(new DefaultSTDInputListener());
     }
     
-    private static void setupSTDINListener(final STDInputListener listener) throws Exception{
+    private static void setupSTDINListener(final STDInputListener listener){
         new Thread(){
             @Override
             public void run(){
