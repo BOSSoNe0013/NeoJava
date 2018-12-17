@@ -64,6 +64,7 @@ public class NeoJavaProtocol {
 	public static final String REQ_BOARD_ID = "board/id";
 	public static final String REQ_BOARD_MODEL = "board/model";
 	public static final String REQ_BOARD_NAME = "board/name";
+	public final static String REQ_BOARD_REBOOT = "board/reboot";
 	public static final String REQ_PWM_VALUE = "pwm/value";
 	public static final String REQ_SERIAL_VALUE = "tty/value";
 	public static final String REQ_SERIAL_RGB_VALUE = "tty/rgb";
@@ -85,6 +86,7 @@ public class NeoJavaProtocol {
 	public static final String RESP_BOARD_ID = "resp/"+REQ_BOARD_ID;
 	public static final String RESP_BOARD_MODEL = "resp/"+REQ_BOARD_MODEL;
 	public static final String RESP_BOARD_NAME = "resp/"+REQ_BOARD_NAME;
+	public static final String RESP_BOARD_REBOOT = "resp/"+REQ_BOARD_REBOOT;
 	public static final String RESP_PWM_VALUE = "resp/"+REQ_PWM_VALUE;
 	public static final String RESP_SERIAL_VALUE = "resp/"+REQ_SERIAL_VALUE;
 	public static final String RESP_SERIAL_RGB_VALUE = "resp/"+REQ_SERIAL_RGB_VALUE;
@@ -190,6 +192,10 @@ public class NeoJavaProtocol {
 					case REQ_BOARD_MODEL:
 						output = BoardInfo.getBoardModel();
 						responseMethod = RESP_BOARD_MODEL;
+						break;
+					case REQ_BOARD_REBOOT:
+						output = BoardInfo.reboot();
+						responseMethod = RESP_BOARD_REBOOT;
 						break;
 					case REQ_BOARD_NAME:
 						output = BoardInfo.getBoardName();
@@ -379,7 +385,7 @@ public class NeoJavaProtocol {
 	}
 
 	private void updateLedStripColor(int pos, int red, int green, int blue){
-		final byte bytes[] = new byte[]{(byte) 0xff, (byte) pos, (byte) 0x0a};
+		final byte[] bytes = new byte[]{(byte) 0xff, (byte) pos, (byte) 0x0a};
 		final String values = String.format("r:%d\ng:%d\nb:%d", red, green, blue);
         listener.onSerialPortWriteRequest(bytes);
 		listener.onSerialPortWriteRequest(values);

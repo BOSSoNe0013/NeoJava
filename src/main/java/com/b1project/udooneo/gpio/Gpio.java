@@ -1,4 +1,17 @@
 package com.b1project.udooneo.gpio;
+
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+
+import com.b1project.udooneo.listeners.GpioListener;
+import com.b1project.udooneo.utils.FileUtils;
+
 /**
  *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
  *
@@ -18,18 +31,6 @@ package com.b1project.udooneo.gpio;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-
-import com.b1project.udooneo.listeners.GpioListener;
-import com.b1project.udooneo.utils.FileUtils;
-
 @SuppressWarnings({"unused", "SpellCheckingInspection"})
 public class Gpio {
     private int id;
@@ -67,9 +68,7 @@ public class Gpio {
     }
 
     public static void removeListener(GpioListener listener){
-        if (mListeners.contains(listener)){
-            mListeners.remove(listener);
-        }
+        mListeners.remove(listener);
     }
 
     static String mkGpioUri(int pinId){

@@ -56,4 +56,15 @@ public class BoardInfo {
         }
         return "";
     }
+
+    public static String reboot(){
+        try{
+            Runtime.getRuntime().exec("reboot");
+            return "OK";
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 }
