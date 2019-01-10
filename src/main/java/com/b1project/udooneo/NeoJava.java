@@ -72,6 +72,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private final static String INPUT_COMMAND_EXPORTED_GPIOS = "/gpios";
     private final static String INPUT_COMMAND_PWM = "/pwm";
     private final static String INPUT_COMMAND_SERIAL = "/tty";
+    private final static String INPUT_COMMAND_BOARD_REBOOT = "/reboot";
     private final static String INPUT_COMMAND_BOARD_ID = "/id";
     private final static String INPUT_COMMAND_BOARD_NET = "/net";
     private final static String INPUT_COMMAND_BOARD_MODEL = "/model";
@@ -452,6 +453,10 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                     System.out.print("#:");
                 }
                 break;
+            case INPUT_COMMAND_BOARD_REBOOT:
+                System.out.println("\r" + BoardInfo.reboot());
+                System.out.print("#:");
+                break;
             case INPUT_COMMAND_BOARD_ID:
                 System.out.println("\r" + BoardInfo.getBoardID());
                 System.out.print("#:");
@@ -518,6 +523,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             if(clientSocket != null) {
                 clientSocket.close();
             }
+            quit();
         }
         catch (Exception e){
             System.out.println("\rError while closing socket");
