@@ -35,7 +35,7 @@ public class FileUtils {
 
 	//pwm
 	public static final String BASE_PWM_URI = "/sys/class/pwm";
-	public static final String COMMON_PWM_URI = BASE_PWM_URI + "/pwmchip0";
+	public static final String COMMON_PWM_URI = BASE_PWM_URI + "/pwmchip";
 	public static final String EXPORT_PWM_URI = COMMON_PWM_URI + "/export";
 	public static final String RELEASE_PWM_URI = COMMON_PWM_URI + "/unexport";
 

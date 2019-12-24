@@ -122,9 +122,7 @@ public class GpiosManager implements GpioListener, FSWatcherListener {
     }
 
     public void removeListener(GpiosManagerListener listener){
-        if (mListeners.contains(listener)){
-            mListeners.remove(listener);
-        }
+        mListeners.remove(listener);
     }
 
     private void checkGpiosExportStatus(){
@@ -146,7 +144,7 @@ public class GpiosManager implements GpioListener, FSWatcherListener {
                 }
                 else{
                     if(mExportedGpios.contains(pinId)) {
-                        mExportedGpios.remove(mExportedGpios.indexOf(pinId));
+                        mExportedGpios.remove((Integer) pinId);
                     }
                 }
             }
@@ -188,7 +186,7 @@ public class GpiosManager implements GpioListener, FSWatcherListener {
     @Override
     public void onRelease(int pinId) {
         if(mExportedGpios.contains(pinId)) {
-            mExportedGpios.remove(mExportedGpios.indexOf(pinId));
+            mExportedGpios.remove((Integer) pinId);
             for (GpiosManagerListener listener : mListeners) {
                 listener.onRelease(pinId);
             }

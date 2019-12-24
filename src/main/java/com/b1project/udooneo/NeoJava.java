@@ -68,6 +68,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private final static String INPUT_COMMAND_LCD_CLEAR = "/lc";
     private final static String INPUT_COMMAND_LCD_PRINT = "/lp";
     private final static String INPUT_COMMAND_TEMP_REQUEST = "/tp";
+    private final static String INPUT_COMMAND_SET_RGB = "/rgb";
     private final static String INPUT_COMMAND_LIGHT_POWER_REQUEST = "/lpw";
     private final static String INPUT_COMMAND_EXPORTED_GPIOS = "/gpios";
     private final static String INPUT_COMMAND_PWM = "/pwm";
@@ -78,7 +79,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private final static String INPUT_COMMAND_BOARD_MODEL = "/model";
     private final static String INPUT_COMMAND_BOARD_NAME = "/name";
     private final static String INPUT_COMMAND_DEBUG = "/debug";
-    public static String CURRENT_SERIAL_RGB_VALUE = "0,0,0|0,0,0";
+    public static String CURRENT_RGB_VALUE = "0,0,0|0,0,0";
     private static boolean mLcdPrinting = false;
     private static boolean mPrintingTemperature = false;
     private static boolean mInitComplete = false;
@@ -379,7 +380,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                     try {
                         Pwm pwm = Pwm.getInstance(0);
                         if (words.length >= 2) {
-                            pwm.set8BitValue(Long.parseLong(words[1]));
+                            pwm.set8BitValue(Integer.parseInt(words[1]));
                         }
                         System.out.println("\rPWM: " + pwm.get8BitValue());
                         System.out.print("#:");
@@ -387,6 +388,8 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                         System.err.println("\rError: " + e.getMessage());
                     }
                 }
+                break;
+            case INPUT_COMMAND_SET_RGB:
                 break;
             case INPUT_COMMAND_SERIAL:
                 if(mPreferences.getBoolean(PREF_SERIAL_COM_ENABLE, true)) {

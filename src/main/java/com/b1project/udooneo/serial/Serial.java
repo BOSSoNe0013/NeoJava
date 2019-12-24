@@ -4,6 +4,7 @@ import com.b1project.udooneo.NeoJava;
 import com.b1project.udooneo.listeners.SerialOutputListener;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
+import gnu.io.NoSuchPortException;
 import gnu.io.SerialPort;
 
 import java.io.IOException;
@@ -58,41 +59,47 @@ public class Serial {
     public void connect() throws Exception {
         System.out.println("\rConnecting to serial port...");
         System.out.print("#:");
-        CommPortIdentifier mCommPortIdentifier = CommPortIdentifier.getPortIdentifier(mDeviceUri);
-        if (mCommPortIdentifier.isCurrentlyOwned()) {
-            System.err.println("\rError: Port currently in use");
-            System.out.print("#:");
-        } else {
-            CommPort mCommPort = mCommPortIdentifier.open(this.getClass().getName(), 2000);
-            if(mCommPort instanceof SerialPort) {
-                mSerialPort = (SerialPort) mCommPort;
-                mSerialPort.setSerialPortParams(mBaudRate,
-                                                SerialPort.DATABITS_8,
-                                                SerialPort.STOPBITS_1,
-                                                SerialPort.PARITY_NONE);
-                mSerialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-
-                mOutputStream = mSerialPort.getOutputStream();
-                mInputStream  = mSerialPort.getInputStream();
-                mReaderTask = new SerialReader(mInputStream, mListener);
-                (new Thread(mReaderTask)).start();
-
-                Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            disconnect();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }));
-                System.out.println("\rSerial port connected");
+        try {
+            CommPortIdentifier mCommPortIdentifier = CommPortIdentifier.getPortIdentifier(mDeviceUri);
+            if (mCommPortIdentifier.isCurrentlyOwned()) {
+                System.err.println("\rError: Port currently in use");
                 System.out.print("#:");
             } else {
-                System.err.println("\rError: Only serial ports are handled");
-                System.out.print("#:");
+                CommPort mCommPort = mCommPortIdentifier.open(this.getClass().getName(), 2000);
+                if(mCommPort instanceof SerialPort) {
+                    mSerialPort = (SerialPort) mCommPort;
+                    mSerialPort.setSerialPortParams(mBaudRate,
+                                                    SerialPort.DATABITS_8,
+                                                    SerialPort.STOPBITS_1,
+                                                    SerialPort.PARITY_NONE);
+                    mSerialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
+
+                    mOutputStream = mSerialPort.getOutputStream();
+                    mInputStream  = mSerialPort.getInputStream();
+                    mReaderTask = new SerialReader(mInputStream, mListener);
+                    (new Thread(mReaderTask)).start();
+
+                    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                disconnect();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }));
+                    System.out.println("\rSerial port connected");
+                    System.out.print("#:");
+                } else {
+                    System.err.println("\rError: Only serial ports are handled");
+                    System.out.print("#:");
+                }
             }
+        }
+        catch (NoSuchPortException e) {
+                System.err.println("\rError: No serial ports found");
+                System.out.print("#:");
         }
     }
 
@@ -159,12 +166,12 @@ public class Serial {
                 mOutputStream = mSerialPort.getOutputStream();
             }
             if(mOutputStream != null) {
-byte[] b = new byte[8];
-int size = Long.SIZE / Byte.SIZE;
-for (int i = 0; i < size; ++i) {
-  b[i] = (byte) (l >> (size - i - 1 << 3));
-}
-               mOutputStream.write(b);
+                byte[] b = new byte[8];
+                int size = Long.SIZE / Byte.SIZE;
+                for (int i = 0; i < size; ++i) {
+                    b[i] = (byte) (l >> (size - i - 1 << 3));
+                }
+                mOutputStream.write(b);
             }
             else{
                 System.err.println("\rError: can't get output stream");
