@@ -24,8 +24,8 @@ import java.io.InputStream;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 class SerialReader implements Runnable{
-    private InputStream in;
-    private SerialOutputListener listener;
+    private final InputStream in;
+    private final SerialOutputListener listener;
     private volatile boolean cancelled;
 
     SerialReader(InputStream in, SerialOutputListener listener) {
@@ -41,15 +41,15 @@ class SerialReader implements Runnable{
     public void run() {
         byte[] buffer = new byte[7];
         int len;
-        String stringReceived = "";
+        StringBuilder stringReceived = new StringBuilder();
         try {
             while(!cancelled && (len = this.in.read(buffer)) > 0) {
-                stringReceived += new String(buffer, 0, len);
+                stringReceived.append(new String(buffer, 0, len));
                 if (buffer[len-1] == '\n') {
                     if(listener != null){
-                        listener.onNewLine(stringReceived);
+                        listener.onNewLine(stringReceived.toString());
                     }
-                    stringReceived = "";
+                    stringReceived = new StringBuilder();
                 }
             }
         } catch (IOException ioe) {

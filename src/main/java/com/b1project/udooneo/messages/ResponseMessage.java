@@ -19,6 +19,7 @@ package com.b1project.udooneo.messages;
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+@SuppressWarnings("unused")
 public abstract class ResponseMessage extends Message {
 
 	private String info;

@@ -1,5 +1,7 @@
 package com.b1project.udooneo.messages.response;
 
+import com.b1project.udooneo.messages.ResponseMessage;
+
 /**
  * Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  * <p>
@@ -18,8 +20,6 @@ package com.b1project.udooneo.messages.response;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import com.b1project.udooneo.messages.ResponseMessage;
-
 public class ResponseOutputMessage extends ResponseMessage {
     public ResponseOutputMessage(String method, String info) {
         super(method, info);

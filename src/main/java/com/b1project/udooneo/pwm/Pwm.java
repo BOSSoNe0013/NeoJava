@@ -28,13 +28,13 @@ import java.util.Objects;
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Pwm {
-    private int id;
-    private String uri;
+    private final int id;
+    private final String uri;
     private static final long PWM_DEFAULT_PERIOD = 10000;
     private static final String PWM_PERIOD_PATH = "/pwm0/period";
     private static final String PWM_DUTY_CyCLE_PATH = "/pwm0/duty_cycle";
     private static final String PWM_ENABLE_PATH = "/pwm0/enable";
-    private static HashMap<Integer, Pwm> PWM_MAP = new HashMap<>();
+    private static final HashMap<Integer, Pwm> PWM_MAP = new HashMap<>();
     //private static HashMap<Integer, PwmState> currentPwmStates = new HashMap<>();
     private PwmState currentPwmState = PwmState.DISABLE;
 

@@ -5,7 +5,7 @@ import com.b1project.udooneo.sensors.TemperatureSensor;
 import com.b1project.udooneo.sensors.callback.TemperatureReaderCallBack;
 
 public class TemperatureReader implements Runnable{
-    private TemperatureReaderCallBack callBack;
+    private final TemperatureReaderCallBack callBack;
 
     public TemperatureReader(TemperatureReaderCallBack callBack){
         this.callBack = callBack;

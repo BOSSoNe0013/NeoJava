@@ -25,6 +25,7 @@ import com.b1project.udooneo.model.Pin;
  *
  */
 
+@SuppressWarnings("unused")
 public interface NeoJavaProtocolListener {
     String getVersionString();
     void onQuitRequest(Socket clientSocket);

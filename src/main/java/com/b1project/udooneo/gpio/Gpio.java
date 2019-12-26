@@ -31,14 +31,14 @@ import com.b1project.udooneo.utils.FileUtils;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-@SuppressWarnings({"unused", "SpellCheckingInspection"})
+@SuppressWarnings({"unused"})
 public class Gpio {
-    private int id;
-    private String uri;
+    private final int id;
+    private final String uri;
     private static final String GPIO_DIRECTION_PATH = "/direction";
     private static final String GPIO_VALUE_PATH = "/value";
-    private static List<GpioListener> mListeners = new ArrayList<>();
-    private static HashMap<Integer, PinState> currentPinStates = new HashMap<>();
+    private final static List<GpioListener> mListeners = new ArrayList<>();
+    private final static HashMap<Integer, PinState> currentPinStates = new HashMap<>();
     private PinState currentPinState = PinState.LOW;
     private PinMode currentPinMode = PinMode.OUTPUT;
 

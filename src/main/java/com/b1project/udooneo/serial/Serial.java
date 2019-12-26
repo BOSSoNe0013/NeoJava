@@ -36,7 +36,7 @@ public class Serial {
     private int mBaudRate = NeoJava.SERIAL_PORT_BAUD_RATE;
     private static OutputStream mOutputStream;
     private static InputStream mInputStream;
-    private SerialOutputListener mListener;
+    private final SerialOutputListener mListener;
     private SerialPort mSerialPort;
     private SerialReader mReaderTask;
 
@@ -63,7 +63,6 @@ public class Serial {
             CommPortIdentifier mCommPortIdentifier = CommPortIdentifier.getPortIdentifier(mDeviceUri);
             if (mCommPortIdentifier.isCurrentlyOwned()) {
                 System.err.println("\rError: Port currently in use");
-                System.out.print("#:");
             } else {
                 CommPort mCommPort = mCommPortIdentifier.open(this.getClass().getName(), 2000);
                 if(mCommPort instanceof SerialPort) {
@@ -90,12 +89,11 @@ public class Serial {
                         }
                     }));
                     System.out.println("\rSerial port connected");
-                    System.out.print("#:");
                 } else {
                     System.err.println("\rError: Only serial ports are handled");
-                    System.out.print("#:");
                 }
             }
+            System.out.print("#:");
         }
         catch (NoSuchPortException e) {
                 System.err.println("\rError: No serial ports found");

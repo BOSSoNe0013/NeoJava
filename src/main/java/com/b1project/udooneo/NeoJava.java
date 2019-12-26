@@ -46,6 +46,7 @@ import com.b1project.udooneo.serial.Serial;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+@SuppressWarnings("unused")
 public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, GpiosManagerListener {
 
     private static final String PREF_PWM_ENABLE = "pwm_enable";
@@ -97,7 +98,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             0b00000,
             0b10010,
             0b00000};
-    private Properties mProperties;
+    private final Properties mProperties;
     private static Preferences mPreferences;
     private Thread mShutdownHookThread;
 

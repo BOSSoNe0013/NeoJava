@@ -19,5 +19,5 @@ package com.b1project.udooneo.sensors.callback;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 public interface LightPowerReaderCallback {
-    public abstract void onRequestComplete(Float power);
+    void onRequestComplete(Float power);
 }

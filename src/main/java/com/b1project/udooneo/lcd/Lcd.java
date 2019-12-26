@@ -1,4 +1,7 @@
 package com.b1project.udooneo.lcd;
+
+import com.b1project.udooneo.gpio.Gpio;
+
 /**
  *  Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  *
@@ -18,47 +21,44 @@ package com.b1project.udooneo.lcd;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-import com.b1project.udooneo.gpio.Gpio;
-
-@SuppressWarnings({"unused", "FieldCanBeLocal", "PointlessBitwiseExpression", "WeakerAccess"})
+@SuppressWarnings({"unused", "FieldCanBeLocal", "WeakerAccess"})
 public class Lcd{
 
     public final static int NO_RW = 0x00;
 
     //# commands
-    private final static char LCD_CLEARDISPLAY        = 0x01;
-    private final static char LCD_RETURNHOME          = 0x02;
-    private final static char LCD_ENTRYMODESET        = 0x04;
-    private final static char LCD_DISPLAYCONTROL      = 0x08;
-    private final static char LCD_CURSORSHIFT         = 0x10;
-    private final static char LCD_FUNCTIONSET         = 0x20;
-    private final static char LCD_SETCGRAMADDR        = 0x40;
-    private final static char LCD_SETDDRAMADDR        = 0x80;
+    private final static char LCD_CLEAR_DISPLAY = 0x01;
+    private final static char LCD_RETURN_HOME = 0x02;
+    private final static char LCD_ENTRY_MODESET = 0x04;
+    private final static char LCD_DISPLAY_CONTROL = 0x08;
+    private final static char LCD_CURSOR_SHIFT = 0x10;
+    private final static char LCD_FUNCTION_SET = 0x20;
+    private final static char LCD_SET_CG_RAM_ADDR = 0x40;
+    private final static char LCD_SET_DD_RAM_ADDR = 0x80;
 
     //# flags for display entry mode
-    private final static char LCD_ENTRYRIGHT          = 0x00;
-    private final static char LCD_ENTRYLEFT           = 0x02;
-    private final static char LCD_ENTRYSHIFTINCREMENT = 0x01;
-    private final static char LCD_ENTRYSHIFTDECREMENT = 0x00;
+    private final static char LCD_ENTRY_RIGHT = 0x00;
+    private final static char LCD_ENTRY_LEFT = 0x02;
+    private final static char LCD_ENTRY_SHIFT_INCREMENT = 0x01;
+    private final static char LCD_ENTRY_SHIFT_DECREMENT = 0x00;
 
     //# flags for display on/off control
-    private final static char LCD_DISPLAYON           = 0x04;
-    private final static char LCD_DISPLAYOFF          = 0x00;
-    private final static char LCD_CURSORON            = 0x02;
-    private final static char LCD_CURSOROFF           = 0x00;
-    private final static char LCD_BLINKON             = 0x01;
-    private final static char LCD_BLINKOFF            = 0x00;
+    private final static char LCD_DISPLAY_ON = 0x04;
+    private final static char LCD_DISPLAY_OFF = 0x00;
+    private final static char LCD_CURSOR_ON = 0x02;
+    private final static char LCD_CURSOR_OFF = 0x00;
+    private final static char LCD_BLINK_ON = 0x01;
+    private final static char LCD_BLINK_OFF = 0x00;
 
     //# flags for display/cursor shift
-    private final static char LCD_DISPLAYMOVE         = 0x08;
-    private final static char LCD_CURSORMOVE          = 0x00;
-    private final static char LCD_MOVERIGHT           = 0x04;
-    private final static char LCD_MOVELEFT            = 0x00;
+    private final static char LCD_DISPLAY_MOVE = 0x08;
+    private final static char LCD_CURSOR_MOVE = 0x00;
+    private final static char LCD_MOVE_RIGHT = 0x04;
+    private final static char LCD_MOVE_LEFT = 0x00;
 
     //# flags for function set
-    private final static char LCD_8BITMODE            = 0x10;
-    private final static char LCD_4BITMODE            = 0x00;
+    private final static char LCD_8BIT_MODE = 0x10;
+    private final static char LCD_4BIT_MODE = 0x00;
     private final static char LCD_2LINE               = 0x08;
     private final static char LCD_1LINE               = 0x00;
     private final static char LCD_5x10DOTS            = 0x04;
@@ -84,13 +84,13 @@ public class Lcd{
     private Gpio lcd_d6;
     private Gpio lcd_d7;
     
-    private char lcd_mode = LCD_4BITMODE;
+    private final char lcd_mode;
 
-    private static char DEFAULT_LCD_STATE = LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF;
+    private static char DEFAULT_LCD_STATE = LCD_DISPLAY_ON | LCD_CURSOR_OFF | LCD_BLINK_OFF;
 
     public Lcd(int en, int rs, int d4, int d5, int d6, int d7, int bl, int rw) throws Exception{
         super();
-        lcd_mode = LCD_4BITMODE;
+        lcd_mode = LCD_4BIT_MODE;
         lcd_en = Gpio.getInstance(en);
         lcd_en.setMode(Gpio.PinMode.OUTPUT);
         lcd_rs = Gpio.getInstance(rs);
@@ -127,15 +127,15 @@ public class Lcd{
 	Thread.sleep(3);
         this.set((char)0x32);
 	Thread.sleep(3);
-        this.set((char)(LCD_SETDDRAMADDR | 0x40));
+        this.set((char)(LCD_SET_DD_RAM_ADDR | 0x40));
 	Thread.sleep(3);
-        this.set((char)(LCD_FUNCTIONSET | lcd_mode | LCD_2LINE | LCD_5x8DOTS));
+        this.set((char)(LCD_FUNCTION_SET | lcd_mode | LCD_2LINE | LCD_5x8DOTS));
 	Thread.sleep(3);
         setBacklightState(true);
 	Thread.sleep(3);
         setLcdDisplayState(true);
 	Thread.sleep(3);
-        this.set((char)(LCD_ENTRYMODESET | LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT));
+        this.set((char)(LCD_ENTRY_MODESET | LCD_ENTRY_LEFT | LCD_ENTRY_SHIFT_DECREMENT));
 	Thread.sleep(3);
         System.out.println("\rClear display");
         System.out.print("#:");
@@ -169,16 +169,16 @@ public class Lcd{
 
     /**
      * Clear lcd screen
-     * @throws Exception
+     * @throws Exception if something went wrong
      */
     public void clear() throws Exception{
-        this.set(LCD_CLEARDISPLAY);
+        this.set(LCD_CLEAR_DISPLAY);
     }
 
     /**
      * print String on screen
      * @param message String
-     * @throws Exception
+     * @throws Exception if something went wrong
      */
     public void print(String message) throws Exception{
         if(message == null){
@@ -190,7 +190,7 @@ public class Lcd{
     /**
      * print char[] on screen
      * @param message char[]
-     * @throws Exception
+     * @throws Exception if something went wrong
      */
     public void print(char[] message) throws Exception{
         for (char aMessage : message) {
@@ -205,63 +205,63 @@ public class Lcd{
     /**
      * toggle display ON/OFF
      * @param state boolean
-     * @throws Exception
+     * @throws Exception if something went wrong
      */
     public void setLcdDisplayState(boolean state) throws Exception{
         if (state) {
-            DEFAULT_LCD_STATE &= LCD_DISPLAYON;
+            DEFAULT_LCD_STATE &= LCD_DISPLAY_ON;
         }
         else{
-            DEFAULT_LCD_STATE &= ~LCD_DISPLAYON;
+            DEFAULT_LCD_STATE &= ~LCD_DISPLAY_ON;
         }
-        this.set((char)(LCD_DISPLAYCONTROL | DEFAULT_LCD_STATE));
+        this.set((char)(LCD_DISPLAY_CONTROL | DEFAULT_LCD_STATE));
     }
 
     /**
      * toggle cursor ON/OFF
      * @param state boolean
-     * @throws Exception
+     * @throws Exception if something went wrong
      */
     public void setCursorState(boolean state) throws Exception{
         if(state){
-            DEFAULT_LCD_STATE &= LCD_CURSORON;
+            DEFAULT_LCD_STATE &= LCD_CURSOR_ON;
         }
         else{
-            DEFAULT_LCD_STATE &= ~LCD_CURSORON;
+            DEFAULT_LCD_STATE &= ~LCD_CURSOR_ON;
         }
-        this.set((char)(LCD_DISPLAYCONTROL | DEFAULT_LCD_STATE));
+        this.set((char)(LCD_DISPLAY_CONTROL | DEFAULT_LCD_STATE));
     }
 
     /**
      * Mode cursor to position
      * @param col int from 0 to n
      * @param row int from 0 to n
-     * @throws Exception
+     * @throws Exception if something went wrong
      */
     public void setCursorPosition(int col, int row) throws Exception{
         int[] row_offsets = { 0x00, 0x40, 0x14, 0x54 };
-        this.set((char)(LCD_SETDDRAMADDR | col + row_offsets[row]));
+        this.set((char)(LCD_SET_DD_RAM_ADDR | col + row_offsets[row]));
     }
 
     /**
      * toggle cursor blinking ON/OFF
      * @param state boolean
-     * @throws Exception
+     * @throws Exception if something went wrong
      */
     public void setCursorBlinkingState(boolean state) throws Exception{
         if(state){
-            DEFAULT_LCD_STATE &= LCD_BLINKON;
+            DEFAULT_LCD_STATE &= LCD_BLINK_ON;
         }
         else{
-            DEFAULT_LCD_STATE &= ~LCD_BLINKON;
+            DEFAULT_LCD_STATE &= ~LCD_BLINK_ON;
         }
-        this.set((char)(LCD_DISPLAYCONTROL | DEFAULT_LCD_STATE));
+        this.set((char)(LCD_DISPLAY_CONTROL | DEFAULT_LCD_STATE));
     }
 
     /**
      * toggle backlight ON/OFF
      * @param state boolean
-     * @throws Exception
+     * @throws Exception if something went wrong
      */
     public void setBacklightState(boolean state) throws Exception{
         if (state) {
@@ -276,11 +276,11 @@ public class Lcd{
      * create custom char at location (from 0 to 7) with charmap
      * @param location int
      * @param charMap char[]
-     * @throws Exception
+     * @throws Exception if something went wrong
      */
     public void createChar(int location, char[] charMap) throws Exception{
         location &= 0x7;
-        this.set((char)(LCD_SETCGRAMADDR | (location << 3)));
+        this.set((char)(LCD_SET_CG_RAM_ADDR | (location << 3)));
         for(int i = 0; i < 8; i++){
             this.write(charMap[i]);
         }

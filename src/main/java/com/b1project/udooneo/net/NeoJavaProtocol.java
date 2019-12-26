@@ -95,8 +95,8 @@ public class NeoJavaProtocol {
 
 	public static final String ERROR = "error";
 
-	private NeoJavaProtocolListener listener;
-	private Socket clientSocket;
+	private final NeoJavaProtocolListener listener;
+	private final Socket clientSocket;
         private final GpiosManager mGpiosManager;
 
 	private static final RuntimeTypeAdapterFactory<Message> msgAdapter = RuntimeTypeAdapterFactory.of(Message.class)

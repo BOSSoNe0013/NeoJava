@@ -34,7 +34,7 @@ public class FSWatcher extends Thread {
     private final Map<WatchKey,Path> mKeys;
     private WatchEvent.Kind<?>[] mEventTypes;
     private boolean shouldStopWatcher = false;
-    private boolean mRecursive = false;
+    private boolean mRecursive;
     private FSWatcherListener mListener;
 
     public FSWatcher(Path dir, boolean recursive, FSWatcherListener listener, WatchEvent.Kind<?>... eventTypes) throws IOException{

@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class InetDevice {
 
-    private NetworkInterface mNetworkInterface;
+    private final NetworkInterface mNetworkInterface;
 
     @SuppressWarnings("unused")
     public enum Dev {
@@ -34,7 +34,7 @@ public class InetDevice {
         WLAN("wlan0"),
         USB("usb0");
 
-        private String name;
+        private final String name;
         Dev(String name){
             this.name = name;
         }

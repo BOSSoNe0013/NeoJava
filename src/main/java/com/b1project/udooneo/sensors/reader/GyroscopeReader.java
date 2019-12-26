@@ -3,8 +3,9 @@ package com.b1project.udooneo.sensors.reader;
 import com.b1project.udooneo.sensors.GyroscopeSensor;
 import com.b1project.udooneo.sensors.callback.GyroscopeReaderCallBack;
 
+@SuppressWarnings("unused")
 public class GyroscopeReader implements Runnable{
-    private GyroscopeReaderCallBack callBack;
+    private final GyroscopeReaderCallBack callBack;
 
     public GyroscopeReader(GyroscopeReaderCallBack callBack){
         this.callBack = callBack;

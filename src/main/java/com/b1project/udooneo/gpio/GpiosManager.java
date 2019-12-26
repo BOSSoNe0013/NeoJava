@@ -8,9 +8,6 @@ import com.b1project.udooneo.utils.FSWatcher;
 import com.b1project.udooneo.utils.FileUtils;
 
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -39,7 +36,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class GpiosManager implements GpioListener, FSWatcherListener {
 
     //external pins
@@ -97,8 +94,8 @@ public class GpiosManager implements GpioListener, FSWatcherListener {
             GPIO_177, GPIO_176, GPIO_175, GPIO_174, GPIO_119, GPIO_124, GPIO_127, GPIO_116, GPIO_7, GPIO_6, GPIO_5,
             GPIO_4, GPIO_178, GPIO_179, GPIO_104, GPIO_143, GPIO_142, GPIO_141, GPIO_140, GPIO_149, GPIO_105, GPIO_148, GPIO_146, GPIO_147, GPIO_100, GPIO_102};
     
-    private static List<Integer> mExportedGpios = new ArrayList<>();
-    private static List<GpiosManagerListener> mListeners = new ArrayList<>();
+    private final static List<Integer> mExportedGpios = new ArrayList<>();
+    private final static List<GpiosManagerListener> mListeners = new ArrayList<>();
     private static FSWatcher mFSWatcher;
 
     private GpiosManager(){

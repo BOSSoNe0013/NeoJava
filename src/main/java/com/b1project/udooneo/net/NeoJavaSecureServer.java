@@ -42,9 +42,9 @@ import com.sun.net.ssl.internal.ssl.Provider;
 public class NeoJavaSecureServer {
     private static final int SERVER_PORT = 45046;
     private SSLServerSocket serverSocket;
-    private List<SSLSocket> clientSockets = new ArrayList<>();
+    private final List<SSLSocket> clientSockets = new ArrayList<>();
     private NeoJavaProtocolListener neoJavaProtocolListener;
-    private List<PrintWriter> outPrintWriters = new ArrayList<>();
+    private final List<PrintWriter> outPrintWriters = new ArrayList<>();
 
     static {
         // Registering the JSSE provider
@@ -68,8 +68,7 @@ public class NeoJavaSecureServer {
     }
 
     public void writeOutput(Message msg) {
-        List<PrintWriter> opws = new ArrayList<>();
-        opws.addAll(outPrintWriters);
+        List<PrintWriter> opws = new ArrayList<>(outPrintWriters);
         String json = NeoJavaProtocol.toJson(msg);
         for (PrintWriter outPrintWriter: opws){
             if (outPrintWriter != null) {
@@ -117,9 +116,9 @@ public class NeoJavaSecureServer {
     }
 
     private class ServerThread implements Runnable{
-        PrintWriter out;
-        BufferedReader in;
-        Socket clientSocket;
+        final PrintWriter out;
+        final BufferedReader in;
+        final Socket clientSocket;
 
         ServerThread(Socket clientSocket, BufferedReader in, PrintWriter out){
             this.in = in;
