@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import com.b1project.udooneo.utils.FileUtils;
 
 /**
- * Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ * Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  * <p/>
  * This file is part of NeoJava tools for UDOO
  * <p/>

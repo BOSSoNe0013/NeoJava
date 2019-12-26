@@ -20,7 +20,7 @@ import com.b1project.udooneo.messages.ResponseMessage;
 import com.sun.net.ssl.internal.ssl.Provider;
 
 /**
- *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ *  Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  *
  *  This file is part of NeoJava Tools for UDOO Neo
  *

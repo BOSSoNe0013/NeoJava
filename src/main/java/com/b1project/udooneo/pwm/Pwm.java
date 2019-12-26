@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 /**
- * Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ * Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  * <p>
  * This file is part of NeoJava examples for UDOO
  * <p>

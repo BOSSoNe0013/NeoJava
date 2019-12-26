@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ * Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  * <p>
  * This file is part of NeoJava Tools for UDOO Neo
  * <p>

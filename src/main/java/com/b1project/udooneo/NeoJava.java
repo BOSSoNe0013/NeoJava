@@ -28,7 +28,7 @@ import com.b1project.udooneo.sensors.reader.*;
 import com.b1project.udooneo.serial.Serial;
 
 /**
- *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ *  Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  *
  *  This file is part of NeoJava Tools for UDOO Neo
  *
@@ -792,40 +792,37 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     public void onNewLine(String line) {
         if(mInitComplete && line.startsWith("0x")) {
             int code = Integer.decode(line);
-            switch (code) {
-                case 0x01:
-                    if(!mPrintingTemperature) {
-                        mPrintingTemperature = true;
-                            (new Thread(new TemperatureReader(new TemperatureReaderCallBack(){
+            if (code == 0x01) {
+                if (!mPrintingTemperature) {
+                    mPrintingTemperature = true;
+                    (new Thread(new TemperatureReader(new TemperatureReaderCallBack() {
 
-                            @Override
-                            public void onRequestComplete(Float temp, Float pressure) {
-                                String tempString = String.format("Temp: %.1fßC\nPres: %.1fkPa", temp, pressure);
-                                try {
-                                    if(mPreferences.getBoolean(PREF_LCD_ENABLE, true) && !mLcdPrinting){
-                                        mLcdPrinting = true;
-                                        mLcd.clear();
-                                        mLcd.print(tempString);
-                                        Thread.sleep(3000);
-                                        mLcd.clear();
-                                        if(mCurrentMessage != null) {
-                                            mLcd.print(mCurrentMessage);
-                                        }
-                                        mPrintingTemperature = false;
-                                        mLcdPrinting = false;
-                                    }else{
-                                        System.out.print("\r" + tempString.replace("ß","°"));
-                                        System.out.print("#:");
+                        @Override
+                        public void onRequestComplete(Float temp, Float pressure) {
+                            String tempString = String.format("Temp: %.1fßC\nPres: %.1fkPa", temp, pressure);
+                            try {
+                                if (mPreferences.getBoolean(PREF_LCD_ENABLE, true) && !mLcdPrinting) {
+                                    mLcdPrinting = true;
+                                    mLcd.clear();
+                                    mLcd.print(tempString);
+                                    Thread.sleep(3000);
+                                    mLcd.clear();
+                                    if (mCurrentMessage != null) {
+                                        mLcd.print(mCurrentMessage);
                                     }
-                                }
-                                catch (Exception e){
-                                    System.err.println("\rError: " + e.getMessage());
+                                    mPrintingTemperature = false;
+                                    mLcdPrinting = false;
+                                } else {
+                                    System.out.print("\r" + tempString.replace("ß", "°"));
                                     System.out.print("#:");
                                 }
+                            } catch (Exception e) {
+                                System.err.println("\rError: " + e.getMessage());
+                                System.out.print("#:");
                             }
-                        }))).start();
-                    }
-                    break;
+                        }
+                    }))).start();
+                }
             }
         }
         else if(mInitComplete) {

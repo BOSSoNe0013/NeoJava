@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Copyright (C) 2016 Cyril Bosselut <bossone0013@gmail.com>
+ * Copyright (C) 2016 Cyril BOSSELUT <bossone0013@gmail.com>
  * <p>
  * This file is part of NeoJava
  * <p>
