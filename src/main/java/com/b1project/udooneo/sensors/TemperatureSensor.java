@@ -3,7 +3,7 @@ package com.b1project.udooneo.sensors;
 import com.b1project.udooneo.utils.FileUtils;
 
 /**
- *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ *  Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  *
  *  This file is part of NeoJava Tools for UDOO Neo
  *
@@ -24,7 +24,7 @@ import com.b1project.udooneo.utils.FileUtils;
 
 public class TemperatureSensor extends Sensor {
 
-    public static Float getTemperature(){
+    public static float getTemperature(){
         try {
             float raw_pressure = Float.parseFloat(read(FileUtils.TEMP_URI));
             return raw_pressure / 1000;

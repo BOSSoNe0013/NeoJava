@@ -3,6 +3,7 @@ package com.b1project.udooneo.sensors.reader;
 import com.b1project.udooneo.sensors.MagnetometerSensor;
 import com.b1project.udooneo.sensors.callback.MagnetometerReaderCallBack;
 
+@SuppressWarnings("unused")
 public class MagnetometerReader implements Runnable{
     private final MagnetometerReaderCallBack callBack;
 

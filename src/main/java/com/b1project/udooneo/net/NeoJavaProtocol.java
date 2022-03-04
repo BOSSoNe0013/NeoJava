@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ * Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  * <p>
  * This file is part of NeoJava Tools for UDOO Neo
  * <p>
@@ -66,6 +66,7 @@ public class NeoJavaProtocol {
 	public static final String REQ_BOARD_NAME = "board/name";
 	public final static String REQ_BOARD_REBOOT = "board/reboot";
 	public static final String REQ_PWM_VALUE = "pwm/value";
+	public static final String REQ_RGB_VALUE = "rgb/";
 	public static final String REQ_SERIAL_VALUE = "tty/value";
 	public static final String REQ_SERIAL_RGB_VALUE = "tty/rgb";
 
@@ -154,6 +155,7 @@ public class NeoJavaProtocol {
 						output += REQ_GPIO_SET_STATE + " - set gpio state\\n";
 						output += REQ_GPIO_RELEASE + " - release gpio\\n";
 						output += REQ_PWM_VALUE + " - set PWM value\\n";
+						output += REQ_RGB_VALUE + " - set RGB value\\n";
 						output += REQ_SERIAL_VALUE + " - write data to serial port\\n";
 						output += REQ_SERIAL_RGB_VALUE + " - write comma separated rgb value to serial port\\n";
 						output += REQ_LCD_CLEAR + " - clear LCD\\n";
@@ -205,7 +207,7 @@ public class NeoJavaProtocol {
 						long value = m.getValue();
 						Pwm pwm = Pwm.getInstance(0);
                         if(value >= 0 && value <= 255) {
-                            pwm.set8BitValue(value);
+                            pwm.set8BitValue((int) value);
                         }
                         else{
                             value = pwm.get8BitValue();
@@ -257,17 +259,8 @@ public class NeoJavaProtocol {
 							responseMethod = ERROR;
 						}
 						break;
-                    case REQ_SERIAL_VALUE:
-						if (listener != null) {
-							listener.onSerialPortWriteRequest(m.getDetailMessage());
-                            return new ResponseSerialValue("OK", m.getDetailMessage());
-                        }
-                        else{
-							output = "No serial manager";
-							responseMethod = ERROR;
-                        }
-                        break;
-                    case REQ_SERIAL_RGB_VALUE:
+                    case REQ_RGB_VALUE:
+					case REQ_SERIAL_RGB_VALUE:
 						if (listener != null) {
 							if(m.getDetailMessage() != null && !m.getDetailMessage().isEmpty()) {
 								String[] values = m.getDetailMessage().split(Pattern.quote("|"));
@@ -284,10 +277,20 @@ public class NeoJavaProtocol {
 										blue = Integer.parseInt(rgb_bottom[2]);
 										updateLedStripColor(0x31, red, green, blue);
 									}
-									NeoJava.CURRENT_SERIAL_RGB_VALUE = m.getDetailMessage();
+									NeoJava.CURRENT_RGB_VALUE = m.getDetailMessage();
 								}
 							}
-                            return new ResponseSerialRGBValue("OK", NeoJava.CURRENT_SERIAL_RGB_VALUE);
+                            return new ResponseSerialRGBValue("OK", NeoJava.CURRENT_RGB_VALUE);
+                        }
+                        else{
+							output = "No serial manager";
+							responseMethod = ERROR;
+                        }
+						break;
+                    case REQ_SERIAL_VALUE:
+						if (listener != null) {
+							listener.onSerialPortWriteRequest(m.getDetailMessage());
+                            return new ResponseSerialValue("OK", m.getDetailMessage());
                         }
                         else{
 							output = "No serial manager";
@@ -387,13 +390,43 @@ public class NeoJavaProtocol {
 	private void updateLedStripColor(int pos, int red, int green, int blue){
 		final byte[] bytes = new byte[]{(byte) 0xff, (byte) pos, (byte) 0x0a};
 		final String values = String.format("r:%d\ng:%d\nb:%d", red, green, blue);
-        listener.onSerialPortWriteRequest(bytes);
-		listener.onSerialPortWriteRequest(values);
-        if(NeoJava.DEBUG) {
-            System.out.printf("\rset RGB value(%d): %d,%d,%d\n", pos, red, green, blue);
-            System.out.println(DatatypeConverter.printHexBinary(bytes));
-            System.out.print("#:");
-        }
+		if(NeoJava.DEBUG) {
+			System.out.println("\nRGB command");
+			System.out.println(String.format("pos:%d", pos));
+			System.out.println(values);
+			System.out.print("#:");
+		}
+		try {
+			Pwm pwm_red;
+			Pwm pwm_green;
+			Pwm pwm_blue;
+			if (pos == 0x31) { // top led strip
+				pwm_red = Pwm.getInstance(0);
+				pwm_green = Pwm.getInstance(1);
+				pwm_blue = Pwm.getInstance(2);
+			}
+			else {
+				pwm_red = Pwm.getInstance(3);
+				pwm_green = Pwm.getInstance(4);
+				pwm_blue = Pwm.getInstance(5);
+			}
+			pwm_red.set8BitValue(red);
+			pwm_green.set8BitValue(green);
+			pwm_blue.set8BitValue(blue);
+		} catch (Exception e) {
+			System.err.println("\rError: " + e.toString());
+			e.printStackTrace();
+			System.out.print("#:");
+		}
+		finally {
+			//listener.onSerialPortWriteRequest(bytes);
+			//listener.onSerialPortWriteRequest(values);
+			if(NeoJava.DEBUG) {
+				System.out.printf("\rset RGB value(%d): %d,%d,%d\n", pos, red, green, blue);
+				System.out.println(DatatypeConverter.printHexBinary(bytes));
+				System.out.print("#:");
+			}
+		}
     }
 
 	public static ResponseExportGpios makeExportMessage(List<Pin> gpios) {

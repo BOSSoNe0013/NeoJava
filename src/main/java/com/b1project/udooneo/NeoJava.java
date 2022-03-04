@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ *  Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  *
  *  This file is part of NeoJava Tools for UDOO Neo
  *
@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+@SuppressWarnings("unused")
 public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, GpiosManagerListener {
 
     private static final String PREF_PWM_ENABLE = "pwm_enable";
@@ -70,6 +71,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private final static String INPUT_COMMAND_LCD_CLEAR = "/lc";
     private final static String INPUT_COMMAND_LCD_PRINT = "/lp";
     private final static String INPUT_COMMAND_TEMP_REQUEST = "/tp";
+    private final static String INPUT_COMMAND_SET_RGB = "/rgb";
     private final static String INPUT_COMMAND_LIGHT_POWER_REQUEST = "/lpw";
     private final static String INPUT_COMMAND_EXPORTED_GPIOS = "/gpios";
     private final static String INPUT_COMMAND_PWM = "/pwm";
@@ -80,7 +82,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     private final static String INPUT_COMMAND_BOARD_MODEL = "/model";
     private final static String INPUT_COMMAND_BOARD_NAME = "/name";
     private final static String INPUT_COMMAND_DEBUG = "/debug";
-    public static String CURRENT_SERIAL_RGB_VALUE = "0,0,0|0,0,0";
+    public static String CURRENT_RGB_VALUE = "0,0,0|0,0,0";
     private static boolean mLcdPrinting = false;
     private static boolean mPrintingTemperature = false;
     private static boolean mInitComplete = false;
@@ -388,7 +390,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                     try {
                         Pwm pwm = Pwm.getInstance(0);
                         if (words.length >= 2) {
-                            pwm.set8BitValue(Long.parseLong(words[1]));
+                            pwm.set8BitValue(Integer.parseInt(words[1]));
                         }
                         System.out.println("\rPWM: " + pwm.get8BitValue());
                         System.out.print("#:");
@@ -396,6 +398,8 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                         logger.warn("\rError: " + e.getMessage());
                     }
                 }
+                break;
+            case INPUT_COMMAND_SET_RGB:
                 break;
             case INPUT_COMMAND_SERIAL:
                 if(mPreferences.getBoolean(PREF_SERIAL_COM_ENABLE, true)) {
@@ -800,40 +804,37 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     public void onNewLine(String line) {
         if(mInitComplete && line.startsWith("0x")) {
             int code = Integer.decode(line);
-            switch (code) {
-                case 0x01:
-                    if(!mPrintingTemperature) {
-                        mPrintingTemperature = true;
-                            (new Thread(new TemperatureReader(new TemperatureReaderCallBack(){
+            if (code == 0x01) {
+                if (!mPrintingTemperature) {
+                    mPrintingTemperature = true;
+                    (new Thread(new TemperatureReader(new TemperatureReaderCallBack() {
 
-                            @Override
-                            public void onRequestComplete(Float temp, Float pressure) {
-                                String tempString = String.format("Temp: %.1fßC\nPres: %.1fkPa", temp, pressure);
-                                try {
-                                    if(mPreferences.getBoolean(PREF_LCD_ENABLE, true) && !mLcdPrinting){
-                                        mLcdPrinting = true;
-                                        mLcd.clear();
-                                        mLcd.print(tempString);
-                                        Thread.sleep(3000);
-                                        mLcd.clear();
-                                        if(mCurrentMessage != null) {
-                                            mLcd.print(mCurrentMessage);
-                                        }
-                                        mPrintingTemperature = false;
-                                        mLcdPrinting = false;
-                                    }else{
-                                        System.out.print("\r" + tempString.replace("ß","°"));
-                                        System.out.print("#:");
+                        @Override
+                        public void onRequestComplete(Float temp, Float pressure) {
+                            String tempString = String.format("Temp: %.1fßC\nPres: %.1fkPa", temp, pressure);
+                            try {
+                                if (mPreferences.getBoolean(PREF_LCD_ENABLE, true) && !mLcdPrinting) {
+                                    mLcdPrinting = true;
+                                    mLcd.clear();
+                                    mLcd.print(tempString);
+                                    Thread.sleep(3000);
+                                    mLcd.clear();
+                                    if (mCurrentMessage != null) {
+                                        mLcd.print(mCurrentMessage);
                                     }
-                                }
-                                catch (Exception e){
-                                    logger.warn("\rError: " + e.getMessage());
+                                    mPrintingTemperature = false;
+                                    mLcdPrinting = false;
+                                } else {
+                                    System.out.print("\r" + tempString.replace("ß", "°"));
                                     System.out.print("#:");
                                 }
+                            } catch (Exception e) {
+                                logger.warn("\rError: " + e.getMessage());
+                                System.out.print("#:");
                             }
-                        }))).start();
-                    }
-                    break;
+                        }
+                    }))).start();
+                }
             }
         }
         else if(mInitComplete) {

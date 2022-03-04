@@ -1,5 +1,6 @@
 package com.b1project.udooneo.pwm;
 
+import com.b1project.udooneo.NeoJava;
 import com.b1project.udooneo.utils.FileUtils;
 
 import java.io.BufferedWriter;
@@ -9,7 +10,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 /**
- * Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ * Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  * <p>
  * This file is part of NeoJava examples for UDOO
  * <p>
@@ -30,9 +31,11 @@ import java.util.Objects;
 public class Pwm {
     private final int id;
     private final String uri;
+    private static final long PWM_DEFAULT_PERIOD = 10000;
     private static final String PWM_PERIOD_PATH = "/period";
     private static final String PWM_DUTY_CyCLE_PATH = "/duty_cycle";
     private static final String PWM_ENABLE_PATH = "/enable";
+    private static final HashMap<Integer, Pwm> PWM_MAP = new HashMap<>();
     private static Pwm pwm;
     private static final HashMap<Integer, PwmState> currentPwmStates = new HashMap<>();
     private PwmState currentPwmState = PwmState.DISABLE;
@@ -48,12 +51,18 @@ public class Pwm {
      * @throws Exception if Pwm instance cannot be retrieved or created
      */
     public static Pwm getInstance(int pwmId) throws Exception{
-        if(pwm == null) {
+        Pwm pwm;
+        if(PWM_MAP.containsKey(pwmId)) {
+            pwm = PWM_MAP.get(pwmId);
+        }
+        else {
             pwm = new Pwm(pwmId);
+            PWM_MAP.put(pwmId, pwm);
         }
         if (!isExported(pwmId)) {
             pwm.export();
         }
+        pwm.enable();
         return pwm;
     }
 
@@ -62,7 +71,7 @@ public class Pwm {
      * @return String pwm uri
      */
     public static String mkPwmUri(int pwmId){
-        return FileUtils.COMMON_PWM_URI + "/pwm" + pwmId;
+        return FileUtils.COMMON_PWM_URI  + pwmId;
     }
 
     /**
@@ -70,7 +79,7 @@ public class Pwm {
      * @return boolean returns true if pwm is exported
      */
     public static boolean isExported(int pwmId){
-        File pwmDir = new File(mkPwmUri(pwmId));
+        File pwmDir = new File(mkPwmUri(pwmId) + "/pwm0");
         return pwmDir.exists();
     }
 
@@ -88,7 +97,7 @@ public class Pwm {
         File file = new File(FileUtils.EXPORT_PWM_URI);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
-        bw.write(id + "");
+        bw.write("1");
         bw.close();
     }
 
@@ -146,12 +155,24 @@ public class Pwm {
      * @param value int {0...255}
      * @throws Exception if value cannot be set (for example if value is not between 0 and 255 or is NaN)
      */
-    public void set8BitValue(long value) throws Exception{
-        if(value < 0 || value > 255){
-            throw new NumberFormatException("Value should be between 0 and 255");
+    public void set8BitValue(int value) throws Exception {
+        if(value < 0){
+            value = 0;
+        }
+        if(value > 255){
+            value = 255;
         }
         long period = this.getPeriod();
+        if (period == 0) {
+            period = PWM_DEFAULT_PERIOD;
+            setPeriod(PWM_DEFAULT_PERIOD);
+        }
         long duty_cycle = period / 255 * value;
+        if (NeoJava.DEBUG) {
+            NeoJava.logger.debug(String.format("ID:%d", id));
+            NeoJava.logger.debug(String.format("period:%d", period));
+            NeoJava.logger.debug(String.format("duty cycle:%d", duty_cycle));
+        }
         this.setDutyCycle(duty_cycle);
     }
 
@@ -166,10 +187,17 @@ public class Pwm {
      * @throws Exception if value cannot be set (for example if value is not between 0 and 100 or is NaN)
      */
     public void setPercentValue(int value) throws Exception{
-        if(value < 0 || value > 100){
-            throw new NumberFormatException("Value should be between 0 and 100");
+        if(value < 0){
+            value = 0;
+        }
+        if(value > 100){
+            value = 100;
         }
         long period = this.getPeriod();
+        if (period == 0) {
+            period = PWM_DEFAULT_PERIOD;
+            setPeriod(PWM_DEFAULT_PERIOD);
+        }
         long duty_cycle = period / 100 * value;
         this.setDutyCycle(duty_cycle);
     }

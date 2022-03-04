@@ -1,7 +1,7 @@
 package com.b1project.udooneo.model;
 
 /**
- * Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ * Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  * <p>
  * This file is part of UDOO Neo Controller
  * <p>
@@ -18,6 +18,7 @@ package com.b1project.udooneo.model;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+@SuppressWarnings("unused")
 public class SensorData {
     private String data;
 

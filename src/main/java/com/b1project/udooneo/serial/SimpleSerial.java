@@ -9,7 +9,7 @@ import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 
 /**
- * Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ * Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  * <p>
  * This file is part of NeoJava examples for UDOO
  * <p>
@@ -26,6 +26,7 @@ import jssc.SerialPortException;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+@SuppressWarnings("unused")
 public class SimpleSerial {
     private String mDeviceUri = NeoJava.DEFAULT_BINDING_TTY;
     private final SerialOutputListener mListener;

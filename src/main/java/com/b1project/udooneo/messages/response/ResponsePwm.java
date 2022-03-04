@@ -1,11 +1,9 @@
 package com.b1project.udooneo.messages.response;
 
 import com.b1project.udooneo.messages.ResponseMessage;
-import com.b1project.udooneo.model.Pin;
 import com.b1project.udooneo.net.NeoJavaProtocol;
 
-import java.util.List;
-
+@SuppressWarnings("unused")
 public class ResponsePwm extends ResponseMessage {
 
 	private long value;

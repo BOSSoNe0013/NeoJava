@@ -20,7 +20,7 @@ import com.b1project.udooneo.messages.Message;
 import com.b1project.udooneo.messages.ResponseMessage;
 
 /**
- *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ *  Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  *
  *  This file is part of NeoJava Tools for UDOO Neo
  *
@@ -122,9 +122,9 @@ public class NeoJavaSecureServer {
     }
 
     private class ServerThread implements Runnable{
-        PrintWriter out;
-        BufferedReader in;
-        Socket clientSocket;
+        final PrintWriter out;
+        final BufferedReader in;
+        final Socket clientSocket;
 
         ServerThread(Socket clientSocket, BufferedReader in, PrintWriter out){
             this.in = in;

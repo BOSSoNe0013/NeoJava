@@ -4,6 +4,7 @@ import com.b1project.udooneo.NeoJava;
 import com.b1project.udooneo.listeners.SerialOutputListener;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
+import gnu.io.NoSuchPortException;
 import gnu.io.SerialPort;
 
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ *  Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  *
  *  This file is part of NeoJava Tools for UDOO Neo
  *
@@ -58,41 +59,45 @@ public class Serial {
     public void connect() throws Exception {
         System.out.println("\rConnecting to serial port " + mDeviceUri + "...");
         System.out.print("#:");
-        CommPortIdentifier mCommPortIdentifier = CommPortIdentifier.getPortIdentifier(mDeviceUri);
-        if (mCommPortIdentifier.isCurrentlyOwned()) {
-            NeoJava.logger.warn("\rError: Port currently in use");
-            System.out.print("#:");
-        } else {
-            CommPort mCommPort = mCommPortIdentifier.open(this.getClass().getName(), 2000);
-            if(mCommPort instanceof SerialPort) {
-                mSerialPort = (SerialPort) mCommPort;
-                mSerialPort.setSerialPortParams(mBaudRate,
-                                                SerialPort.DATABITS_8,
-                                                SerialPort.STOPBITS_1,
-                                                SerialPort.PARITY_NONE);
-                mSerialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-
-                mOutputStream = mSerialPort.getOutputStream();
-                mInputStream  = mSerialPort.getInputStream();
-                mReaderTask = new SerialReader(mInputStream, mListener);
-                (new Thread(mReaderTask)).start();
-
-                Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            disconnect();
-                        } catch (Exception e) {
-                            NeoJava.logger.warn("\rError: " + e.getMessage());
-                        }
-                    }
-                }));
-                System.out.println("\rSerial port connected");
-                System.out.print("#:");
+        try {
+            CommPortIdentifier mCommPortIdentifier = CommPortIdentifier.getPortIdentifier(mDeviceUri);
+            if (mCommPortIdentifier.isCurrentlyOwned()) {
+                NeoJava.logger.warn("\rError: Port currently in use");
             } else {
-                NeoJava.logger.warn("\rError: Only serial ports are handled");
-                System.out.print("#:");
+                CommPort mCommPort = mCommPortIdentifier.open(this.getClass().getName(), 2000);
+                if(mCommPort instanceof SerialPort) {
+                    mSerialPort = (SerialPort) mCommPort;
+                    mSerialPort.setSerialPortParams(mBaudRate,
+                                                    SerialPort.DATABITS_8,
+                                                    SerialPort.STOPBITS_1,
+                                                    SerialPort.PARITY_NONE);
+                    mSerialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
+
+                    mOutputStream = mSerialPort.getOutputStream();
+                    mInputStream  = mSerialPort.getInputStream();
+                    mReaderTask = new SerialReader(mInputStream, mListener);
+                    (new Thread(mReaderTask)).start();
+
+                    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                disconnect();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }));
+                    System.out.println("\rSerial port connected");
+                } else {
+                    NeoJava.logger.warn("\rError: Only serial ports are handled");
+                }
             }
+            System.out.print("#:");
+        }
+        catch (NoSuchPortException e) {
+            NeoJava.logger.warn("\rError: No serial ports found");
+            System.out.print("#:");
         }
     }
 

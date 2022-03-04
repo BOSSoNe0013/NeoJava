@@ -5,7 +5,7 @@ import com.b1project.udooneo.utils.FileUtils;
 import static java.lang.Thread.sleep;
 
 /**
- * Copyright (C) 2017 Cyril Bosselut <bossone0013@gmail.com>
+ * Copyright (C) 2017 Cyril BOSSELUT <bossone0013@gmail.com>
  * <p>
  * This file is part of NeoJava
  * <p>
@@ -27,12 +27,12 @@ public class LightSensor extends Sensor {
     private final static int A_TIME = 400;
     private final static int A_GAIN = 16;
 
-    public static Float getLightPower(){
+    public static float getLightPower(){
         try {
             //Float light_power_scale = Float.parseFloat(read(FileUtils.LIGHT_SCALE_URI));
-            Float raw_light_power_0 = Float.parseFloat(read(FileUtils.LIGHT_RAW_URI));
+            float raw_light_power_0 = Float.parseFloat(read(FileUtils.LIGHT_RAW_URI));
             sleep(A_TIME);
-            Float raw_light_power_1 = Float.parseFloat(read(FileUtils.LIGHT_RAW_URI));
+            float raw_light_power_1 = Float.parseFloat(read(FileUtils.LIGHT_RAW_URI));
             return calculateLightPower(raw_light_power_0, raw_light_power_1);
         } catch (Exception e) {
             e.printStackTrace();
@@ -40,7 +40,7 @@ public class LightSensor extends Sensor {
         return 0.0f;
     }
 
-    private static Float calculateLightPower(Float ch0, Float ch1) {
+    private static float calculateLightPower(float ch0, float ch1) {
         float cpl = (float) (A_TIME * A_GAIN / 200);
         float lux1 = (float) ((ch0 - 1.5 * ch1) / cpl);
         float lux2 = (float) ((0.4 * ch0 - 0.48 * ch1) / cpl);

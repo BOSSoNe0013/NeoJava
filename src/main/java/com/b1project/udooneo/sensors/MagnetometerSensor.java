@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import com.b1project.udooneo.utils.FileUtils;
 
 /**
- * Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
+ * Copyright (C) 2015 Cyril BOSSELUT <bossone0013@gmail.com>
  * <p/>
  * This file is part of NeoJava tools for UDOO
  * <p/>
@@ -24,7 +24,7 @@ import com.b1project.udooneo.utils.FileUtils;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-@SuppressWarnings("SameParameterValue")
+@SuppressWarnings({"SameParameterValue", "unused"})
 public class MagnetometerSensor extends Sensor {
 
     public static void enableSensor(boolean enable) throws Exception{
