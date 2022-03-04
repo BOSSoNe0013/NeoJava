@@ -22,7 +22,7 @@ import com.b1project.udooneo.sensors.callback.LightPowerReaderCallback;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class LightPowerReader implements Runnable {
-    private LightPowerReaderCallback callback;
+    private final LightPowerReaderCallback callback;
 
     public LightPowerReader(LightPowerReaderCallback callback) {
         this.callback = callback;

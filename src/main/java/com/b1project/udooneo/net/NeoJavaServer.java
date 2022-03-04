@@ -38,9 +38,9 @@ import com.b1project.udooneo.messages.ResponseMessage;
 public class NeoJavaServer {
     private static final int port = NeoJava.DEFAULT_SERVER_PORT;
     private ServerSocket serverSocket;
-    private List<Socket> clientSockets = new ArrayList<>();
-    private NeoJavaProtocolListener neoJavaProtocolListener;
-    private List<PrintWriter> outPrintWriters = new ArrayList<>();
+    private final List<Socket> clientSockets = new ArrayList<>();
+    private final NeoJavaProtocolListener neoJavaProtocolListener;
+    private final List<PrintWriter> outPrintWriters = new ArrayList<>();
 
     private NeoJavaServer(NeoJavaProtocolListener listener){
         this.neoJavaProtocolListener = listener;

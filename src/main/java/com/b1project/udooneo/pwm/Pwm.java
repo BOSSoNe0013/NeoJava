@@ -28,13 +28,13 @@ import java.util.Objects;
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Pwm {
-    private int id;
-    private String uri;
+    private final int id;
+    private final String uri;
     private static final String PWM_PERIOD_PATH = "/period";
     private static final String PWM_DUTY_CyCLE_PATH = "/duty_cycle";
     private static final String PWM_ENABLE_PATH = "/enable";
     private static Pwm pwm;
-    private static HashMap<Integer, PwmState> currentPwmStates = new HashMap<>();
+    private static final HashMap<Integer, PwmState> currentPwmStates = new HashMap<>();
     private PwmState currentPwmState = PwmState.DISABLE;
 
     public enum PwmState{
@@ -158,7 +158,7 @@ public class Pwm {
     public long get8BitValue() throws Exception{
         long period = this.getPeriod();
         long duty_cycle = this.getDutyCycle();
-        return Math.min(255, Math.round(duty_cycle * 255 / period));
+        return Math.min(255, Math.round((float) (duty_cycle * 255) / period));
     }
 
     /**
@@ -205,6 +205,10 @@ public class Pwm {
         currentPwmState = state;
         currentPwmStates.put(this.id, currentPwmState);
         return state;
+    }
+
+    public HashMap<Integer, PwmState> getStates() {
+        return currentPwmStates;
     }
 
     /**

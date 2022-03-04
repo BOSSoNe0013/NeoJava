@@ -32,10 +32,10 @@ public class FSWatcher extends Thread {
     private static final String TAG = FSWatcher.class.getSimpleName();
     private final WatchService mWatchService;
     private final Map<WatchKey,Path> mKeys;
-    private WatchEvent.Kind<?>[] mEventTypes;
+    private final WatchEvent.Kind<?>[] mEventTypes;
     private boolean shouldStopWatcher = false;
-    private boolean mRecursive = false;
-    private FSWatcherListener mListener;
+    private final boolean mRecursive;
+    private final FSWatcherListener mListener;
 
     public FSWatcher(Path dir, boolean recursive, FSWatcherListener listener, WatchEvent.Kind<?>... eventTypes) throws IOException{
         mWatchService = FileSystems.getDefault().newWatchService();

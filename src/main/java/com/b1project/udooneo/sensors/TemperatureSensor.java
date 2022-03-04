@@ -26,7 +26,7 @@ public class TemperatureSensor extends Sensor {
 
     public static Float getTemperature(){
         try {
-            Float raw_pressure = Float.parseFloat(read(FileUtils.TEMP_URI));
+            float raw_pressure = Float.parseFloat(read(FileUtils.TEMP_URI));
             return raw_pressure / 1000;
         } catch (Exception e) {
             e.printStackTrace();

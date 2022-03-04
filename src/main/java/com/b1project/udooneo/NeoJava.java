@@ -26,6 +26,8 @@ import com.b1project.udooneo.pwm.Pwm;
 import com.b1project.udooneo.sensors.callback.*;
 import com.b1project.udooneo.sensors.reader.*;
 import com.b1project.udooneo.serial.Serial;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
@@ -96,13 +98,14 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             0b00000,
             0b10010,
             0b00000};
-    private Properties mProperties;
+    private final Properties mProperties;
     private static Preferences mPreferences;
     private Thread mShutdownHookThread;
+    public static final Logger logger = LoggerFactory.getLogger(NeoJava.class);
 
     public static void main(String[] args) {
         try{
-            System.out.println(
+            logger.info(
                     getInstance().getVersionString()
                             + " (Java platform tools for "
                             + BoardInfo.getBoardModel() + ")");
@@ -114,7 +117,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             if(mPreferences.getBoolean(PREF_PWM_ENABLE, true)) {
                 Pwm pwm = Pwm.getInstance(0);
                 pwm.configure(1000000, 0);
-                System.out.println("\rPWM setup complete");
+                logger.info("\rPWM setup complete");
                 System.out.print("#:");
             }
 
@@ -135,7 +138,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             }
 
             startSTDINListener();
-            System.out.println("\rInit complete");
+            logger.info("\rInit complete");
             System.out.print("#:");
             mInitComplete = true;
         }
@@ -266,7 +269,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                             DEBUG = false;
                             break;
                         default:
-                            System.err.println("\rError: Invalid args");
+                            logger.warn("\rError: Invalid args");
                             return null;
                     }
                 }
@@ -300,10 +303,12 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                             mLcd.print(mCurrentMessage);
                         }
                     } catch (Exception e) {
-                        System.err.println("\rError: " + e.getMessage());
+                        logger.warn("\rError: " + e.getMessage());
                         mLcdPrinting = false;
                     }
-                    mLcdPrinting = false;
+                    finally {
+                        mLcdPrinting = false;
+                    }
                 }
                 System.out.println(getInstance().getVersionString());
                 System.out.print("#:");
@@ -331,10 +336,12 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                                 }
                             }
                             catch (Exception e){
-                                System.err.println("\rError: " + e.getMessage());
+                                logger.warn("\rError: " + e.getMessage());
                                 mLcdPrinting = false;
                             }
-                            mLcdPrinting = false;
+                            finally {
+                                mLcdPrinting = false;
+                            }
                         }
                         System.out.println("\r" + tempString.replace("ß","°"));
                         System.out.print("#:");
@@ -360,10 +367,12 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                                 }
                             }
                             catch (Exception e){
-                                System.err.println("\rError: " + e.getMessage());
+                                logger.warn("\rError: " + e.getMessage());
                                 mLcdPrinting = false;
                             }
-                            mLcdPrinting = false;
+                            finally {
+                                mLcdPrinting = false;
+                            }
                         }
                         System.out.println("\r" + lpwString);
                         System.out.print("#:");
@@ -384,7 +393,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                         System.out.println("\rPWM: " + pwm.get8BitValue());
                         System.out.print("#:");
                     } catch (Exception e) {
-                        System.err.println("\rError: " + e.getMessage());
+                        logger.warn("\rError: " + e.getMessage());
                     }
                 }
                 break;
@@ -411,11 +420,11 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                                     break;
                             }
                         } else {
-                            System.err.println("\rError: no data provided");
+                            logger.warn("\rError: no data provided");
                         }
                         System.out.print("#:");
                     } catch (Exception e) {
-                        System.err.println("\rError: " + e.getMessage());
+                        logger.warn("\rError: " + e.getMessage());
                     }
                 }
                 break;
@@ -438,7 +447,9 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                         System.err.println("\rError: " + e.getMessage());
                         mLcdPrinting = false;
                     }
-                    mLcdPrinting = false;
+                    finally {
+                        mLcdPrinting = false;
+                    }
                 }
                 List<NetworkInterface> nets = InetDevice.listAll();
                 if (nets != null) {
@@ -476,7 +487,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                 }
                 else{
                     if(!line.equals("")) {
-                        System.out.println("\rError: command not found");
+                        logger.warn("\rError: command not found");
                     }
                     System.out.print("#:");
                 }
@@ -512,7 +523,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             System.exit(0);
         }
         catch (Exception e){
-            System.err.println("\rError :" + e.getLocalizedMessage());
+            logger.warn("\rError :" + e.getLocalizedMessage());
             System.exit(0);
         }
     }
@@ -526,7 +537,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             quit();
         }
         catch (Exception e){
-            System.out.println("\rError while closing socket");
+            logger.warn("\rError while closing socket");
             e.printStackTrace();
         }
     }
@@ -703,7 +714,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     @Override
     public void onStateChanged(int pinId, Gpio.PinState state) {
         if(DEBUG) {
-            System.out.println("\rGPIO_" + pinId + " state changed to: " + state);
+            logger.info("\rGPIO_" + pinId + " state changed to: " + state);
             System.out.print("#:");
         }
         if(mServer != null) {
@@ -717,7 +728,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     @Override
     public void onModeChanged(int pinId, Gpio.PinMode mode) {
         if(DEBUG) {
-            System.out.println("\rGPIO_" + pinId + " mode changed to: " + mode);
+            logger.info("\rGPIO_" + pinId + " mode changed to: " + mode);
             System.out.print("#:");
         }
         if(mServer != null) {
@@ -731,7 +742,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     @Override
     public void onExport(int pinId) {
         if(DEBUG) {
-            System.out.println("\rGPIO_" + pinId + " exported");
+            logger.info("\rGPIO_" + pinId + " exported");
             System.out.print("#:");
         }
         if(mServer != null) {
@@ -745,7 +756,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
     @Override
     public void onRelease(int pinId) {
         if(DEBUG) {
-            System.out.println("\rGPIO_" + pinId + " released");
+            logger.info("\rGPIO_" + pinId + " released");
             System.out.print("#:");
         }
         if(mServer != null) {
@@ -816,7 +827,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
                                     }
                                 }
                                 catch (Exception e){
-                                    System.err.println("\rError: " + e.getMessage());
+                                    logger.warn("\rError: " + e.getMessage());
                                     System.out.print("#:");
                                 }
                             }
@@ -830,7 +841,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
             System.out.print("#:");
         }
         else{
-            System.err.println("\rError: system init not completed");
+            logger.warn("\rError: system init not completed");
             System.out.print("#:");
         }
     }

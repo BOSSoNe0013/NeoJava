@@ -18,8 +18,8 @@ import com.b1project.udooneo.pwm.Pwm;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
+import jakarta.xml.bind.DatatypeConverter;
 
-import javax.xml.bind.DatatypeConverter;
 import java.net.Socket;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -94,8 +94,8 @@ public class NeoJavaProtocol {
 
 	public static final String ERROR = "error";
 
-	private NeoJavaProtocolListener listener;
-	private Socket clientSocket;
+	private final NeoJavaProtocolListener listener;
+	private final Socket clientSocket;
         private final GpiosManager mGpiosManager;
 
 	private static final RuntimeTypeAdapterFactory<Message> msgAdapter = RuntimeTypeAdapterFactory.of(Message.class)
@@ -378,7 +378,7 @@ public class NeoJavaProtocol {
 			}
 			return new ResponseOutputMessage(ERROR, "Empty method: " + input.replace("\"", "\\\""));
 		} catch (Exception e) {
-			System.err.println("\rError: " + e.getMessage());
+			NeoJava.logger.warn("\rError: " + e.getMessage());
 			System.out.print("#:");
 			return new ResponseOutputMessage(ERROR, "Invalid request: " + input);
 		}

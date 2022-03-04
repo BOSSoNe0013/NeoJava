@@ -41,9 +41,9 @@ public class LightSensor extends Sensor {
     }
 
     private static Float calculateLightPower(Float ch0, Float ch1) {
-        Float cpl = (float) (A_TIME * A_GAIN / 200);
-        Float lux1 = (float) ((ch0 - 1.5 * ch1) / cpl);
-        Float lux2 = (float) ((0.4 * ch0 - 0.48 * ch1) / cpl);
+        float cpl = (float) (A_TIME * A_GAIN / 200);
+        float lux1 = (float) ((ch0 - 1.5 * ch1) / cpl);
+        float lux2 = (float) ((0.4 * ch0 - 0.48 * ch1) / cpl);
         return Math.max(lux1, lux2);
     }
 }

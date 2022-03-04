@@ -28,9 +28,9 @@ import jssc.SerialPortException;
  */
 public class SimpleSerial {
     private String mDeviceUri = NeoJava.DEFAULT_BINDING_TTY;
-    private SerialOutputListener mListener;
+    private final SerialOutputListener mListener;
     private SerialPort mSerialPort;
-    private StringBuilder readBuffer = new StringBuilder();
+    private final StringBuilder readBuffer = new StringBuilder();
 
     public SimpleSerial(String deviceUri, SerialOutputListener listener){
         super();
@@ -41,7 +41,7 @@ public class SimpleSerial {
     }
 
     public void connect() throws Exception {
-        System.out.println("\rConnecting to serial port...");
+        System.out.println("\rConnecting to serial port " + mDeviceUri + "...");
         System.out.print("#:");
         mSerialPort = new SerialPort(mDeviceUri);
         boolean isOpen = mSerialPort.openPort();
@@ -73,7 +73,7 @@ public class SimpleSerial {
                 try {
                     disconnect();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    NeoJava.logger.warn("Error: " + e.getMessage());
                 }
             }
         }));
@@ -100,7 +100,7 @@ public class SimpleSerial {
         readBuffer.append(bufferContent);
     }
 
-    public void disconnect() throws Exception{
+    public void disconnect() {
         if(mSerialPort != null){
             System.out.println("\rDisconnecting from serial port...");
             System.out.print("#:");
@@ -111,7 +111,7 @@ public class SimpleSerial {
                         mSerialPort.removeEventListener();
                         mSerialPort.closePort();
                     } catch (SerialPortException e) {
-                        e.printStackTrace();
+                        NeoJava.logger.warn("Error: " + e.getMessage());
                     }
                     System.out.println("\rSerial port disconnected");
                     System.out.print("#:");

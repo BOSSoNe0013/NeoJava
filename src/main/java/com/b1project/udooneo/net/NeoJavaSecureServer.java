@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
+import java.security.Provider;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,6 @@ import javax.net.ssl.SSLSocket;
 import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
 import com.b1project.udooneo.messages.Message;
 import com.b1project.udooneo.messages.ResponseMessage;
-import com.sun.net.ssl.internal.ssl.Provider;
 
 /**
  *  Copyright (C) 2015 Cyril Bosselut <bossone0013@gmail.com>
@@ -42,13 +42,19 @@ import com.sun.net.ssl.internal.ssl.Provider;
 public class NeoJavaSecureServer {
     private static final int SERVER_PORT = 45046;
     private SSLServerSocket serverSocket;
-    private List<SSLSocket> clientSockets = new ArrayList<>();
-    private NeoJavaProtocolListener neoJavaProtocolListener;
-    private List<PrintWriter> outPrintWriters = new ArrayList<>();
+    private final List<SSLSocket> clientSockets = new ArrayList<>();
+    private final NeoJavaProtocolListener neoJavaProtocolListener;
+    private final List<PrintWriter> outPrintWriters = new ArrayList<>();
+
+    static class SSLProvider extends Provider {
+        protected SSLProvider(String name, double version, String info) {
+            super(name, version, info);
+        }
+    }
 
     static {
         // Registering the JSSE provider
-        Security.addProvider(new Provider());
+        Security.addProvider(new SSLProvider("SSL Provider", 1.0, ""));
 
         //Specifying the Keystore details
         System.setProperty("javax.net.ssl.keyStore","NeoJava.ks");
@@ -68,8 +74,7 @@ public class NeoJavaSecureServer {
     }
 
     public void writeOutput(Message msg) {
-        List<PrintWriter> opws = new ArrayList<>();
-        opws.addAll(outPrintWriters);
+        List<PrintWriter> opws = new ArrayList<>(outPrintWriters);
         String json = NeoJavaProtocol.toJson(msg);
         for (PrintWriter outPrintWriter: opws){
             if (outPrintWriter != null) {

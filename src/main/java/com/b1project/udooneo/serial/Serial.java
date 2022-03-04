@@ -35,7 +35,7 @@ public class Serial {
     private int mBaudRate = NeoJava.SERIAL_PORT_BAUD_RATE;
     private static OutputStream mOutputStream;
     private static InputStream mInputStream;
-    private SerialOutputListener mListener;
+    private final SerialOutputListener mListener;
     private SerialPort mSerialPort;
     private SerialReader mReaderTask;
 
@@ -56,11 +56,11 @@ public class Serial {
     }
 
     public void connect() throws Exception {
-        System.out.println("\rConnecting to serial port...");
+        System.out.println("\rConnecting to serial port " + mDeviceUri + "...");
         System.out.print("#:");
         CommPortIdentifier mCommPortIdentifier = CommPortIdentifier.getPortIdentifier(mDeviceUri);
         if (mCommPortIdentifier.isCurrentlyOwned()) {
-            System.err.println("\rError: Port currently in use");
+            NeoJava.logger.warn("\rError: Port currently in use");
             System.out.print("#:");
         } else {
             CommPort mCommPort = mCommPortIdentifier.open(this.getClass().getName(), 2000);
@@ -83,14 +83,14 @@ public class Serial {
                         try {
                             disconnect();
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            NeoJava.logger.warn("\rError: " + e.getMessage());
                         }
                     }
                 }));
                 System.out.println("\rSerial port connected");
                 System.out.print("#:");
             } else {
-                System.err.println("\rError: Only serial ports are handled");
+                NeoJava.logger.warn("\rError: Only serial ports are handled");
                 System.out.print("#:");
             }
         }
@@ -124,7 +124,7 @@ public class Serial {
                mOutputStream.write(b);
             }
             else{
-                System.err.println("\rError: can't get output stream");
+                NeoJava.logger.warn("\rError: can't get output stream");
                 System.out.print("#:");
             }
         }
@@ -139,7 +139,7 @@ public class Serial {
                mOutputStream.write(buffer);
             }
             else{
-                System.err.println("\rError: can't get output stream");
+                NeoJava.logger.warn("\rError: can't get output stream");
                 System.out.print("#:");
             }
         }
@@ -159,15 +159,15 @@ public class Serial {
                 mOutputStream = mSerialPort.getOutputStream();
             }
             if(mOutputStream != null) {
-byte[] b = new byte[8];
-int size = Long.SIZE / Byte.SIZE;
-for (int i = 0; i < size; ++i) {
-  b[i] = (byte) (l >> (size - i - 1 << 3));
-}
+                byte[] b = new byte[8];
+                int size = Long.SIZE / Byte.SIZE;
+                for (int i = 0; i < size; ++i) {
+                  b[i] = (byte) (l >> (size - i - 1 << 3));
+                }
                mOutputStream.write(b);
             }
             else{
-                System.err.println("\rError: can't get output stream");
+                NeoJava.logger.warn("\rError: can't get output stream");
                 System.out.print("#:");
             }
         }

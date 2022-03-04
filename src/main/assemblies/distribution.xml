@@ -1,0 +1,10 @@
+<dependencySets>
+    <dependencySet>
+        <outputDirectory>/</outputDirectory>
+        <outputFileNameMapping>librxtxSerial.so</outputFileNameMapping>
+        <includes>
+            <include>*:rxtx:so:bin</include>
+        </includes>
+        <fileMode>666</fileMode>
+    </dependencySet>
+</dependencySets>
