@@ -120,13 +120,16 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
 	<repositories>
 		<repository>
-			<!-- Not needed for "*-geoapi-3.0" versions -->
-			<id>geotoolkit</id>
-			<name>Geotk repository</name>
-			<url>https://maven.geotoolkit.org</url>
+			<id>central</id>
+			<url>https://repo.maven.apache.org/maven2/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
 		</repository>
 	</repositories>
 </project>

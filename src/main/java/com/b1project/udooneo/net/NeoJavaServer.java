@@ -71,8 +71,10 @@ public class NeoJavaServer {
                 Socket clientSocket = serverSocket.accept();
                 if(clientSocket != null) {
                     if(!serverSocket.isClosed() && !clientSocket.isClosed()) {
-                        System.out.println("\rNew client socket: " + clientSocket.getInetAddress().getHostAddress());
-                        System.out.print("#:");
+                        if (NeoJava.DEBUG) {
+                            System.out.println("\rNew client socket: " + clientSocket.getInetAddress().getHostAddress());
+                            System.out.print("#:");
+                        }
                         clientSockets.add(clientSocket);
                         PrintWriter outPrintWriter = new PrintWriter(clientSocket.getOutputStream(), true);
                         outPrintWriters.add(outPrintWriter);
@@ -82,11 +84,13 @@ public class NeoJavaServer {
                 }
             }
         } catch (SocketException e) {
-            System.out.println("\rSocket closed");
-            System.out.print("#:");
+            if (NeoJava.DEBUG) {
+                System.out.println("\rSocket closed");
+                System.out.print("#:");
+            }
         } catch (IOException e) {
-            System.err.println("\rException caught when trying to listen on port " + port + " or listening for a connection");
-            System.err.println("Error: " + e.getMessage());
+            NeoJava.logger.warn("\rException caught when trying to listen on port " + port + " or listening for a connection");
+            NeoJava.logger.warn("Error: " + e.getMessage());
             System.out.print("#:");
         }
     }

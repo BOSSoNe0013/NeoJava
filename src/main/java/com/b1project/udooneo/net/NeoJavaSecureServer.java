@@ -15,6 +15,7 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
+import com.b1project.udooneo.NeoJava;
 import com.b1project.udooneo.listeners.NeoJavaProtocolListener;
 import com.b1project.udooneo.messages.Message;
 import com.b1project.udooneo.messages.ResponseMessage;
@@ -98,8 +99,10 @@ public class NeoJavaSecureServer {
                 SSLSocket clientSocket = (SSLSocket) serverSocket.accept();
                 if(clientSocket != null) {
                     if(!serverSocket.isClosed() && !clientSocket.isClosed()){
-                        System.out.println("\rNew client socket: " + clientSocket.getInetAddress().getHostAddress());
-                        System.out.print("#:");
+                        if (NeoJava.DEBUG) {
+                            System.out.println("\rNew client socket: " + clientSocket.getInetAddress().getHostAddress());
+                            System.out.print("#:");
+                        }
                         clientSockets.add(clientSocket);
                         PrintWriter outPrintWriter =
                                 new PrintWriter(clientSocket.getOutputStream(), true);
@@ -112,11 +115,13 @@ public class NeoJavaSecureServer {
                 }
             }
         } catch (SocketException e) {
-            System.out.println("\rSocket closed");
-            System.out.print("#:");
+            if (NeoJava.DEBUG) {
+                System.out.println("\rSocket closed");
+                System.out.print("#:");
+            }
         } catch (IOException e) {
-            System.err.printf("\rException caught when trying to listen on port %d or listening for a connection\n", SERVER_PORT);
-            System.err.println("Error: " + e.getMessage());
+            NeoJava.logger.warn("\rException caught when trying to listen on port %d or listening for a connection " + SERVER_PORT + "\n");
+            NeoJava.logger.warn("Error: " + e.getMessage());
             System.out.print("#:");
         }
     }

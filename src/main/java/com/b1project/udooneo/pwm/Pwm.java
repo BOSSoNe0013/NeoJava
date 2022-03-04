@@ -33,7 +33,7 @@ public class Pwm {
     private final String uri;
     private static final long PWM_DEFAULT_PERIOD = 10000;
     private static final String PWM_PERIOD_PATH = "/period";
-    private static final String PWM_DUTY_CyCLE_PATH = "/duty_cycle";
+    private static final String PWM_DUTY_CYCLE_PATH = "/duty_cycle";
     private static final String PWM_ENABLE_PATH = "/enable";
     private static final HashMap<Integer, Pwm> PWM_MAP = new HashMap<>();
     private static Pwm pwm;
@@ -94,7 +94,7 @@ public class Pwm {
      }
 
     private void export() throws Exception{
-        File file = new File(FileUtils.EXPORT_PWM_URI);
+        File file = new File(uri + FileUtils.DEVICE_EXPORT_ENDPOINT);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write("1");
@@ -102,7 +102,7 @@ public class Pwm {
     }
 
     private void release() throws Exception{
-        File file = new File(FileUtils.RELEASE_PWM_URI);
+        File file = new File(uri + FileUtils.DEVICE_UNEXPORT_ENDPOINT);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(id + "");
@@ -126,7 +126,7 @@ public class Pwm {
      * @throws Exception if period cannot be read
      */
     public long getPeriod() throws Exception{
-        String periodString = FileUtils.readFile(this.uri + PWM_PERIOD_PATH);
+        String periodString = FileUtils.readFile(this.uri+ "/pwm0" + PWM_PERIOD_PATH);
         return Long.parseLong(periodString);
     }
 
@@ -135,7 +135,7 @@ public class Pwm {
      * @throws Exception if duty_cycle cannot be set (for example if current period is smaller than duty_cycle)
      */
     public void setDutyCycle(long dutyCycle) throws Exception{
-        File file = new File(this.uri + PWM_DUTY_CyCLE_PATH);
+        File file = new File(this.uri+ "/pwm0" + PWM_DUTY_CYCLE_PATH);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(dutyCycle + "");
@@ -147,7 +147,7 @@ public class Pwm {
      * @throws Exception if duty_cycle cannot be read
      */
     public long getDutyCycle() throws Exception{
-        String dutyCycleString = FileUtils.readFile(this.uri + PWM_DUTY_CyCLE_PATH);
+        String dutyCycleString = FileUtils.readFile(this.uri+ "/pwm0" + PWM_DUTY_CYCLE_PATH);
         return Long.parseLong(dutyCycleString);
     }
 
@@ -207,7 +207,7 @@ public class Pwm {
      * @throws Exception is state cannot be set (for example if pwm is not exported
      */
     public void setState(PwmState state) throws Exception{
-        File file = new File(this.uri + PWM_ENABLE_PATH);
+        File file = new File(this.uri + "/pwm0" + PWM_ENABLE_PATH);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(state.ordinal() + "");
@@ -229,7 +229,7 @@ public class Pwm {
      * @throws Exception if period cannot be read
      */
     public PwmState getState() throws Exception{
-        PwmState state = (Objects.equals(FileUtils.readFile(this.uri + PWM_ENABLE_PATH), "1"))?PwmState.ENABLE:PwmState.DISABLE;
+        PwmState state = (Objects.equals(FileUtils.readFile(this.uri + "/pwm0" + PWM_ENABLE_PATH), "1"))?PwmState.ENABLE:PwmState.DISABLE;
         currentPwmState = state;
         currentPwmStates.put(this.id, currentPwmState);
         return state;
