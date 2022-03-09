@@ -151,11 +151,11 @@ public class NeoJavaServer {
                     }
                 }
             } catch (IOException e) {
-                if (NeoJava.DEBUG) {
+                //if (NeoJava.DEBUG) {
                     System.err.println("\rException caught when  listening for a connection");
                     System.err.println("Error: " + e.getMessage());
                     System.out.print("#:");
-                }
+                //}
                 try {
                     clientSocket.close();
                 }
