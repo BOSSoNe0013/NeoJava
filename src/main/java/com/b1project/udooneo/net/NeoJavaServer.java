@@ -69,8 +69,9 @@ public class NeoJavaServer {
             serverSocket = new ServerSocket(port);
             //noinspection InfiniteLoopStatement
             while(true) {
+                Socket clientSocket = null;
                 try {
-                    Socket clientSocket = serverSocket.accept();
+                    clientSocket = serverSocket.accept();
                     if(clientSocket != null) {
                             if (!serverSocket.isClosed() && !clientSocket.isClosed()) {
                                 if (NeoJava.DEBUG) {
@@ -144,6 +145,15 @@ public class NeoJavaServer {
                 System.err.println("\rException caught when  listening for a connection");
                 System.err.println("Error: " + e.getMessage());
                 System.out.print("#:");
+                try {
+                    clientSocket.close();
+                    serverSocket.close();
+                }
+                catch (Exception se) {
+                    NeoJava.logger.warn("\rException caught when trying to close server socket");
+                    NeoJava.logger.warn("Error: " + se.getMessage());
+                    System.out.print("#:");
+                }
             }
         }
     }
