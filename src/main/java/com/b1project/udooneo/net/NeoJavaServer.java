@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,19 +69,27 @@ public class NeoJavaServer {
             serverSocket = new ServerSocket(port);
             //noinspection InfiniteLoopStatement
             while(true) {
-                Socket clientSocket = serverSocket.accept();
-                if(clientSocket != null) {
-                    if(!serverSocket.isClosed() && !clientSocket.isClosed()) {
-                        if (NeoJava.DEBUG) {
-                            System.out.println("\rNew client socket: " + clientSocket.getInetAddress().getHostAddress());
-                            System.out.print("#:");
-                        }
-                        clientSockets.add(clientSocket);
-                        PrintWriter outPrintWriter = new PrintWriter(clientSocket.getOutputStream(), true);
-                        outPrintWriters.add(outPrintWriter);
-                        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                        (new Thread(new ServerThread(clientSocket, in, outPrintWriter))).start();
+                try {
+                    Socket clientSocket = serverSocket.accept();
+                    if(clientSocket != null) {
+                            if (!serverSocket.isClosed() && !clientSocket.isClosed()) {
+                                if (NeoJava.DEBUG) {
+                                    System.out.println("\rNew client socket: " + clientSocket.getInetAddress().getHostAddress());
+                                    System.out.print("#:");
+                                }
+                                clientSocket.setSoTimeout(10 * 1000);
+                                clientSockets.add(clientSocket);
+                                PrintWriter outPrintWriter = new PrintWriter(clientSocket.getOutputStream(), true);
+                                outPrintWriters.add(outPrintWriter);
+                                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                                (new Thread(new ServerThread(clientSocket, in, outPrintWriter))).start();
+                            }
                     }
+                }
+                catch (SocketTimeoutException e) {
+                    NeoJava.logger.warn("\rSocket timeout");
+                    NeoJava.logger.warn("Error: " + e.getMessage());
+                    System.out.print("#:");
                 }
             }
         } catch (SocketException e) {
@@ -92,6 +101,16 @@ public class NeoJavaServer {
             NeoJava.logger.warn("\rException caught when trying to listen on port " + port + " or listening for a connection");
             NeoJava.logger.warn("Error: " + e.getMessage());
             System.out.print("#:");
+        }
+        finally {
+            try {
+                serverSocket.close();
+            }
+            catch (Exception e) {
+                NeoJava.logger.warn("\rException caught when trying to close server socket");
+                NeoJava.logger.warn("Error: " + e.getMessage());
+                System.out.print("#:");
+            }
         }
     }
 
