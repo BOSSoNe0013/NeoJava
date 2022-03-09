@@ -108,7 +108,6 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
     public static void main(String[] args) {
         try{
-            PropertyConfigurator.configure(args[0]);
             logger.info(
                     getInstance().getVersionString()
                             + " (Java platform tools for "
