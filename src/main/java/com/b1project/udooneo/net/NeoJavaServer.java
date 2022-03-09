@@ -91,8 +91,6 @@ public class NeoJavaServer {
                     NeoJava.logger.warn("\rSocket timeout");
                     NeoJava.logger.warn("Error: " + e.getMessage());
                     System.out.print("#:");
-                }
-                finally {
                     if (clientSocket != null) {
                         try {
                             clientSocket.close();
