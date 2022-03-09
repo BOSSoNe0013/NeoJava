@@ -26,6 +26,7 @@ import com.b1project.udooneo.pwm.Pwm;
 import com.b1project.udooneo.sensors.callback.*;
 import com.b1project.udooneo.sensors.reader.*;
 import com.b1project.udooneo.serial.Serial;
+import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,6 +108,7 @@ public class NeoJava implements SerialOutputListener, NeoJavaProtocolListener, G
 
     public static void main(String[] args) {
         try{
+            PropertyConfigurator.configure(args[0]);
             logger.info(
                     getInstance().getVersionString()
                             + " (Java platform tools for "
