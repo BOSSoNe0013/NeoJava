@@ -69,7 +69,7 @@ public class NeoJavaServer {
             serverSocket = new ServerSocket(port);
             //noinspection InfiniteLoopStatement
             while(true) {
-                Socket clientSocket;
+                Socket clientSocket = null;
                 try {
                     clientSocket = serverSocket.accept();
                     if(clientSocket != null) {
@@ -91,6 +91,17 @@ public class NeoJavaServer {
                     NeoJava.logger.warn("\rSocket timeout");
                     NeoJava.logger.warn("Error: " + e.getMessage());
                     System.out.print("#:");
+                }
+                finally {
+                    if (clientSocket != null) {
+                        try {
+                            clientSocket.close();
+                        } catch (Exception se) {
+                            NeoJava.logger.warn("\rException caught when trying to close client socket");
+                            NeoJava.logger.warn("Error: " + se.getMessage());
+                            System.out.print("#:");
+                        }
+                    }
                 }
             }
         } catch (SocketException e) {
