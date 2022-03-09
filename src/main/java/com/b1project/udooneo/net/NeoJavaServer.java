@@ -173,7 +173,13 @@ public class NeoJavaServer {
             writeOutput(NeoJavaProtocol.makeShutdownMessage());
             for(Socket clientSocket: clientSockets) {
                 if(clientSocket != null && !clientSocket.isClosed()){
-                    clientSocket.close();
+                    try {
+                        clientSocket.close();
+                    } catch (Exception e) {
+                        System.err.println("\rException caught when trying to close client socket");
+                        System.err.println("Error: " + e.getMessage());
+                        System.out.print("#:");
+                    }
                 }
             }
             clientSockets.clear();
@@ -183,7 +189,7 @@ public class NeoJavaServer {
             System.out.println("\rNeoJavaServer stopped");
             System.out.print("#:");
         } catch (IOException e) {
-            System.err.println("\rException caught when trying to close socket");
+            System.err.println("\rException caught when trying to close server socket");
             System.err.println("Error: " + e.getMessage());
             System.out.print("#:");
         }
