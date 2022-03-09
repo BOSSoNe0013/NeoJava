@@ -99,6 +99,7 @@ public class Pwm {
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write("1");
         bw.close();
+        fw.close();
     }
 
     private void release() throws Exception{
@@ -107,6 +108,7 @@ public class Pwm {
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(id + "");
         bw.close();
+        fw.close();
     }
 
     /**
@@ -119,6 +121,7 @@ public class Pwm {
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(period + "");
         bw.close();
+        fw.close();
     }
 
     /**
@@ -140,6 +143,7 @@ public class Pwm {
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(dutyCycle + "");
         bw.close();
+        fw.close();
     }
 
     /**
@@ -212,6 +216,7 @@ public class Pwm {
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(state.ordinal() + "");
         bw.close();
+        fw.close();
         currentPwmState = state;
         currentPwmStates.put(this.id, currentPwmState);
     }
