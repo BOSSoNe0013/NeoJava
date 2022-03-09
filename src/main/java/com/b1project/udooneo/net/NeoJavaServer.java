@@ -78,7 +78,7 @@ public class NeoJavaServer {
                                     System.out.println("\rNew client socket: " + clientSocket.getInetAddress().getHostAddress());
                                     System.out.print("#:");
                                 }
-                                clientSocket.setSoTimeout(10 * 1000);
+                                clientSocket.setSoTimeout(30 * 1000);
                                 clientSockets.add(clientSocket);
                                 PrintWriter outPrintWriter = new PrintWriter(clientSocket.getOutputStream(), true);
                                 outPrintWriters.add(outPrintWriter);
