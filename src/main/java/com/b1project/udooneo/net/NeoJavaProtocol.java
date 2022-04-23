@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
  * GNU General Public License for more details.
  * <p>
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>>.
  */
 
 @SuppressWarnings("WeakerAccess")
@@ -392,7 +392,7 @@ public class NeoJavaProtocol {
 		final String values = String.format("r:%d\ng:%d\nb:%d", red, green, blue);
 		if(NeoJava.DEBUG) {
 			System.out.println("\nRGB command");
-			System.out.println(String.format("pos:%d", pos));
+			System.out.printf("pos:%d%n", pos);
 			System.out.println(values);
 			System.out.print("#:");
 		}
@@ -414,7 +414,7 @@ public class NeoJavaProtocol {
 			pwm_green.set8BitValue(green);
 			pwm_blue.set8BitValue(blue);
 		} catch (Exception e) {
-			System.err.println("\rError: " + e.toString());
+			System.err.println("\rError: " + e);
 			e.printStackTrace();
 			System.out.print("#:");
 		}
