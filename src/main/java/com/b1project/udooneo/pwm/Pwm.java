@@ -25,7 +25,7 @@ import java.util.Objects;
  * GNU General Public License for more details.
  * <p>
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>>.
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Pwm {
@@ -116,7 +116,7 @@ public class Pwm {
      * @throws Exception if period cannot be set (for example if period is smaller than current duty_cycle)
      */
     public void setPeriod(long period) throws Exception{
-        File file = new File(this.uri + PWM_PERIOD_PATH);
+        File file = new File(this.uri + "/pwm0" + PWM_PERIOD_PATH);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(period + "");
@@ -129,7 +129,7 @@ public class Pwm {
      * @throws Exception if period cannot be read
      */
     public long getPeriod() throws Exception{
-        String periodString = FileUtils.readFile(this.uri+ "/pwm0" + PWM_PERIOD_PATH);
+        String periodString = FileUtils.readFile(this.uri + "/pwm0" + PWM_PERIOD_PATH);
         return Long.parseLong(periodString);
     }
 
@@ -138,7 +138,7 @@ public class Pwm {
      * @throws Exception if duty_cycle cannot be set (for example if current period is smaller than duty_cycle)
      */
     public void setDutyCycle(long dutyCycle) throws Exception{
-        File file = new File(this.uri+ "/pwm0" + PWM_DUTY_CYCLE_PATH);
+        File file = new File(this.uri + "/pwm0" + PWM_DUTY_CYCLE_PATH);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(dutyCycle + "");
@@ -151,7 +151,7 @@ public class Pwm {
      * @throws Exception if duty_cycle cannot be read
      */
     public long getDutyCycle() throws Exception{
-        String dutyCycleString = FileUtils.readFile(this.uri+ "/pwm0" + PWM_DUTY_CYCLE_PATH);
+        String dutyCycleString = FileUtils.readFile(this.uri + "/pwm0" + PWM_DUTY_CYCLE_PATH);
         return Long.parseLong(dutyCycleString);
     }
 
